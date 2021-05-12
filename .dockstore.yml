@@ -1,0 +1,7 @@
+version: 1.2
+workflows:
+ - name: SS2_scRNA_pipeline
+   subclass: WDL
+   primaryDescriptorPath: /wdl/SS2_scRNA_pipeline.wdl
+   testParameterFiles:
+   - /input_json/ss2_scRNA_pipeline_inputs.json
