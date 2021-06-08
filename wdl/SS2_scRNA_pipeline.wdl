@@ -203,7 +203,7 @@ task ExtractQC_metrics {
     <(cat ${alignment_summary_metrics} | sed '/^#/d' | cut -f 2,7 | cut -f 2 | sed -n -e 2p -e 4p | sed 's/PCT_PF_READS_ALIGNED/PCT_ALIGNED_READ2/g') \
     <(cat ${rna_metrics} | sed '/^#/d' | cut -f 16-22,24-26 | grep -v ^$) \
     <(python3 /scripts/rsem_gene_results_metrics.py --rsem_genes_results ${rsem_gene_results}) > metrics_in_columns.txt
-    grep ^[A-Z] ${output_prefix}.metric_in_rows.txt | awk 'BEGIN{FS="\t"}{for(i=1; i<=NF; i++){a[NR,i] = $i}} NF>p { p = NF }END{for(j=1; j<=p; j++){str=a[1,j]; for(i=2; i<=NR; i++){if(a[i,j] == ""){a[i,j]=-1} str=str"\t"a[i,j]};print str}}' metrics_in_columns.txt > ${output_prefix}.metric_in_rows.txt
+    awk 'BEGIN{FS="\t"}{for(i=1; i<=NF; i++){a[NR,i] = $i}} NF>p { p = NF }END{for(j=1; j<=p; j++){str=a[1,j]; for(i=2; i<=NR; i++){if(a[i,j] == ""){a[i,j]=-1} str=str"\t"a[i,j]};print str}}' metrics_in_columns.txt | grep ^[A-Z] > ${output_prefix}.metric_in_rows.txt
 
     >>>
     runtime {
