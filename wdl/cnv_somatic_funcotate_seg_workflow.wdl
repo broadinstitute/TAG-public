@@ -154,6 +154,8 @@ task FuncotateSegments {
          tar zxvf ~{funcotator_data_sources_tar_gz} -C datasources_dir --strip-components 1
          DATA_SOURCES_FOLDER="$PWD/datasources_dir"
 
+         # Run IndexFeatureFile:
+         gatk IndexFeatureFile -I ~{input_seg_file}
          # Run FuncotateSegments:
          gatk --java-options "-Xmx~{command_mem_mb}m" FuncotateSegments \
              --data-sources-path $DATA_SOURCES_FOLDER \
