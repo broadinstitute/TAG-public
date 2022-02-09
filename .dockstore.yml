@@ -26,32 +26,32 @@ workflows:
    testParameterFiles:
    - /input_json/cnv_somatic_pair_workflow_inputs.json
  - name: GenerateDuplexConsensusBams
-   subclass : WDL
+   subclass: WDL
    primaryDescriptorPath: /wdl/GenerateDuplexConsensusBams.wdl
    testParameterFiles:
    - /input_json/MMRF_GenerateDuplexConsensusBams.json
  - name: MakeCallsFromConsensus
-   subclass : WDL
+   subclass: WDL
    primaryDescriptorPath: /wdl/MakeCallsFromConsensus.wdl
    testParameterFiles:
    - /input_json/MMRF_MakeCallsFromConsensus.json
  - name: GenerateReportMMRF
-   subclass : WDL
+   subclass: WDL
    primaryDescriptorPath: /wdl/GenerateReportMMRF.wdl
    testParameterFiles:
    - /input_json/MMRF_GenerateReport.json
  - name: maf_aggregator_SNV
-   subclass : WDL
+   subclass: WDL
    primaryDescriptorPath: /wdl/maf_aggregator_SNV.wdl
    testParameterFiles:
    - /input_json/MMRF_maf_aggregator_SNV.json
  - name: maf_aggregator_INDEL
-   subclass : WDL
+   subclass: WDL
    primaryDescriptorPath: /wdl/maf_aggregator_INDEL.wdl
    testParameterFiles:
    - /input_json/MMRF_maf_aggregator_INDEL.json
  - name: CollectGeneStatistics
-   subclass : WDL
+   subclass: WDL
    primaryDescriptorPath: /wdl/CollectGeneStatistics.wdl
    testParameterFiles:
    - /input_json/MMRF_CollectGeneStatistics.json
