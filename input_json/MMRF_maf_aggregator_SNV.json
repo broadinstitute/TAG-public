@@ -1,1 +1,0 @@
-{"maf_aggregator_workflow.maf_aggregator_task.cpus":"1","maf_aggregator_workflow.maf_aggregator_task.diskGB":"100","maf_aggregator_workflow.maf_aggregator_task.mafs":"${this.samples.funcotated_snp_maf}","maf_aggregator_workflow.maf_aggregator_task.memGB":"31","maf_aggregator_workflow.maf_aggregator_task.pSetID":"${this.name}"}
