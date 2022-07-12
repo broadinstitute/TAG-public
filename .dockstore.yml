@@ -25,3 +25,8 @@ workflows:
    primaryDescriptorPath: /wdl/cnv_somatic_pair_workflow.wdl
    testParameterFiles:
    - /input_json/cnv_somatic_pair_workflow_inputs.json
+ - name: cram_to_bam_workflow
+   subclass: WDL
+   primaryDescriptorPath: /wdl/CramToBam.wdl
+   testParameterFiles:
+   - /input_json/CramToBam_inputs.json
