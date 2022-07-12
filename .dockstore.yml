@@ -30,3 +30,8 @@ workflows:
    primaryDescriptorPath: /wdl/CramToBam.wdl
    testParameterFiles:
    - /input_json/CramToBam_inputs.json
+ - name: CollectSamErrorMetrics
+   subclass: WDL
+   primaryDescriptorPath: /wdl/CollectSamErrorMetrics.wdl
+   testParameterFiles:
+   - /input_json/CollectSamErrorMetrics_inputs.json
