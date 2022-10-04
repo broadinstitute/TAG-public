@@ -1,280 +1,297 @@
-#upload commands
-#docker run -it --rm -v "$HOME"/.config:/.config -v "$PWD":/working broadinstitute/firecloud-cli /bin/bash
-#firecloud -m push -s chrislo -n ichorcna -t Workflow -y "ichorcna" ichorcna.wdl 
-
-#todo:
-#put back NORMWIG, lambda etc.
-#put back "X"
-
 workflow ichorCNA {
-   # Disk size parameter
-   Int disk_size
+	File bam_file
+    File bam_index
+	String sample_id
+	String genomeBuild
+	File? normalPanel
+	Int bin_size_kb
+	Int bin_size = bin_size_kb*1000
+	File centromere
+	File gcWig
+	File mapWig
+	String genome_style
+	String chr_counter # All chromosomes for counting reads, as a list
+	String chrs # Autosomal and female chromosome for running ichor, as an R command
+	String chrTrain # Autosomal chromosomes to estimate ichor params, as an R command
+	Float maxFracCNASubclone
+	Float maxFracGenomeSubclone
 
-   # bamToWigTask
-   File bam_file
-   File bam_index_file
-   String sample_id
+	call read_counter {
+		input: bam_file = bam_file,
+        	   bam_index = bam_index,
+        	   sample_id = sample_id,
+			   bin_size = bin_size,
+			   chrs = chr_counter
+	}
 
-   # readsCorrectionTask
-   Boolean normalizeMaleX
-   String chrs
-   String chrNormalize
-   File centromere
-   File normalPanel
-   #File targetedSequence
-   #File NORMWIG
-   Int rmCentromereFlankLength
+	call ichorCNATask {
+		input: wig_file = read_counter.wig_file,
+			   genomeBuild = genomeBuild,
+			   sample_id = sample_id,
+			   normalPanel = normalPanel,
+			   bin_size_kb = bin_size_kb,
+			   chrs = chrs,
+			   chrTrain = chrTrain,
+			   centromere = centromere,
+			   genomeStyle = genome_style,
+			   input_gcWig = gcWig,
+			   input_mapWig = mapWig,
+               maxFracCNASubclone = maxFracCNASubclone,
+               maxFracGenomeSubclone = maxFracGenomeSubclone
 
-   # HMMTask
-   String ploidyParams
-   Boolean diploidChrX
-   String normal
-   Int maxCN
-   Boolean estimateNormal
-   Boolean estimatePloidy
-   Boolean includeHOMD
-   String chrTrain
-   Float txnE
-   Int txnStrength
-   String scStates
-   Boolean estimateScPrevalence
-   Float maxFracGenomeSubclone
-   Float maxFracCNASubclone
-   Int minSegmentBins
-   Float altFracThreshold
-   Int lambdaScaleHyperParam
-   Float mean_depth
+	}
+    call extractIchorParams {
+    	input: params = ichorCNATask.params,
+               maxFracCNASubclone = maxFracCNASubclone,
+               maxFracGenomeSubclone = maxFracGenomeSubclone
+    }
+    
+    call bundlePerChromosomePlots {
+    	input: chrom_plots = ichorCNATask.perChromosomePlots,
+        	   sample_id = sample_id
+    }
+    
+    output {
+    	File wig_file = read_counter.wig_file
+        
+		File allGenomeWidePlots = ichorCNATask.allGenomeWidePlots
+        File corrDepth = ichorCNATask.corrDepth
+        File cna = ichorCNATask.cna
+        File segTxt = ichorCNATask.segTxt
+        File seg = ichorCNATask.seg
+        File rdata = ichorCNATask.rdata
 
-   call bamToWigTask {
-	   input: disk_size = disk_size,
-              bam_file = bam_file,
-              bam_index_file = bam_index_file,
-              sample_id = sample_id
-   }
+		Float tumor_fraction = extractIchorParams.tumor_fraction
+		Float ploidy = extractIchorParams.ploidy
+		String subclone_fraction = extractIchorParams.subclone_fraction
+		String fraction_genome_subclonal = extractIchorParams.fraction_genome_subclonal
+		String fraction_cna_subclonal = extractIchorParams.fraction_cna_subclonal
+		String gc_map_correction_mad = extractIchorParams.gc_map_correction_mad
+        Int top_solution_log_likelihood = extractIchorParams.top_solution_log_likelihood
 
-   call readsCorrectionTask {
-      input: disk_size = disk_size,
-             wig_file = bamToWigTask.wig_file,
-             sample_id = sample_id,
-             normalizeMaleX = normalizeMaleX,
-             chrs = chrs,
-             chrNormalize = chrNormalize,
-             centromere = centromere,
-             normalPanel = normalPanel,
-             rmCentromereFlankLength = rmCentromereFlankLength
-   }
+		File bias = ichorCNATask.bias
+		File tpdf = ichorCNATask.tpdf
+		File correct = ichorCNATask.correct
+		File params = ichorCNATask.params
 
-   call HMMTask {
-      input: disk_size = disk_size,
-             tumorCorrectedDepth_Rdata = readsCorrectionTask.tumorCorrectedDepthRdata,
-             sample_id = sample_id,
-             ploidyParams = ploidyParams,
-             diploidChrX = diploidChrX,
-             normal = normal,
-             maxCN = maxCN,
-             estimateNormal = estimateNormal,
-             estimatePloidy = estimatePloidy,
-             includeHOMD = includeHOMD,
-             chrs = chrs,
-             chrTrain = chrTrain,
-             txnE = txnE,
-             txnStrength = txnStrength,
-             scStates = scStates,
-             estimateScPrevalence = estimateScPrevalence,
-             maxFracGenomeSubclone = maxFracGenomeSubclone,
-             maxFracCNASubclone = maxFracCNASubclone,
-             minSegmentBins = minSegmentBins,
-             altFracThreshold = altFracThreshold,
-             lambdaScaleHyperParam = lambdaScaleHyperParam,
-             mean_depth = mean_depth
-   }
+		File optimalSolution = ichorCNATask.optimalSolution
+		File outSolutions = ichorCNATask.outSolutions
+		File perChromosomePlots = bundlePerChromosomePlots.output_plot
+    }
+}
 
-   call BundlePerChromosomePlots {
-       input: chrom_plots = HMMTask.perChromosomePlots,
-              sample_id = sample_id
-   }
+task read_counter {
+	File bam_file
+	File bam_index
+	String chrs
+	String sample_id
+	Int bin_size
 
-   output {
-      File allGenomeWidePlots = HMMTask.allGenomeWidePlots
+	Int? min_qual = 20
+	Int? memGB = 4
+	Int? diskGB = 50
+	Int? preemptible = 2
+    
+    String? docker_override
 
-      Float tumor_fraction = HMMTask.tumor_fraction
-      Float ploidy = HMMTask.ploidy
-      String subclone_fraction = HMMTask.subclone_fraction
-      String fraction_genome_subclonal = HMMTask.fraction_genome_subclonal
-      String fraction_cna_subclonal = HMMTask.fraction_cna_subclonal
-      String gc_map_correction_mad = HMMTask.gc_map_correction_mad
+	command {
+		ln -vs ${bam_index} ${sample_id}.bam.bai
+		ln -vs ${bam_file} ${sample_id}.bam
 
-      File bias = HMMTask.bias
-      File tpdf = HMMTask.tpdf
-      File correct = HMMTask.correct
-      File params = HMMTask.params
-      
-      File optimalSolution = HMMTask.optimalSolution
-      File outSolutions = HMMTask.outSolutions
-      File perChromosomePlots = BundlePerChromosomePlots.output_plot
-   }
+		/HMMcopy/bin/readCounter ${sample_id}.bam -c ${chrs} -w ${bin_size}  \
+		-q ${min_qual} > ${sample_id}.bin${bin_size}.wig
+	}
+
+	runtime {
+		docker: select_first([docker_override, "us.gcr.io/tag-team-160914/bloodbiopsy-hmmcopy:0.0.1"])
+		disks: "local-disk ${diskGB} HDD"
+		memory: "${memGB}GB"
+		preemptible: "${preemptible}"
+		maxRetries: 1
+	}
+
+	output {
+		File wig_file = "${sample_id}.bin${bin_size}.wig"
+	}
+}
+
+task ichorCNATask {
+	File wig_file
+	File? normalPanel
+	String genomeBuild
+	Int bin_size_kb
+    Float? mean_depth
+	String sample_id
+	String ploidy
+	String normal
+	Int maxCN
+	Boolean includeHOMD
+	String chrs
+	String chrTrain
+    String chrNormalize
+	String genomeStyle
+	Boolean estimateNormal
+	Boolean estimatePloidy
+	Boolean estimateClonality
+	String scStates
+	File centromere
+	File? exons
+	Float txnE
+	Int txnStrength
+    Int minSegmentBins
+	Float minMapScore
+	Float fracReadsChrYMale
+	Float maxFracCNASubclone
+	Float maxFracGenomeSubclone
+    Float altFracThreshold
+    Int lambdaScaleHyperParam
+    Int rmCentromereFlankLength
+	String? plotFileType = "pdf"
+	String plotYlim
+	File input_gcWig
+	File input_mapWig
+
+	Int? memGB = 4
+	Int? diskGB = 50
+	Int? preemptible = 2
+    Int? maxRetries = 1
+    
+    String? docker_override
+
+	command <<<
+
+		Rscript /runIchorCNA.R --id ${sample_id} \
+		--outDir ./ --libdir /ichorCNA \
+		--WIG ${wig_file} \
+		--gcWig  ${input_gcWig} \
+		--mapWig ${input_mapWig} \
+		--normalPanel ${default="None" normalPanel} \
+		--ploidy "${ploidy}" \
+		--normal "${normal}" \
+        ${"--coverage " + mean_depth} \
+		--maxCN ${maxCN} \
+		--includeHOMD ${includeHOMD} \
+		--chrs "${chrs}" \
+		--chrTrain "${chrTrain}" \
+        --chrNormalize "${chrNormalize}" \
+		--genomeStyle "${genomeStyle}" \
+		--genomeBuild "${genomeBuild}" \
+		--estimateNormal ${estimateNormal} \
+		--estimatePloidy ${estimatePloidy}  \
+		--estimateScPrevalence ${estimateClonality} \
+		--scStates "${scStates}" \
+		--centromere ${centromere} \
+		${"--exons.bed " + exons} \
+		--txnE ${txnE} \
+		--txnStrength ${txnStrength} \
+        --minSegmentBins ${minSegmentBins} \
+		--minMapScore ${minMapScore} \
+        --lambdaScaleHyperParam ${lambdaScaleHyperParam} \
+		--fracReadsInChrYForMale ${fracReadsChrYMale} \
+		--maxFracGenomeSubclone ${maxFracGenomeSubclone} \
+        --altFracThreshold ${altFracThreshold} \
+		--maxFracCNASubclone ${maxFracCNASubclone} \
+        --rmCentromereFlankLength ${rmCentromereFlankLength} \
+		--plotFileType ${plotFileType} \
+		--plotYLim "${plotYlim}"
+
+		# Zip optimal solutions
+		mkdir ${sample_id}.optimalSolution
+		cp ${sample_id}/${sample_id}_genomeWide.pdf ${sample_id}.cna.seg ${sample_id}.seg.txt ${sample_id}.seg ${sample_id}.optimalSolution/
+		zip -r ${sample_id}.optimalSolution.zip ${sample_id}.optimalSolution
+        
+        # Generate list of out solutions
+        Rscript /gatherOutSolutions.R --id ${sample_id} --rdata ${sample_id}.RData
+	>>>
+
+	runtime {
+		docker: select_first([docker_override, "us.gcr.io/tag-team-160914/bloodbiopsy-ichorcna:0.2.1"])
+		disks: "local-disk " + diskGB + " HDD"
+		memory: memGB + " GB"
+		preemptible: preemptible
+		maxRetries: maxRetries
+	}
+
+	output {
+		File corrDepth = "${sample_id}.correctedDepth.txt"
+		File params = "${sample_id}.params.txt"
+		File cna = "${sample_id}.cna.seg"
+		File segTxt = "${sample_id}.seg.txt"
+		File seg = "${sample_id}.seg"
+		File rdata = "${sample_id}.RData"
+
+		File allGenomeWidePlots = "${sample_id}/${sample_id}_genomeWide_all_sols.pdf"
+		File bias = "${sample_id}/${sample_id}_bias.pdf"
+		File tpdf = "${sample_id}/${sample_id}_tpdf.pdf"
+		File correct = "${sample_id}/${sample_id}_correct.pdf"
+		Array[File] perChromosomePlots = glob("${sample_id}/${sample_id}_CNA*")
+
+		File optimalSolution = "${sample_id}.optimalSolution.zip"
+        File outSolutions = "${sample_id}.outSolutions.zip"
+	}
+
 }
 
 
-task bamToWigTask {
-   Int disk_size
-   File bam_file
-   File bam_index_file
-   String sample_id
+task extractIchorParams {
+	File params
+    Float maxFracCNASubclone
+	Float maxFracGenomeSubclone
 
-   command <<<
-      ln -vs ${bam_index_file} ${sample_id}.bam.bai
-      ln -vs ${bam_file} ${sample_id}.bam
+	command <<<
+    	cut -f1,2 ${params} | grep -v ^$ | tr "\t" " " > params_table.txt
+python<<CODE
+solutions = open('${params}').readlines()
+sols = [x.rstrip("\n").split("\t") for x in solutions if x.startswith("n0.")]
+log_lik=0
+for sol in sols:
+	if int(float(sol[6]))>log_lik and float(sol[4])<${maxFracGenomeSubclone} and float(sol[5])<${maxFracCNASubclone}:
+		log_lik=int(float(sol[6]))
+params = open("params_table.txt","r").readlines()
+params = [x.rstrip("\n").split(": ") for x in params if ":" in x]
+param_dict = dict()
+for a,b in params:
+	param_dict[a] = b
+p=open("tumor_fraction","w"); p.write(param_dict["Tumor Fraction"])
+p=open("ploidy","w"); p.write(param_dict["Ploidy"])
+p=open("subclone_fraction","w"); p.write(param_dict["Subclone Fraction"])
+p=open("fraction_genome_subclonal","w"); p.write(param_dict["Fraction Genome Subclonal"])
+p=open("fraction_cna_subclonal","w"); p.write(param_dict["Fraction CNA Subclonal"])
+p=open("gc-map_correction_mad","w"); p.write(param_dict["GC-Map correction MAD"])
+p=open("top_solution_log_likelihood","w"); p.write(str(log_lik))
+p.close()
+CODE
+	>>>
 
-      /HMMcopy/bin/readCounter --window 1000000 \
-                               --quality 20 \
-                               --chromosome "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,X,Y" \
-                               ${sample_id}.bam > ${sample_id}.wig
-   >>>
-   output {
-      File wig_file = "${sample_id}.wig"
-   }
-   runtime {
-      docker: "us.gcr.io/tag-team-160914/bloodbiopsy-hmmcopy:0.0.1"
-      disks: "local-disk ${disk_size} HDD"
-      preemptible: 3
-   }
+	runtime {
+		docker: "python:3"
+    	memory: "2 GB"
+    	disks: "local-disk 10 HDD"
+    	preemptible: 1
+    	maxRetries: 1
+	}
+
+    output {
+    	Float tumor_fraction = read_float("tumor_fraction")
+    	Float ploidy = read_float("ploidy")
+    	String subclone_fraction = read_string("subclone_fraction")
+    	String fraction_genome_subclonal = read_string("fraction_genome_subclonal")
+    	String fraction_cna_subclonal = read_string("fraction_cna_subclonal")
+    	String gc_map_correction_mad = read_string("gc-map_correction_mad")
+        Int top_solution_log_likelihood = read_int("top_solution_log_likelihood")
+    }
 }
 
-
-task readsCorrectionTask {
-   Int disk_size
-   File wig_file
-   String sample_id
-   Boolean normalizeMaleX
-   String chrs
-   String chrNormalize
-   File centromere
-   File normalPanel
-   #File targetedSequence
-   #File NORMWIG
-   Int rmCentromereFlankLength
-
-   command <<<
-      Rscript /readsCorrection.R --libdir /ichorCNA/R/ \
-                                 --datadir /ichorCNA/inst/extdata/ \
-                                 --id ${sample_id} \
-                                 --WIG ${wig_file} \
-                                 --normalizeMaleX ${normalizeMaleX} \
-                                 --chrs "${chrs}" \
-                                 --chrNormalize "${chrNormalize}" \
-                                 --centromere ${centromere} \
-                                 --normalPanel ${normalPanel} \
-                                 --rmCentromereFlankLength ${rmCentromereFlankLength} \
-                                 --outDir . 
-   >>>
-   output {
-      File correctedDepth = "${sample_id}/${sample_id}.correctedDepth.txt"
-      File tumorCorrectedDepthRdata = "${sample_id}/${sample_id}.tumor_copy_correctedDepth.RData"
-   }
-   runtime {
-      docker: "us.gcr.io/tag-team-160914/bloodbiopsy-ichorcna:0.0.1"
-      disks: "local-disk ${disk_size} HDD"
-      preemptible: 3
-   }
-}
-
-
-task HMMTask {
-   Int disk_size
-   File tumorCorrectedDepth_Rdata
-   String sample_id
-   String ploidyParams
-   Boolean diploidChrX
-   String normal
-   Int maxCN
-   Boolean estimateNormal
-   Boolean estimatePloidy
-   Boolean includeHOMD
-   String chrs
-   String chrTrain
-   Float txnE
-   Int txnStrength
-   String scStates
-   Boolean estimateScPrevalence
-   Float maxFracGenomeSubclone
-   Float maxFracCNASubclone
-   Int minSegmentBins
-   Float altFracThreshold
-   Int lambdaScaleHyperParam
-   Float mean_depth
-
-   command <<<
-      Rscript /HMM.R --libdir /ichorCNA/R/ \
-                     --id ${sample_id} \
-                     --tumourCopyCorrected ${tumorCorrectedDepth_Rdata} \
-                     --ploidy "${ploidyParams}" \
-                     --diploidChrX ${diploidChrX} \
-                     --normal "${normal}" \
-                     --maxCN ${maxCN} \
-                     --estimateNormal ${estimateNormal} \
-                     --estimatePloidy ${estimatePloidy} \
-                     --includeHOMD ${includeHOMD} \
-                     --chrs "${chrs}" \
-                     --chrTrain "${chrTrain}" \
-                     --txnE ${txnE} \
-                     --txnStrength ${txnStrength} \
-                     --scStates "${scStates}" \
-                     --estimateScPrevalence ${estimateScPrevalence} \
-                     --maxFracGenomeSubclone ${maxFracGenomeSubclone} \
-                     --maxFracCNASubclone ${maxFracCNASubclone} \
-                     --minSegmentBins ${minSegmentBins} \
-                     --altFracThreshold ${altFracThreshold} \
-                     --lambdaScaleHyperParam ${lambdaScaleHyperParam} \
-                     --coverage ${mean_depth} --outDir .
-
-      # Extract sample stats: though a bit ugly, grep'ing all the values
-      grep "^Tumor Fraction" ${sample_id}/${sample_id}.params.txt | cut -f2 > tumor_fraction
-      grep "^Ploidy" ${sample_id}/${sample_id}.params.txt | cut -f2 > ploidy
-      grep "^Subclone Fraction" ${sample_id}/${sample_id}.params.txt | cut -f2 > subclone_fraction
-      grep "^Fraction Genome Subclonal" ${sample_id}/${sample_id}.params.txt | cut -f2 > fraction_genome_subclonal
-      grep "^Fraction CNA Subclonal" ${sample_id}/${sample_id}.params.txt | cut -f2 > fraction_cna_subclonal
-      grep "^GC-Map correction MAD" ${sample_id}/${sample_id}.params.txt | cut -f2 > gc-map_correction_mad
-
-      # Zip optimal solutions
-      mkdir ${sample_id}.optimalSolution
-      mv ${sample_id}/optimalSolution/* ${sample_id}.optimalSolution
-      zip -r ${sample_id}.optimalSolution.zip ${sample_id}.optimalSolution
-      
-      # Zip the other solutions
-      mkdir ${sample_id}.outSolutions
-      mv ${sample_id}/n*/* ${sample_id}.outSolutions
-      zip -r ${sample_id}.outSolutions.zip ${sample_id}.outSolutions
-   >>>
-   output {
-      File allGenomeWidePlots = "${sample_id}/${sample_id}_genomeWide_all_sols.pdf"
-
-      Float tumor_fraction = read_float("tumor_fraction")
-      Float ploidy = read_float("ploidy")
-      String subclone_fraction = read_string("subclone_fraction")
-      String fraction_genome_subclonal = read_string("fraction_genome_subclonal")
-      String fraction_cna_subclonal = read_string("fraction_cna_subclonal")
-      String gc_map_correction_mad = read_string("gc-map_correction_mad")
-
-      File bias = "${sample_id}/${sample_id}_bias.pdf"
-      File tpdf = "${sample_id}/${sample_id}_tpdf.pdf"
-      File correct = "${sample_id}/${sample_id}_correct.pdf"
-      File params = "${sample_id}/${sample_id}.params.txt"
-      
-      File optimalSolution = "${sample_id}.optimalSolution.zip"
-      File outSolutions = "${sample_id}.outSolutions.zip"
-      Array[File] perChromosomePlots = glob("${sample_id}/${sample_id}_CNA*")
-   }
-   runtime {
-      docker: "us.gcr.io/tag-team-160914/bloodbiopsy-ichorcna:0.0.1"
-      disks: "local-disk ${disk_size} HDD"
-      preemptible: 3
-   }
-}
-
-task BundlePerChromosomePlots {
+task bundlePerChromosomePlots {
    Array[File] chrom_plots
    String sample_id
+   
+   Int? memGB = 2
+   Int? diskGB = 10
+   Int? preemptible = 3
+   Int? maxRetries = 1
+   
+   String? docker_override
 
    command <<<
       set -e
@@ -288,9 +305,10 @@ task BundlePerChromosomePlots {
       File output_plot = "${sample_id}_OptimalSolutionPerChrom.pdf"
    }
    runtime {
-      docker: "us.gcr.io/tag-team-160914/tag-tools:0.0.4"
-      memory: "1 GB"
-      disks: "local-disk 2 HDD"
-      preemptible: 3
+      docker: select_first([docker_override, "us.gcr.io/tag-team-160914/tag-tools:1.0.0"])
+      memory: memGB + " GB"
+      disks: "local-disk " + diskGB + " HDD"
+      preemptible: preemptible
+      maxRetries: maxRetries
    }
 }
