@@ -5,15 +5,36 @@ workflow Benchmark_CNV_Caller {
         String gatk_docker
         File variant_callset
         String sample_name
+        File eval_vcf
+        File wittyer_config
+        String wittyer_docker
+        String wittyer_evaluation_mode
     }
+
+    # Select vcf for specific sample
     call SelectVariant {
         input:
         gatk_docker = gatk_docker,
         vcf = variant_callset,
         sample_name = sample_name
     }
+
+    # benchmark cnv.vcf using witty.er
+    call BenchmarkCNV {
+        input:
+        wittyer_docker = wittyer_docker,
+        truth_vcf = SelectVariant.output_vcf,
+        eval_vcf = eval_vcf,
+        sample_name = sample_name,
+        config_file = wittyer_config,
+        evaluation_mode = wittyer_evaluation_mode
+    }
+
+    # Outputs that will be retained when execution is complete
     output {
-        File outfile = SelectVariant.output_vcf
+        File truth_vcf = SelectVariant.output_vcf
+        File wittyer_annotated_vcf = BenchmarkCNV.wittyer_annotated_vcf
+        File wittyer_stats = BenchmarkCNV.wittyer_stats
     }
 }
 
@@ -54,5 +75,43 @@ workflow Benchmark_CNV_Caller {
     }
     output {
         File output_vcf = "~{sample_name}_filtered.vcf"
+    }
+
+}
+
+    # Task 2: Benchmark the large variant vcf against
+    task BenchmarkCNV {
+
+    input {
+        String wittyer_docker
+        File truth_vcf
+        File eval_vcf
+        File config_file
+        String evaluation_mode
+        String sample_name
+        Int? mem
+        Int? disk_space
+        # If mem and disk size were not specified, use 4GB and 100 GB as default
+        Int mem_size = select_first([mem, 4])
+        Int disk_size = select_first([disk_space,100])
+}
+    command <<<
+    set -e
+    /opt/Wittyer/Wittyer.dll -i ~{eval_vcf} \
+    -t ~{truth_vcf} \
+    -em ~{evaluation_mode} \
+    --configFile ~{config_file} \
+    -o ~{sample_name}_wittyer_output
+    >>>
+    runtime {
+        docker: wittyer_docker
+        bootDiskSizeGb: 12
+        memory: mem_size + " GB"
+        disks: "local-disk " + disk_size + " HDD"
+        preemptible: 2
+    }
+    output {
+        File wittyer_annotated_vcf = "~{sample_name}_wittyer_output/*.vcf.gz"
+        File wittyer_stats = "~{sample_name}_wittyer_output/Wittyer.Stats.json"
     }
 }
