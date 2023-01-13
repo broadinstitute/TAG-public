@@ -1,0 +1,5 @@
+{
+  "Benchmark_CNV_Caller.gatk_docker": "us.gcr.io/broad-gatk/gatk:4.3.0.0",
+  "Benchmark_CNV_Caller.variant_callset": "gs://gptag/tag_1455_Dragen_CNV_Caller_Validation/1KGP_3202.gatksv_svtools_novelins.freeze_V3_fixed.wAF.vcf",
+  "Benchmark_CNV_Caller.sample_name": "HG00512"
+}
