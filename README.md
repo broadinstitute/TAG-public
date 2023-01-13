@@ -8,7 +8,7 @@ A pipeline for quality control of Smart Seq single cell analysis:
 * SS2_scRNA_pipeline
 * SC_Plate_QC
 
-## ichor 
+## ichorCNA 
 A workflow that estimates tumor purity and ploidy of blood samples using ultra-low pass (ULP) whole-genome sequencing 
 (WGS) technology. 
 * ichorCNA_step1
