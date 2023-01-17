@@ -33,7 +33,6 @@ workflow Benchmark_CNV_Caller {
     # Outputs that will be retained when execution is complete
     output {
         File truth_vcf = SelectVariant.output_vcf
-        File wittyer_annotated_vcf = BenchmarkCNV.wittyer_annotated_vcf
         File wittyer_stats = BenchmarkCNV.wittyer_stats
     }
 }
@@ -112,7 +111,6 @@ workflow Benchmark_CNV_Caller {
         preemptible: 2
     }
     output {
-        File wittyer_annotated_vcf = "~{sample_name}_wittyer_output/*.vcf.gz"
         File wittyer_stats = "~{sample_name}_wittyer_output/Wittyer.Stats.json"
     }
 }
