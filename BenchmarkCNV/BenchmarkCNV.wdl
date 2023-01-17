@@ -170,6 +170,7 @@ workflow Benchmark_CNV_Caller {
         }
         command <<<
             set -e
+            conda init bash
             conda activate wittyer-parser
 
             # Run wittyer4mat script on cnv wittyer output
