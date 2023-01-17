@@ -85,13 +85,12 @@ workflow Benchmark_CNV_Caller {
             gatk --java-options "-Xmx4g" SelectVariants \
             -V ~{vcf} \
             --sample-name ~{truth_sample_name} \
-            --exclude-non-variants \
-            --remove-unused-alternates \
             -O ~{truth_sample_name}.vcf
 
             # Remove Complex SV from the sample vcf because wittyer can't process CPX variants
             # Remove INV from the sample vcf because wittyer's exception
-            cat ~{truth_sample_name}.vcf | grep -v '<CPX>' | grep -v '<INV>' > ~{truth_sample_name}_filtered.vcf
+            # Check manually remove reference allele
+            cat ~{truth_sample_name}.vcf | grep -v '<CPX>' | grep -v '<INV>' | grep -v '0/0:' > ~{truth_sample_name}_filtered.vcf
         >>>
         runtime {
             docker: gatk_docker
