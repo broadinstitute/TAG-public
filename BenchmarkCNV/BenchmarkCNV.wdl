@@ -5,8 +5,8 @@ workflow Benchmark_CNV_Caller {
         String gatk_docker
         File variant_callset
         String sample_name
-        File eval_vcf
-        File wittyer_config
+        File eval_cnv_vcf
+        File wittyer_cnv_config
         String wittyer_docker
         String wittyer_evaluation_mode
     }
@@ -24,9 +24,9 @@ workflow Benchmark_CNV_Caller {
         input:
         wittyer_docker = wittyer_docker,
         truth_vcf = SelectVariant.output_vcf,
-        eval_vcf = eval_vcf,
+        eval_cnv_vcf = eval_cnv_vcf,
         sample_name = sample_name,
-        config_file = wittyer_config,
+        cnv_config_file = wittyer_cnv_config,
         evaluation_mode = wittyer_evaluation_mode
     }
 
@@ -34,8 +34,8 @@ workflow Benchmark_CNV_Caller {
     output {
         File truth_vcf = SelectVariant.output_vcf
         File wittyer_stats = BenchmarkCNV.wittyer_stats
-        File wittyer_annotated_vcf = BenchmarkCNV.wittyer_annotated_vcf
-        File wittyer_annotated_vcf_index = BenchmarkCNV.wittyer_annotated_vcf_index
+        Array[File] wittyer_annotated_vcf = BenchmarkCNV.wittyer_annotated_vcf
+        Array[File] wittyer_annotated_vcf_index = BenchmarkCNV.wittyer_annotated_vcf_index
     }
 }
 
@@ -86,8 +86,8 @@ workflow Benchmark_CNV_Caller {
     input {
         String wittyer_docker
         File truth_vcf
-        File eval_vcf
-        File config_file
+        File eval_cnv_vcf
+        File cnv_config_file
         String evaluation_mode
         String sample_name
         Int? mem
@@ -98,11 +98,11 @@ workflow Benchmark_CNV_Caller {
 }
     command <<<
     set -e
-    # Run Benchmarking tool wittyer
-    /opt/Wittyer/Wittyer -i ~{eval_vcf} \
+    # Run Benchmarking tool wittyer on dragen generated cnv.vcf
+    /opt/Wittyer/Wittyer -i ~{eval_cnv_vcf} \
     -t ~{truth_vcf} \
     -em ~{evaluation_mode} \
-    --configFile ~{config_file} \
+    --configFile ~{cnv_config_file} \
     -o ~{sample_name}_wittyer_output
     >>>
     runtime {
@@ -114,7 +114,7 @@ workflow Benchmark_CNV_Caller {
     }
     output {
         File wittyer_stats = "~{sample_name}_wittyer_output/Wittyer.Stats.json"
-        File wittyer_annotated_vcf = glob("~{sample_name}_wittyer_output/*.vcf.gz")
-        File wittyer_annotated_vcf_index = glob("~{sample_name}_wittyer_output/*.vcf.gz.tbi")
+        Array[File] wittyer_annotated_vcf = glob("~{sample_name}_wittyer_output/*.vcf.gz")
+        Array[File] wittyer_annotated_vcf_index = glob("~{sample_name}_wittyer_output/*.vcf.gz.tbi")
     }
 }
