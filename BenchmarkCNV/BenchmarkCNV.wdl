@@ -8,7 +8,7 @@ workflow Benchmark_CNV_Caller {
         File eval_cnv_vcf
         File wittyer_cnv_config
         String wittyer_docker
-        String wittyer_evaluation_mode
+        String wittyer_cnv_evaluation_mode
     }
 
     # Select vcf for specific sample
@@ -27,7 +27,7 @@ workflow Benchmark_CNV_Caller {
         eval_cnv_vcf = eval_cnv_vcf,
         sample_name = sample_name,
         cnv_config_file = wittyer_cnv_config,
-        evaluation_mode = wittyer_evaluation_mode
+        cnv_evaluation_mode = wittyer_cnv_evaluation_mode
     }
 
     # Outputs that will be retained when execution is complete
@@ -88,7 +88,7 @@ workflow Benchmark_CNV_Caller {
         File truth_vcf
         File eval_cnv_vcf
         File cnv_config_file
-        String evaluation_mode
+        String cnv_evaluation_mode
         String sample_name
         Int? mem
         Int? disk_space
@@ -101,7 +101,7 @@ workflow Benchmark_CNV_Caller {
     # Run Benchmarking tool wittyer on dragen generated cnv.vcf
     /opt/Wittyer/Wittyer -i ~{eval_cnv_vcf} \
     -t ~{truth_vcf} \
-    -em ~{evaluation_mode} \
+    -em ~{cnv_evaluation_mode} \
     --configFile ~{cnv_config_file} \
     -o ~{sample_name}_wittyer_output
     >>>
