@@ -4,7 +4,8 @@ workflow Benchmark_CNV_Caller {
     input {
         String gatk_docker
         File variant_callset
-        String sample_name
+        String truth_sample_name
+        String query_sample_name
         File eval_cnv_vcf
         File wittyer_cnv_config
         String wittyer_docker
@@ -14,28 +15,29 @@ workflow Benchmark_CNV_Caller {
     # Select vcf for specific sample
     call SelectVariant {
         input:
-        gatk_docker = gatk_docker,
-        vcf = variant_callset,
-        sample_name = sample_name
+            gatk_docker = gatk_docker,
+            vcf = variant_callset,
+            truth_sample_name = truth_sample_name
     }
 
     # benchmark cnv.vcf using witty.er
     call BenchmarkCNV {
         input:
-        wittyer_docker = wittyer_docker,
-        truth_vcf = SelectVariant.output_vcf,
-        eval_cnv_vcf = eval_cnv_vcf,
-        sample_name = sample_name,
-        cnv_config_file = wittyer_cnv_config,
-        cnv_evaluation_mode = wittyer_cnv_evaluation_mode
+            wittyer_docker = wittyer_docker,
+            truth_vcf = SelectVariant.output_vcf,
+            eval_cnv_vcf = eval_cnv_vcf,
+            truth_sample_name = truth_sample_name,
+            query_sample_name = query_sample_name,
+            cnv_config_file = wittyer_cnv_config,
+            cnv_evaluation_mode = wittyer_cnv_evaluation_mode
     }
 
     # Outputs that will be retained when execution is complete
     output {
         File truth_vcf = SelectVariant.output_vcf
         File wittyer_stats = BenchmarkCNV.wittyer_stats
-        Array[File] wittyer_annotated_vcf = BenchmarkCNV.wittyer_annotated_vcf
-        Array[File] wittyer_annotated_vcf_index = BenchmarkCNV.wittyer_annotated_vcf_index
+        File wittyer_annotated_vcf = BenchmarkCNV.wittyer_annotated_vcf
+        File wittyer_annotated_vcf_index = BenchmarkCNV.wittyer_annotated_vcf_index
     }
 }
 
@@ -45,7 +47,7 @@ workflow Benchmark_CNV_Caller {
     input {
         String gatk_docker
         File vcf
-        String sample_name
+        String truth_sample_name
         Int? mem
         Int? disk_space
         # If mem and disk size were not specified, use 4GB and 100 GB as default
@@ -58,14 +60,14 @@ workflow Benchmark_CNV_Caller {
         export PATH="/gatk:$PATH"
         gatk --java-options "-Xmx4g" SelectVariants \
         -V ~{vcf} \
-        --sample-name ~{sample_name} \
+        --sample-name ~{truth_sample_name} \
         --exclude-non-variants \
         --remove-unused-alternates \
-        -O ~{sample_name}.vcf
+        -O ~{truth_sample_name}.vcf
 
         # Remove Complex SV from the sample vcf because wittyer can't process CPX variants
         # Remove INV from the sample vcf because wittyer's exception
-        cat ~{sample_name}.vcf | grep -v '<CPX>' | grep -v '<INV>' > ~{sample_name}_filtered.vcf
+        cat ~{truth_sample_name}.vcf | grep -v '<CPX>' | grep -v '<INV>' > ~{truth_sample_name}_filtered.vcf
     >>>
     runtime {
         docker: gatk_docker
@@ -75,7 +77,7 @@ workflow Benchmark_CNV_Caller {
         preemptible: 2
     }
     output {
-        File output_vcf = "~{sample_name}_filtered.vcf"
+        File output_vcf = "~{truth_sample_name}_filtered.vcf"
     }
 
 }
@@ -89,7 +91,8 @@ workflow Benchmark_CNV_Caller {
         File eval_cnv_vcf
         File cnv_config_file
         String cnv_evaluation_mode
-        String sample_name
+        String truth_sample_name
+        String query_sample_name
         Int? mem
         Int? disk_space
         # If mem and disk size were not specified, use 4GB and 100 GB as default
@@ -97,13 +100,14 @@ workflow Benchmark_CNV_Caller {
         Int disk_size = select_first([disk_space,100])
 }
     command <<<
-    set -e
-    # Run Benchmarking tool wittyer on dragen generated cnv.vcf
-    /opt/Wittyer/Wittyer -i ~{eval_cnv_vcf} \
-    -t ~{truth_vcf} \
-    -em ~{cnv_evaluation_mode} \
-    --configFile ~{cnv_config_file} \
-    -o ~{sample_name}_wittyer_output
+        set -e
+        # Run Benchmarking tool wittyer on dragen generated cnv.vcf
+        /opt/Wittyer/Wittyer -i ~{eval_cnv_vcf} \
+        -t ~{truth_vcf} \
+        -em ~{cnv_evaluation_mode} \
+        --configFile ~{cnv_config_file} \
+        -o ~{truth_sample_name}_wittyer_output
+
     >>>
     runtime {
         docker: wittyer_docker
@@ -113,8 +117,8 @@ workflow Benchmark_CNV_Caller {
         preemptible: 2
     }
     output {
-        File wittyer_stats = "~{sample_name}_wittyer_output/Wittyer.Stats.json"
-        Array[File] wittyer_annotated_vcf = glob("~{sample_name}_wittyer_output/*.vcf.gz")
-        Array[File] wittyer_annotated_vcf_index = glob("~{sample_name}_wittyer_output/*.vcf.gz.tbi")
+        File wittyer_stats = "~{truth_sample_name}_wittyer_output/Wittyer.Stats.json"
+        File wittyer_annotated_vcf = "~{truth_sample_name}_wittyer_output/Wittyer.~{truth_sample_name}.Vs.~{query_sample_name}.vcf.gz"
+        File wittyer_annotated_vcf_index = glob("~{truth_sample_name}_wittyer_output/Wittyer.~{truth_sample_name}.Vs.~{query_sample_name}.vcf.gz.tbi")
     }
 }
