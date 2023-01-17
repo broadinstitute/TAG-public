@@ -97,6 +97,8 @@ workflow Benchmark_CNV_Caller {
 }
     command <<<
     set -e
+    # Run Benchmarking tool wittyer
+    /opt/Wittyer/Wittyer
     -i ~{eval_vcf} \
     -t ~{truth_vcf} \
     -em ~{evaluation_mode} \
