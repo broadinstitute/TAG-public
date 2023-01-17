@@ -170,17 +170,19 @@ workflow Benchmark_CNV_Caller {
         }
         command <<<
             set -e
-            conda init bash
-            conda activate wittyer-parser
 
             # Run wittyer4mat script on cnv wittyer output
             mkdir ~{truth_sample_name}_cnv_wittyer4mat
+            conda run --no-capture-output \
+            -n wittyer-parser \
             python3 /wittyer4mat/wittyer_4mat.py -i ~{cnv_wittyer_stats} \
             -t cnv \
             -o ~{truth_sample_name}_cnv_wittyer4mat
 
             # Run wittyer4mat script on sv wittyer output
             mkdir ~{truth_sample_name}_sv_wittyer4mat
+            conda run --no-capture-output \
+            -n wittyer-parser \
             python3 /wittyer4mat/wittyer_4mat.py -i ~{sv_wittyer_stats} \
             -t sv \
             -o ~{truth_sample_name}_sv_wittyer4mat
