@@ -34,6 +34,8 @@ workflow Benchmark_CNV_Caller {
     output {
         File truth_vcf = SelectVariant.output_vcf
         File wittyer_stats = BenchmarkCNV.wittyer_stats
+        File wittyer_annotated_vcf = BenchmarkCNV.wittyer_annotated_vcf
+        File wittyer_annotated_vcf_index = BenchmarkCNV.wittyer_annotated_vcf_index
     }
 }
 
@@ -112,5 +114,7 @@ workflow Benchmark_CNV_Caller {
     }
     output {
         File wittyer_stats = "~{sample_name}_wittyer_output/Wittyer.Stats.json"
+        File wittyer_annotated_vcf = glob("~{sample_name}_wittyer_output/*.vcf.gz")
+        File wittyer_annotated_vcf_index = glob("~{sample_name}_wittyer_output/*.vcf.gz.tbi")
     }
 }
