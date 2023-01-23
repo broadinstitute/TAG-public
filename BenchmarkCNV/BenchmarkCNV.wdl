@@ -66,7 +66,6 @@ workflow Benchmark_CNV_Caller {
     meta {
         author: "Yueyao Gao"
         email: "gaoyueya@broadinstitute.org"
-        description: "## Bamstats \n This is the Bamstats workflow.\n\n Adding documentation improves clarity."
     }
 }
 
