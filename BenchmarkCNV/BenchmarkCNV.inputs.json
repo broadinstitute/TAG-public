@@ -1,5 +1,5 @@
 {
-  "Benchmark_CNV_Caller.wittyer_docker": "yg96/wittyer:v2",
+  "Benchmark_CNV_Caller.wittyer_docker": "us.gcr.io/tag-team-160914/wittyer:v2",
   "Benchmark_CNV_Caller.bcftools_docker": "us.gcr.io/broad-dsde-methods/liquidbiopsy:0.0.4.3",
   "Benchmark_CNV_Caller.wittyer_sv_config": "gs://gptag/tag_1455_Dragen_CNV_Caller_Validation/wittyerConfigFile/sv-config.json",
   "Benchmark_CNV_Caller.wittyer_cnv_evaluation_mode": "CrossTypeAndSimpleCounting",
