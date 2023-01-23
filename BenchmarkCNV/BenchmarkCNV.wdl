@@ -66,8 +66,7 @@ workflow Benchmark_CNV_Caller {
     meta {
         author: "Yueyao Gao"
         email: "gaoyueya@broadinstitute.org"
-        description:"BenchmarkCNV.wdl is designed to evaluate the performance of Dragen CNV (Copy Number Variation) caller against GATK SV (Structural Variation) caller.
-        The pipeline is composed of three main steps: Select Sample, Large Variant Evaluation, Format Output"
+        description: "## Bamstats \n This is the Bamstats workflow.\n\n Adding documentation improves clarity."
     }
 }
 
