@@ -2,7 +2,7 @@ version 1.0
 
 workflow Benchmark_CNV_Caller {
     input {
-        String gatk_docker
+        String bcftools_docker
         File variant_callset
         String truth_sample_name
         String query_sample_name
@@ -17,9 +17,9 @@ workflow Benchmark_CNV_Caller {
     }
 
     # Select vcf for specific sample
-    call SelectVariant {
+    call SelectSample {
         input:
-            gatk_docker = gatk_docker,
+            bcftools_docker = bcftools_docker,
             vcf = variant_callset,
             truth_sample_name = truth_sample_name
     }
@@ -28,7 +28,7 @@ workflow Benchmark_CNV_Caller {
     call BenchmarkCNV {
         input:
             wittyer_docker = wittyer_docker,
-            truth_vcf = SelectVariant.output_vcf,
+            truth_vcf = SelectSample.output_vcf,
             truth_sample_name = truth_sample_name,
             query_sample_name = query_sample_name,
             eval_cnv_vcf = eval_cnv_vcf,
@@ -50,7 +50,7 @@ workflow Benchmark_CNV_Caller {
 
     # Outputs that will be retained when execution is complete
     output {
-        File truth_vcf = SelectVariant.output_vcf
+        File truth_vcf = SelectSample.output_vcf
         File cnv_wittyer_stats = BenchmarkCNV.cnv_wittyer_stats
         File cnv_wittyer_annotated_vcf = BenchmarkCNV.cnv_wittyer_annotated_vcf
         File cnv_wittyer_annotated_vcf_index = BenchmarkCNV.cnv_wittyer_annotated_vcf_index
@@ -66,10 +66,10 @@ workflow Benchmark_CNV_Caller {
 }
 
     # Task 1: Select sample vcf from a large callset (e.g. 1KGP)
-    task SelectVariant {
+    task SelectSample {
 
         input {
-            String gatk_docker
+            String bcftools_docker
             File vcf
             String truth_sample_name
             Int? mem
@@ -81,21 +81,18 @@ workflow Benchmark_CNV_Caller {
         }
         command <<<
             set -e
-            export PATH="/gatk:$PATH"
-            gatk --java-options "-Xmx4g" SelectVariants \
-            -V ~{vcf} \
-            --sample-name ~{truth_sample_name} \
-            --exclude-non-variants \
-            --remove-unused-alternates \
-            -O ~{truth_sample_name}.vcf
+            # Select sample using bcftools
+            bcftools view -s ~{truth_sample_name} -O v -o ~{truth_sample_name}.vcf ~{vcf}
 
             # Remove Complex SV from the sample vcf because wittyer can't process CPX variants
             # Remove INV from the sample vcf because wittyer's exception
-            # Check manually remove reference allele
-            cat ~{truth_sample_name}.vcf | grep -v '<CPX>' | grep -v '<INV>' > ~{truth_sample_name}_filtered.vcf
-        >>>
+            # Remove reference allele
+
+            bcftools view -e 'SVTYPE="INV" | SVTYPE="CPX" | GT="0/0"' ~{truth_sample_name}.vcf -o ~{truth_sample_name}_filtered.vcf
+
+            >>>
         runtime {
-            docker: gatk_docker
+            docker: bcftools_docker
             bootDiskSizeGb: 12
             memory: mem_size + " GB"
             disks: "local-disk " + disk_size + " HDD"
