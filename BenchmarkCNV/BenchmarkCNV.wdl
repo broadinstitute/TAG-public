@@ -66,6 +66,7 @@ workflow Benchmark_CNV_Caller {
     meta {
         author: "Yueyao Gao"
         email: "gaoyueya@broadinstitute.org"
+        description: "123"
     }
 }
 
