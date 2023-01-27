@@ -8,6 +8,6 @@
   "Benchmark_CNV_Caller.variant_callset": "gs://gptag/tag_1455_Dragen_CNV_Caller_Validation/1KGP_3202.gatksv_svtools_novelins.freeze_V3_fixed.wAF.vcf",
   "Benchmark_CNV_Caller.truth_sample_name": "HG00513",
   "Benchmark_CNV_Caller.query_sample_name": "SM-GZQKA",
-  "Benchmark_CNV_Caller.eval_sv_vcf": "gs://fc-55e318f5-3e28-42f5-8d93-5e49aaabcb03/hg38_ml/HG00513_HG00513_1_SM-GZQKA_v1/HG00513_HG00513_1_SM-GZQKA_v1.sv.vcf.gz",
-  "Benchmark_CNV_Caller.eval_cnv_vcf": "gs://fc-55e318f5-3e28-42f5-8d93-5e49aaabcb03/hg38_ml/HG00513_HG00513_1_SM-GZQKA_v1/HG00513_HG00513_1_SM-GZQKA_v1.cnv.vcf.gz"
+  "Benchmark_CNV_Caller.eval_sv_vcf": "gs://dragen_v_3_10_4_cnv_validation/hg38_ml/HG00513_HG00513_1_SM-GZQKA_v1/HG00513_HG00513_1_SM-GZQKA_v1.sv.vcf.gz",
+  "Benchmark_CNV_Caller.eval_cnv_vcf": "gs://dragen_v_3_10_4_cnv_validation/hg38_ml/HG00513_HG00513_1_SM-GZQKA_v1/HG00513_HG00513_1_SM-GZQKA_v1.cnv.vcf.gz"
 }
