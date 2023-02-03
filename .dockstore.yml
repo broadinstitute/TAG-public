@@ -10,16 +10,6 @@ workflows:
    primaryDescriptorPath: /wdl/SC_Plate_QC.wdl
    testParameterFiles:
    - /input_json/SC_Plate_QC_pipeline_inputs.json
- - name: ichorCNA_step1
-   subclass: WDL
-   primaryDescriptorPath: /wdl/ichorCNA_step1.wdl
-   testParameterFiles:
-   - /input_json/ichorCNA_step1_pipeline_inputs.json
- - name: ichorCNA_step2
-   subclass: WDL
-   primaryDescriptorPath: /wdl/ichorCNA_step2.wdl
-   testParameterFiles:
-   - /input_json/ichorCNA_step2_pipeline_inputs.json
  - name: CramToBam
    subclass: WDL
    primaryDescriptorPath: /wdl/CramToBam.wdl
@@ -56,3 +46,23 @@ workflows:
    testParameterFiles:
    - /Liquid_Biopsy_Duplex_Analysis/MakeCallsFromConsensus/MakeCallsFromConsensus.T-N.inputs.json
    - /Liquid_Biopsy_Duplex_Analysis/MakeCallsFromConsensus/MakeCallsFromConsensus.T-only.inputs.json
+ - name: iChorCNA_hg19
+    subclass: WDL
+    primaryDescriptorPath: /iChor/iChorCNA_hg19/iChorCNA_hg19.wdl
+    testParameterFiles:
+    - /iChor/iChorCNA_hg19/iChorCNA_hg19.inputs.json
+  - name: iChorCNA_hg38
+    subclass: WDL
+    primaryDescriptorPath: /iChor/iChorCNA_hg38/iChorCNA_hg38.wdl
+    testParameterFiles:
+    - /iChor/iChorCNA_hg38/iChorCNA_hg38.inputs.json
+  - name: iChorCNA_step2
+    subclass: WDL
+    primaryDescriptorPath: /iChor/iChorCNA_step2/iChorCNA_step2.wdl
+    testParameterFiles:
+    - /iChor/iChorCNA_step2/iChorCNA_step2.inputs.json
+  - name: lego_plotter
+    subclass: WDL
+    primaryDescriptorPath: /LegoPlotter/lego_plotter.wdl
+    testParameterFiles:
+    - /LegoPlotter/lego_plotter.inputs.json
