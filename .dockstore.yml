@@ -35,6 +35,17 @@ workflows:
    primaryDescriptorPath: /GATK_CNV_Mutect2/mutect2-gatk4/mutect2-gatk4.wdl
    testParameterFiles:
    - /Users/gaoyueya/Documents/GitHub/TAG-public/GATK_CNV_Mutect2/mutect2-gatk4/mutect2-gatk4.inputs.json
+ - name: GenerateDuplexConsensusBams
+   subclass: WDL
+   primaryDescriptorPath: /Liquid_Biopsy_Duplex_Analysis/GenerateDuplexConsensusBams/GenerateDuplexConsensusBams.wdl
+   testParameterFiles:
+   - /Liquid_Biopsy_Duplex_Analysis/GenerateDuplexConsensusBams/GenerateDuplexConsensusBams.inputs.json
+ - name: MakeCallsFromConsensus
+   subclass: WDL
+   primaryDescriptorPath: /Liquid_Biopsy_Duplex_Analysis/MakeCallsFromConsensus/MakeCallsFromConsensus.wdl
+   testParameterFiles:
+   - /Liquid_Biopsy_Duplex_Analysis/MakeCallsFromConsensus/MakeCallsFromConsensus.T-N.inputs.json
+   - /Liquid_Biopsy_Duplex_Analysis/MakeCallsFromConsensus/MakeCallsFromConsensus.T-only.inputs.json
  - name: iChorCNA_hg19
    subclass: WDL
    primaryDescriptorPath: /iChor/iChorCNA_hg19/iChorCNA_hg19.wdl
@@ -55,3 +66,4 @@ workflows:
    primaryDescriptorPath: /LegoPlotter/lego_plotter.wdl
    testParameterFiles:
    - /LegoPlotter/lego_plotter.inputs.json
+
