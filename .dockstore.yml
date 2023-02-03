@@ -45,3 +45,18 @@ workflows:
    primaryDescriptorPath: /GATK_CNV_Mutect2/mutect2-gatk4/mutect2-gatk4.wdl
    testParameterFiles:
    - /Users/gaoyueya/Documents/GitHub/TAG-public/GATK_CNV_Mutect2/mutect2-gatk4/mutect2-gatk4.inputs.json
+ - name: iChorCNA_hg19
+   subclass: WDL
+   primaryDescriptorPath: /iChorCNA_hg19/iChorCNA_hg19.wdl
+   testParameterFiles:
+   - /Users/lining/Downloads/inputs_iChorCNA_hg19.json
+ - name: iChorCNA_hg38
+   subclass: WDL
+   primaryDescriptorPath: /iChorCNA_hg38/iChorCNA_hg38.wdl
+   testParameterFiles:
+   - /Users/lining/Downloads/inputs_iChorCNA_hg38.json
+ - name: iChorCNA_step2
+   subclass: WDL
+   primaryDescriptorPath: /iChorCNA_step2/iChorCNA_step2.wdl
+   testParameterFiles:
+   - /Users/lining/Downloads/inputs_iChorCNA_step2.json
