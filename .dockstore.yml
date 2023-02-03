@@ -47,19 +47,19 @@ workflows:
    - /Users/gaoyueya/Documents/GitHub/TAG-public/GATK_CNV_Mutect2/mutect2-gatk4/mutect2-gatk4.inputs.json
  - name: iChorCNA_hg19
    subclass: WDL
-   primaryDescriptorPath: /iChorCNA_hg19/iChorCNA_hg19.wdl
+   primaryDescriptorPath: /iChor/iChorCNA_hg19/iChorCNA_hg19.wdl
    testParameterFiles:
-   - /iChorCNA_hg19/iChorCNA_hg19.inputs.json
+   - /iChor/iChorCNA_hg19/iChorCNA_hg19.inputs.json
  - name: iChorCNA_hg38
    subclass: WDL
-   primaryDescriptorPath: /iChorCNA_hg38/iChorCNA_hg38.wdl
+   primaryDescriptorPath: /iChor/iChorCNA_hg38/iChorCNA_hg38.wdl
    testParameterFiles:
-   - /iChorCNA_hg38/iChorCNA_hg38.inputs.json
+   - /iChor/iChorCNA_hg38/iChorCNA_hg38.inputs.json
  - name: iChorCNA_step2
    subclass: WDL
-   primaryDescriptorPath: /iChorCNA_step2/iChorCNA_step2.wdl
+   primaryDescriptorPath: /iChor/iChorCNA_step2/iChorCNA_step2.wdl
    testParameterFiles:
-   - /iChorCNA_step2/iChorCNA_step2.inputs.json
+   - /iChor/iChorCNA_step2/iChorCNA_step2.inputs.json
  - name: lego_plotter
    subclass: WDL
    primaryDescriptorPath: /LegoPlotter/lego_plotter.wdl
