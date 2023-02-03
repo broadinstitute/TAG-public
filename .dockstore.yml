@@ -35,8 +35,13 @@ workflows:
    primaryDescriptorPath: /wdl/CollectSamErrorMetrics.wdl
    testParameterFiles:
    - /input_json/CollectSamErrorMetrics_inputs.json
+ - name: SelectSampleFromCallSet
+   subclass: WDL
+   primaryDescriptorPath: /BenchmarkCNV/SelectSampleFromCallSet.wdl
+   testParameterFiles:
+   - /BenchmarkCNV/SelectSampleFromCallSet.inputs.json
  - name: BenchmarkCNV
    subclass: WDL
    primaryDescriptorPath: /BenchmarkCNV/BenchmarkCNV.wdl
    testParameterFiles:
-   - /BenchmarkCNV/BenchmarkCNV_test.json
+   - /BenchmarkCNV/BenchmarkCNV.inputs.json

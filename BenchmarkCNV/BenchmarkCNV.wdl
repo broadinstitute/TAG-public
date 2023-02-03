@@ -2,33 +2,24 @@ version 1.0
 
 workflow Benchmark_CNV_Caller {
     input {
-        String bcftools_docker
-        File variant_callset
         String truth_sample_name
         String query_sample_name
-        String wittyer_docker
+        File truth_vcf
         File eval_cnv_vcf
-        File wittyer_cnv_config
-        String wittyer_cnv_evaluation_mode
         File eval_sv_vcf
+        File wittyer_cnv_config
         File wittyer_sv_config
+        String wittyer_cnv_evaluation_mode
         String wittyer_sv_evaluation_mode
+        String wittyer_docker
         String wittyer4mat_docker
-    }
-
-    # Select vcf for specific sample
-    call SelectSample {
-        input:
-            bcftools_docker = bcftools_docker,
-            vcf = variant_callset,
-            truth_sample_name = truth_sample_name
     }
 
     # benchmark cnv.vcf and sv.vcf using witty.er tool
     call BenchmarkCNV {
         input:
             wittyer_docker = wittyer_docker,
-            truth_vcf = SelectSample.output_vcf,
+            truth_vcf = truth_vcf,
             truth_sample_name = truth_sample_name,
             query_sample_name = query_sample_name,
             eval_cnv_vcf = eval_cnv_vcf,
@@ -50,7 +41,6 @@ workflow Benchmark_CNV_Caller {
 
     # Outputs that will be retained when execution is complete
     output {
-        File truth_vcf = SelectSample.output_vcf
         File cnv_wittyer_stats = BenchmarkCNV.cnv_wittyer_stats
         File cnv_wittyer_annotated_vcf = BenchmarkCNV.cnv_wittyer_annotated_vcf
         File cnv_wittyer_annotated_vcf_index = BenchmarkCNV.cnv_wittyer_annotated_vcf_index
@@ -70,46 +60,10 @@ workflow Benchmark_CNV_Caller {
     }
 }
 
-    # Task 1: Select sample vcf from a large callset (e.g. 1KGP)
-    task SelectSample {
 
-        input {
-            String bcftools_docker
-            File vcf
-            String truth_sample_name
-            Int? mem
-            Int? disk_space
-            # If mem and disk size were not specified, use 4GB and 100 GB as default
-            Int mem_size = select_first([mem, 4])
-            Int disk_size = select_first([disk_space,100])
-
-        }
-        command <<<
-            set -e
-            # Select sample using bcftools
-            bcftools view -s ~{truth_sample_name} -O v -o ~{truth_sample_name}.vcf ~{vcf}
-
-            # Remove Complex SV from the sample vcf because wittyer can't process CPX variants
-            # Remove INV from the sample vcf because wittyer's exception
-            # Remove reference allele
-
-            bcftools view -e 'SVTYPE="INV" | SVTYPE="CPX" | GT="0/0"' ~{truth_sample_name}.vcf -o ~{truth_sample_name}_filtered.vcf
-
-            >>>
-        runtime {
-            docker: bcftools_docker
-            bootDiskSizeGb: 12
-            memory: mem_size + " GB"
-            disks: "local-disk " + disk_size + " HDD"
-            preemptible: 2
-        }
-        output {
-            File output_vcf = "~{truth_sample_name}_filtered.vcf"
-        }
-
-}
-
-    # Task 2: Benchmark the large variant vcf against truth set generated in task 1
+    # Task 1: Benchmark the large variant vcf against truth set
+    # If you are extracting vcf from a large callset vcf
+    # Checkout /BenchmarkCNV/SelectSampleFromCallSet.wdl
     task BenchmarkCNV {
 
         input {
