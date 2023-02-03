@@ -2,4 +2,4 @@
 Generate a plot of three base context around called SNVs from a MAF/VCF file
 
 ## Example Plot
-![SM-MSX2Z_t_SM-MSX2X_n maf mutation_profile](https://user-images.githubusercontent.com/43577344/214386413-3650748f-eb08-4eaa-a334-8c233db6d87f.png)
+![Screen Shot 2023-01-24 at 2 35 52 PM](https://user-images.githubusercontent.com/43577344/214391341-c7d06ebb-e7cc-4621-80cb-466c4fb974bf.png)
