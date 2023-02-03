@@ -47,22 +47,23 @@ workflows:
    - /Liquid_Biopsy_Duplex_Analysis/MakeCallsFromConsensus/MakeCallsFromConsensus.T-N.inputs.json
    - /Liquid_Biopsy_Duplex_Analysis/MakeCallsFromConsensus/MakeCallsFromConsensus.T-only.inputs.json
  - name: iChorCNA_hg19
-    subclass: WDL
-    primaryDescriptorPath: /iChor/iChorCNA_hg19/iChorCNA_hg19.wdl
-    testParameterFiles:
-    - /iChor/iChorCNA_hg19/iChorCNA_hg19.inputs.json
-  - name: iChorCNA_hg38
-    subclass: WDL
-    primaryDescriptorPath: /iChor/iChorCNA_hg38/iChorCNA_hg38.wdl
-    testParameterFiles:
-    - /iChor/iChorCNA_hg38/iChorCNA_hg38.inputs.json
-  - name: iChorCNA_step2
-    subclass: WDL
-    primaryDescriptorPath: /iChor/iChorCNA_step2/iChorCNA_step2.wdl
-    testParameterFiles:
-    - /iChor/iChorCNA_step2/iChorCNA_step2.inputs.json
-  - name: lego_plotter
-    subclass: WDL
-    primaryDescriptorPath: /LegoPlotter/lego_plotter.wdl
-    testParameterFiles:
-    - /LegoPlotter/lego_plotter.inputs.json
+   subclass: WDL
+   primaryDescriptorPath: /iChor/iChorCNA_hg19/iChorCNA_hg19.wdl
+   testParameterFiles:
+   - /iChor/iChorCNA_hg19/iChorCNA_hg19.inputs.json
+ - name: iChorCNA_hg38
+   subclass: WDL
+   primaryDescriptorPath: /iChor/iChorCNA_hg38/iChorCNA_hg38.wdl
+   testParameterFiles:
+   - /iChor/iChorCNA_hg38/iChorCNA_hg38.inputs.json
+ - name: iChorCNA_step2
+   subclass: WDL
+   primaryDescriptorPath: /iChor/iChorCNA_step2/iChorCNA_step2.wdl
+   testParameterFiles:
+   - /iChor/iChorCNA_step2/iChorCNA_step2.inputs.json
+ - name: lego_plotter
+   subclass: WDL
+   primaryDescriptorPath: /LegoPlotter/lego_plotter.wdl
+   testParameterFiles:
+   - /LegoPlotter/lego_plotter.inputs.json
+
