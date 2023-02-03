@@ -60,3 +60,8 @@ workflows:
    primaryDescriptorPath: /iChorCNA_step2/iChorCNA_step2.wdl
    testParameterFiles:
    - /Users/lining/Downloads/inputs_iChorCNA_step2.json
+ - name: lego_plotter
+   subclass: WDL
+   primaryDescriptorPath: /LegoPlotter/lego_plotter.wdl
+   testParameterFiles:
+   - /LegoPlotter/lego_plotter.inputs.json
