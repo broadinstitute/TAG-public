@@ -20,11 +20,6 @@ workflows:
    primaryDescriptorPath: /wdl/ichorCNA_step2.wdl
    testParameterFiles:
    - /input_json/ichorCNA_step2_pipeline_inputs.json
- - name: cnv_somatic_pair_workflow
-   subclass: WDL
-   primaryDescriptorPath: /wdl/cnv_somatic_pair_workflow.wdl
-   testParameterFiles:
-   - /input_json/cnv_somatic_pair_workflow_inputs.json
  - name: CramToBam
    subclass: WDL
    primaryDescriptorPath: /wdl/CramToBam.wdl
