@@ -10,7 +10,7 @@ workflow CNVSomaticPairWorkflow {
     File tumor_bam_idx
     File? normal_bam
     File? normal_bam_idx
-    File read_count_pon
+    File? read_count_pon
     File ref_fasta_dict
     File ref_fasta_fai
     File ref_fasta
@@ -100,7 +100,7 @@ workflow CNVSomaticPairWorkflow {
     Int? boot_disk_space_gb_for_oncotator
 
     Int ref_size = ceil(size(ref_fasta, "GB") + size(ref_fasta_dict, "GB") + size(ref_fasta_fai, "GB"))
-    Int read_count_pon_size = ceil(size(read_count_pon, "GB"))
+    Int read_count_pon_size = if defined(read_count_pon) then ceil(size(read_count_pon, "GB")) else 0
     Int tumor_bam_size = ceil(size(tumor_bam, "GB") + size(tumor_bam_idx, "GB"))
     Int normal_bam_size = if defined(normal_bam) then ceil(size(normal_bam, "GB") + size(normal_bam_idx, "GB")) else 0
 
@@ -636,7 +636,7 @@ task CollectAllelicCounts {
 task DenoiseReadCounts {
     String entity_id
     File read_counts
-    File read_count_pon
+    File? read_count_pon
     Int? number_of_eigensamples #use all eigensamples in panel by default
     File? gatk4_jar_override
 
@@ -655,9 +655,17 @@ task DenoiseReadCounts {
         set -e
         export GATK_LOCAL_JAR=${default="/root/gatk.jar" gatk4_jar_override}
 
+        if [[ -f "${read_count_pon}" ]]; then
         gatk --java-options "-Xmx${command_mem_mb}m" DenoiseReadCounts \
             --input ${read_counts} \
             --count-panel-of-normals ${read_count_pon} \
+            ${"--number-of-eigensamples " + number_of_eigensamples} \
+            --standardized-copy-ratios ${entity_id}.standardizedCR.tsv \
+            --denoised-copy-ratios ${entity_id}.denoisedCR.tsv
+        fi
+
+        gatk --java-options "-Xmx${command_mem_mb}m" DenoiseReadCounts \
+            --input ${read_counts} \
             ${"--number-of-eigensamples " + number_of_eigensamples} \
             --standardized-copy-ratios ${entity_id}.standardizedCR.tsv \
             --denoised-copy-ratios ${entity_id}.denoisedCR.tsv
