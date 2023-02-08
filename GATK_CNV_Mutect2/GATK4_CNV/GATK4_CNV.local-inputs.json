@@ -1,0 +1,10 @@
+{
+  "CNVSomaticPairWorkflow.gatk_docker": "us.gcr.io/broad-gatk/gatk:4.1.2.0",
+  "CNVSomaticPairWorkflow.common_sites": "gs://gptag/somatic/aux/common_sites/common_snps.interval_list",
+  "CNVSomaticPairWorkflow.tumor_bam_idx": "File",
+  "CNVSomaticPairWorkflow.ref_fasta_fai": "gs://gatk-best-practices/somatic-b37/Homo_sapiens_assembly19.fasta.fai",
+  "CNVSomaticPairWorkflow.ref_fasta": "gs://gatk-best-practices/somatic-b37/Homo_sapiens_assembly19.fasta",
+  "CNVSomaticPairWorkflow.ref_fasta_dict": "gs://gatk-best-practices/somatic-b37/Homo_sapiens_assembly19.dict",
+  "CNVSomaticPairWorkflow.tumor_bam": "File",
+  "CNVSomaticPairWorkflow.intervals": "File",
+}
