@@ -164,7 +164,7 @@ workflow Mutect2 {
     Float small_input_to_output_multiplier = 2.0
 
     # logic about output file names -- these are the names *without* .vcf extensions
-    String output_basename = basename(tumor_bam, ".bam")
+    String output_basename = if defined(normal_bam) then basename(tumor_bam, ".bam") + "_" + basename(select_first([normal_bam]), ".bam") else basename(tumor_bam, ".bam")
     String unfiltered_name = output_basename + "-unfiltered"
     String filtered_name = output_basename + "-filtered"
     String funcotated_name = output_basename + "-funcotated"
