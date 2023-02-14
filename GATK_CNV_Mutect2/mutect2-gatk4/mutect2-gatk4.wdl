@@ -1031,6 +1031,7 @@ task oncotate_m2 {
     String? sequence_source
     File? default_config_file
     String case_id
+    String output_basename
     String? control_id
     String? oncotator_extra_args
 
@@ -1071,7 +1072,7 @@ task oncotate_m2 {
         fi
 
         ${default="/root/oncotator_venv/bin/oncotator" oncotator_exe} --db-dir onco_dbdir/ -c $HOME/tx_exact_uniprot_matches.AKT1_CRLF2_FGFR1.txt  \
-            -v ${m2_vcf} ${case_id}.maf.annotated hg19 -i VCF -o TCGAMAF --skip-no-alt --infer-onps --collapse-number-annotations --log_name oncotator.log \
+            -v ${m2_vcf} ${output_basename}.maf.annotated hg19 -i VCF -o TCGAMAF --skip-no-alt --infer-onps --collapse-number-annotations --log_name oncotator.log \
             -a Center:${default="Unknown" sequencing_center} \
             -a source:${default="Unknown" sequence_source} \
             -a normal_barcode:${control_id} \
@@ -1091,7 +1092,7 @@ task oncotate_m2 {
     }
 
     output {
-        File oncotated_m2_maf="${case_id}.maf.annotated"
+        File oncotated_m2_maf="${output_basename}.maf.annotated"
     }
 }
 
