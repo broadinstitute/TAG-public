@@ -1,6 +1,9 @@
 # This workflow is originally from CCGD DFCI and modified as a Terra/FireCloud version by TAG
-import "https://api.firecloud.org/ga4gh/v1/tools/GP-TAG:AlignAndHardClipBam/versions/15/plain-WDL/descriptor" as realign_hardclip
-import "https://api.firecloud.org/ga4gh/v1/tools/GP-TAG:AnnotateBreaKmer/versions/4/plain-WDL/descriptor" as AnnotateBreaKmer
+import 
+"https://raw.githubusercontent.com/broadinstitute/TAG-public/99c8c2ec6d7d6b798b62435ed260b0a6decdacd2/BreaKmer/breakmer_subworkflows/AlignAndHardClipBam.wdl" 
+as realign_hardclip
+import "https://github.com/broadinstitute/TAG-public/blob/99c8c2ec6d7d6b798b62435ed260b0a6decdacd2/BreaKmer/breakmer_subworkflows/AnnotateBreaKmer.wdl" as 
+AnnotateBreaKmer
 
 
 workflow BreakmerAnalysis{

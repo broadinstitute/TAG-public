@@ -66,4 +66,14 @@ workflows:
    primaryDescriptorPath: /LegoPlotter/lego_plotter.wdl
    testParameterFiles:
    - /LegoPlotter/lego_plotter.inputs.json
-
+ - name: SomaticSV_SvABA
+   subclass: WDL
+   primaryDescriptorPath: /SomaticSV_SvABA/SomaticSV_SvABA.wdl
+   testParameterFiles:
+   - /SomaticSV_SvABA/SomaticSV_SvABA.inputs.json
+   - /SomaticSV_SvABA/SomaticSV_SvABA_Tonly.inputs.json
+ - name: BreaKmer
+   subclass: WDL
+   primaryDescriptorPath: /BreaKmer/BreaKmer.wdl
+   testParameterFiles:
+   - /BreaKmer/BreaKmer.inputs.json
