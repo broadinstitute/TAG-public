@@ -415,6 +415,7 @@ workflow Mutect2 {
     if (run_oncotator_or_default) {
         call oncotate_m2 {
             input:
+                output_basename = output_basename,
                 m2_vcf = oncotate_vcf_input,
                 onco_ds_tar_gz = onco_ds_tar_gz,
                 onco_ds_local_db_dir = onco_ds_local_db_dir,
