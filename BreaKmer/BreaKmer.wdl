@@ -24,7 +24,7 @@ workflow BreakmerAnalysis{
     File repeat_mask_bed
 
     # Gene annotation in the refGene format, see "Gene Preditions (Extended)"
-    # for more details: https://genome.ucsc.edu/FAQ/FAQformat.html#format9
+    # for more details: https://genome.ucsc.edu/FAQ/FAQformat.html
     # BreaKmer reads:
     #   3rd column for choromosome names
     #   5th column for start
