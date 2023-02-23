@@ -119,7 +119,7 @@ workflow Benchmark_CNV_Caller {
             -em ~{sv_evaluation_mode} \
             --configFile ~{sv_config_file} \
             -o ~{truth_sample_name}_sv_wittyer_output
-
+            fi
         >>>
         runtime {
             docker: wittyer_docker
