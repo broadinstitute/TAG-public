@@ -9,6 +9,7 @@ workflow Benchmark_CNV_Caller {
         File eval_sv_vcf
         File wittyer_cnv_config
         File wittyer_sv_config
+        File? bedfile
         String wittyer_cnv_evaluation_mode
         String wittyer_sv_evaluation_mode
         String wittyer_docker
@@ -27,7 +28,8 @@ workflow Benchmark_CNV_Caller {
             cnv_evaluation_mode = wittyer_cnv_evaluation_mode,
             eval_sv_vcf = eval_sv_vcf,
             sv_config_file = wittyer_sv_config,
-            sv_evaluation_mode = wittyer_sv_evaluation_mode
+            sv_evaluation_mode = wittyer_sv_evaluation_mode,
+            bedfile = bedfile
     }
 
     # wittyer4mat to parse the wittyer json output
@@ -74,6 +76,7 @@ workflow Benchmark_CNV_Caller {
             String cnv_evaluation_mode
             File eval_sv_vcf
             File sv_config_file
+            File? bedfile
             String sv_evaluation_mode
             String truth_sample_name
             String query_sample_name
@@ -85,6 +88,24 @@ workflow Benchmark_CNV_Caller {
     }
         command <<<
             set -e
+
+            if [[ -f "~{bedfile}" ]]; then
+            # Run Benchmarking tool wittyer on dragen generated cnv.vcf with bed file
+            /opt/Wittyer/Wittyer -i ~{eval_cnv_vcf} \
+            -t ~{truth_vcf} \
+            -em ~{cnv_evaluation_mode} \
+            --configFile ~{cnv_config_file} \
+            --includeBed ~{bedfile} \
+            -o ~{truth_sample_name}_cnv_wittyer_output
+
+            # Run Benchmarking tool wittyer on dragen generated sv.vcf with bed file
+            /opt/Wittyer/Wittyer -i ~{eval_sv_vcf} \
+            -t ~{truth_vcf} \
+            -em ~{sv_evaluation_mode} \
+            --configFile ~{sv_config_file} \
+            --includeBed ~{bedfile} \
+            -o ~{truth_sample_name}_sv_wittyer_output
+            else
             # Run Benchmarking tool wittyer on dragen generated cnv.vcf
             /opt/Wittyer/Wittyer -i ~{eval_cnv_vcf} \
             -t ~{truth_vcf} \
