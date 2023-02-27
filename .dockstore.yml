@@ -25,6 +25,11 @@ workflows:
    primaryDescriptorPath: /BenchmarkCNV/SelectSampleFromCallSet/SelectSampleFromCallSet.wdl
    testParameterFiles:
    - /BenchmarkCNV/SelectSampleFromCallSet/SelectSampleFromCallSet.inputs.json
+ - name: MergeVCF
+   subclass: WDL
+   primaryDescriptorPath: /BenchmarkCNV/MergeVCF/MergeVCF.wdl
+   testParameterFiles:
+   - /BenchmarkCNV/MergeVCF/MergeVCF.inputs.json
  - name: BenchmarkCNV
    subclass: WDL
    primaryDescriptorPath: /BenchmarkCNV/BenchmarkCNV/BenchmarkCNV.wdl
