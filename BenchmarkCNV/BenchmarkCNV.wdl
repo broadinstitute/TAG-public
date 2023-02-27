@@ -5,13 +5,10 @@ workflow Benchmark_CNV_Caller {
         String truth_sample_name
         String query_sample_name
         File truth_vcf
-        File eval_cnv_vcf
-        File eval_sv_vcf
-        File wittyer_cnv_config
-        File wittyer_sv_config
+        File eval_vcf
+        File wittyer_config
         File? bedfile
-        String wittyer_cnv_evaluation_mode
-        String wittyer_sv_evaluation_mode
+        String wittyer_evaluation_mode
         String wittyer_docker
         String wittyer4mat_docker
     }
@@ -23,12 +20,9 @@ workflow Benchmark_CNV_Caller {
             truth_vcf = truth_vcf,
             truth_sample_name = truth_sample_name,
             query_sample_name = query_sample_name,
-            eval_cnv_vcf = eval_cnv_vcf,
-            cnv_config_file = wittyer_cnv_config,
-            cnv_evaluation_mode = wittyer_cnv_evaluation_mode,
-            eval_sv_vcf = eval_sv_vcf,
-            sv_config_file = wittyer_sv_config,
-            sv_evaluation_mode = wittyer_sv_evaluation_mode,
+            eval_vcf = eval_vcf,
+            wittyer_config = wittyer_config,
+            wittyer_evaluation_mode = wittyer_evaluation_mode,
             bedfile = bedfile
     }
 
@@ -36,24 +30,16 @@ workflow Benchmark_CNV_Caller {
     call Wittyer4Mat {
         input:
             wittyer4mat_docker = wittyer4mat_docker,
-            cnv_wittyer_stats = BenchmarkCNV.cnv_wittyer_stats,
-            sv_wittyer_stats = BenchmarkCNV.sv_wittyer_stats,
+            wittyer_stats = BenchmarkCNV.wittyer_stats,
             truth_sample_name = truth_sample_name
     }
 
     # Outputs that will be retained when execution is complete
     output {
-        File cnv_wittyer_stats = BenchmarkCNV.cnv_wittyer_stats
-        File cnv_wittyer_annotated_vcf = BenchmarkCNV.cnv_wittyer_annotated_vcf
-        File cnv_wittyer_annotated_vcf_index = BenchmarkCNV.cnv_wittyer_annotated_vcf_index
-        File sv_wittyer_stats = BenchmarkCNV.sv_wittyer_stats
-        File sv_wittyer_annotated_vcf = BenchmarkCNV.sv_wittyer_annotated_vcf
-        File sv_wittyer_annotated_vcf_index = BenchmarkCNV.sv_wittyer_annotated_vcf_index
-        File cnv_deletion_stat = Wittyer4Mat.cnv_deletion_stat
-        File cnv_duplication_stat = Wittyer4Mat.cnv_duplication_stat
-        File sv_deletion_stat = Wittyer4Mat.sv_deletion_stat
-        File sv_duplication_stat = Wittyer4Mat.sv_duplication_stat
-        File sv_insertion_stat = Wittyer4Mat.sv_insertion_stat
+        File wittyer_stats = BenchmarkCNV.wittyer_stats
+        File wittyer_annotated_vcf = BenchmarkCNV.wittyer_annotated_vcf
+        File wittyer_annotated_vcf_index = BenchmarkCNV.wittyer_annotated_vcf_index
+        Array[File] Wittyer4Mat_stat = Wittyer4Mat.formatted_stat
     }
     meta {
         author: "Yueyao Gao"
@@ -71,13 +57,10 @@ workflow Benchmark_CNV_Caller {
         input {
             String wittyer_docker
             File truth_vcf
-            File eval_cnv_vcf
-            File cnv_config_file
-            String cnv_evaluation_mode
-            File eval_sv_vcf
-            File sv_config_file
+            File eval_vcf
+            File wittyer_config
+            String wittyer_evaluation_mode
             File? bedfile
-            String sv_evaluation_mode
             String truth_sample_name
             String query_sample_name
             Int? mem
@@ -91,34 +74,21 @@ workflow Benchmark_CNV_Caller {
 
             if [[ -f "~{bedfile}" ]]; then
             # Run Benchmarking tool wittyer on dragen generated cnv.vcf with bed file
-            /opt/Wittyer/Wittyer -i ~{eval_cnv_vcf} \
+            /opt/Wittyer/Wittyer -i ~{eval_vcf} \
             -t ~{truth_vcf} \
-            -em ~{cnv_evaluation_mode} \
-            --configFile ~{cnv_config_file} \
+            -em ~{wittyer_evaluation_mode} \
+            --configFile ~{wittyer_config} \
             --includeBed ~{bedfile} \
-            -o ~{truth_sample_name}_cnv_wittyer_output
+            -o ~{truth_sample_name}_wittyer_output
 
-            # Run Benchmarking tool wittyer on dragen generated sv.vcf with bed file
-            /opt/Wittyer/Wittyer -i ~{eval_sv_vcf} \
-            -t ~{truth_vcf} \
-            -em ~{sv_evaluation_mode} \
-            --configFile ~{sv_config_file} \
-            --includeBed ~{bedfile} \
-            -o ~{truth_sample_name}_sv_wittyer_output
             else
             # Run Benchmarking tool wittyer on dragen generated cnv.vcf
-            /opt/Wittyer/Wittyer -i ~{eval_cnv_vcf} \
+            /opt/Wittyer/Wittyer -i ~{eval_vcf} \
             -t ~{truth_vcf} \
-            -em ~{cnv_evaluation_mode} \
-            --configFile ~{cnv_config_file} \
-            -o ~{truth_sample_name}_cnv_wittyer_output
+            -em ~{wittyer_evaluation_mode} \
+            --configFile ~{wittyer_config} \
+            -o ~{truth_sample_name}_wittyer_output
 
-            # Run Benchmarking tool wittyer on dragen generated sv.vcf
-            /opt/Wittyer/Wittyer -i ~{eval_sv_vcf} \
-            -t ~{truth_vcf} \
-            -em ~{sv_evaluation_mode} \
-            --configFile ~{sv_config_file} \
-            -o ~{truth_sample_name}_sv_wittyer_output
             fi
         >>>
         runtime {
@@ -129,12 +99,9 @@ workflow Benchmark_CNV_Caller {
             preemptible: 2
         }
         output {
-            File cnv_wittyer_stats = "~{truth_sample_name}_cnv_wittyer_output/Wittyer.Stats.json"
-            File cnv_wittyer_annotated_vcf = "~{truth_sample_name}_cnv_wittyer_output/Wittyer.~{truth_sample_name}.Vs.~{query_sample_name}.vcf.gz"
-            File cnv_wittyer_annotated_vcf_index = "~{truth_sample_name}_cnv_wittyer_output/Wittyer.~{truth_sample_name}.Vs.~{query_sample_name}.vcf.gz.tbi"
-            File sv_wittyer_stats = "~{truth_sample_name}_sv_wittyer_output/Wittyer.Stats.json"
-            File sv_wittyer_annotated_vcf = "~{truth_sample_name}_sv_wittyer_output/Wittyer.~{truth_sample_name}.Vs.~{query_sample_name}.vcf.gz"
-            File sv_wittyer_annotated_vcf_index = "~{truth_sample_name}_sv_wittyer_output/Wittyer.~{truth_sample_name}.Vs.~{query_sample_name}.vcf.gz.tbi"
+            File wittyer_stats = "~{truth_sample_name}_wittyer_output/Wittyer.Stats.json"
+            File wittyer_annotated_vcf = "~{truth_sample_name}_wittyer_output/Wittyer.~{truth_sample_name}.Vs.~{query_sample_name}.vcf.gz"
+            File wittyer_annotated_vcf_index = "~{truth_sample_name}_wittyer_output/Wittyer.~{truth_sample_name}.Vs.~{query_sample_name}.vcf.gz.tbi"
         }
 }
     # Task3: Format the wittyer json output
@@ -142,8 +109,7 @@ workflow Benchmark_CNV_Caller {
 
         input{
             String wittyer4mat_docker
-            File cnv_wittyer_stats
-            File sv_wittyer_stats
+            File wittyer_stats
             String truth_sample_name
         }
         command <<<
@@ -153,27 +119,23 @@ workflow Benchmark_CNV_Caller {
             mkdir ~{truth_sample_name}_cnv_wittyer4mat
             conda run --no-capture-output \
             -n wittyer-parser \
-            python3 /wittyer4mat/wittyer_4mat.py -i ~{cnv_wittyer_stats} \
-            -t cnv \
-            -o ~{truth_sample_name}_cnv_wittyer4mat
+            python3 /wittyer4mat/wittyer_4mat.py -i ~{wittyer_stats} \
+            -t base \
+            -o ~{truth_sample_name}_base_level_wittyer4mat
 
             # Run wittyer4mat script on sv wittyer output
             mkdir ~{truth_sample_name}_sv_wittyer4mat
             conda run --no-capture-output \
             -n wittyer-parser \
-            python3 /wittyer4mat/wittyer_4mat.py -i ~{sv_wittyer_stats} \
-            -t sv \
-            -o ~{truth_sample_name}_sv_wittyer4mat
+            python3 /wittyer4mat/wittyer_4mat.py -i ~{wittyer_stats} \
+            -t event \
+            -o ~{truth_sample_name}_event_level_wittyer4mat
     >>>
         runtime {
             docker: wittyer4mat_docker
             preemptible: 2
         }
         output {
-            File cnv_deletion_stat = "~{truth_sample_name}_cnv_wittyer4mat/wittyer_cnv_Deletion_output.csv"
-            File cnv_duplication_stat = "~{truth_sample_name}_cnv_wittyer4mat/wittyer_cnv_Duplication_output.csv"
-            File sv_deletion_stat = "~{truth_sample_name}_sv_wittyer4mat/wittyer_sv_Deletion_output.csv"
-            File sv_duplication_stat = "~{truth_sample_name}_sv_wittyer4mat/wittyer_sv_Duplication_output.csv"
-            File sv_insertion_stat = "~{truth_sample_name}_sv_wittyer4mat/wittyer_sv_Insertion_output.csv"
+            Array[File] formatted_stat = glob("~{truth_sample_name}_event_level_wittyer4mat/*.csv")
         }
     }
