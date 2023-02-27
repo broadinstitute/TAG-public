@@ -20,7 +20,7 @@ workflow MergeVCF {
 
     # Outputs that will be retained when execution is complete
     output {
-        File selected_vcf = mergeVCF.output_vcf
+        File merged_vcf = mergeVCF.output_vcf
     }
     meta {
         author: "Yueyao Gao"
