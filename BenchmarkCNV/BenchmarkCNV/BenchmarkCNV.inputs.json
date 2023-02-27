@@ -5,7 +5,7 @@
   "Benchmark_CNV_Caller.BenchmarkCNV.mem": 4,
   "Benchmark_CNV_Caller.wittyer_evaluation_mode": "CrossTypeAndSimpleCounting",
   "Benchmark_CNV_Caller.BenchmarkCNV.disk_size": 100,
-  "Benchmark_CNV_Caller.wittyer4mat_docker": "us.gcr.io/tag-team-160914/wittyer4mat:v10-stat-broom",
+  "Benchmark_CNV_Caller.wittyer4mat_docker": "us.gcr.io/tag-team-160914/wittyer4mat:v11-outstat-broom",
   "Benchmark_CNV_Caller.eval_vcf": "gs://dragen_v_3_10_4_cnv_validation/hg38_ml/NA24385_hg38/NA24385.cnv.vcf.gz",
   "Benchmark_CNV_Caller.BenchmarkCNV.disk_space": 100,
   "Benchmark_CNV_Caller.truth_sample_name": "NA24385",
