@@ -22,14 +22,14 @@ workflows:
    - /input_json/CollectSamErrorMetrics_inputs.json
  - name: SelectSampleFromCallSet
    subclass: WDL
-   primaryDescriptorPath: /BenchmarkCNV/SelectSampleFromCallSet.wdl
+   primaryDescriptorPath: /BenchmarkCNV/SelectSampleFromCallSet/SelectSampleFromCallSet.wdl
    testParameterFiles:
-   - /BenchmarkCNV/SelectSampleFromCallSet.inputs.json
+   - /BenchmarkCNV/SelectSampleFromCallSet/SelectSampleFromCallSet.inputs.json
  - name: BenchmarkCNV
    subclass: WDL
-   primaryDescriptorPath: /BenchmarkCNV/BenchmarkCNV.wdl
+   primaryDescriptorPath: /BenchmarkCNV/BenchmarkCNV/BenchmarkCNV.wdl
    testParameterFiles:
-   - /BenchmarkCNV/BenchmarkCNV.inputs.json
+   - /BenchmarkCNV/BenchmarkCNV/BenchmarkCNV.inputs.json
  - name: GATK4_CNV
    subclass: WDL
    primaryDescriptorPath: /GATK_CNV_Mutect2/GATK4_CNV/GATK4_CNV.wdl
