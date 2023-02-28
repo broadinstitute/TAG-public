@@ -51,7 +51,7 @@ task mergeVCF {
 
             # Use bcftools to concat two vcfs
             # Ignore the warning message
-            bcftools concat ~{vcf1} ~{vcf2} -o ~{sample_name}_merged.vcf 2>/dev/null || true
+            bcftools concat -a ~{vcf1} ~{vcf2} -o ~{sample_name}_merged.vcf
 
             # Print the output file name
             echo "Merged VCF file: ~{sample_name}_merged.vcf"
