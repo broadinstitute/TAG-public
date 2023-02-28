@@ -49,12 +49,15 @@ task mergeVCF {
             echo "vcf1: ~{vcf1}"
             echo "vcf2: ~{vcf2}"
 
+            echo "Index the input VCFs"
+            bcftools index -t ~{vcf1}
+            bcftools index -t ~{vcf2}
+
             # Use bcftools to concat two vcfs
-            # Ignore the warning message
-            bcftools concat -a ~{vcf1} ~{vcf2} -o ~{sample_name}_merged.vcf
+            bcftools concat -Oz -a ~{vcf1} ~{vcf2} -o ~{sample_name}_merged.vcf.gz
 
             # Print the output file name
-            echo "Merged VCF file: ~{sample_name}_merged.vcf"
+            echo "Merged VCF file: ~{sample_name}_merged.vcf.gz"
             >>>
         runtime {
             docker: bcftools_docker
@@ -64,7 +67,7 @@ task mergeVCF {
             preemptible: 2
         }
         output {
-            File output_vcf = "~{sample_name}_merged.vcf"
+            File output_vcf = "~{sample_name}_merged.vcf.gz"
         }
 
 }
