@@ -40,7 +40,6 @@ workflow Benchmark_CNV_Caller {
         File wittyer_annotated_vcf = BenchmarkCNV.wittyer_annotated_vcf
         File wittyer_annotated_vcf_index = BenchmarkCNV.wittyer_annotated_vcf_index
         Array[File] Wittyer4Mat_event_stats = Wittyer4Mat.event_level_wittyer_stats
-        Array[File] Wittyer4Mat_base_stats = Wittyer4Mat.base_level_wittyer_stats
     }
     meta {
         author: "Yueyao Gao"
@@ -116,16 +115,7 @@ workflow Benchmark_CNV_Caller {
         command <<<
             set -e
 
-            # Run wittyer4mat script on cnv wittyer output
-            mkdir ~{truth_sample_name}_cnv_wittyer4mat
-            conda run --no-capture-output \
-            -n wittyer-parser \
-            python3 /wittyer4mat/wittyer_4mat.py -i ~{wittyer_stats} \
-            -t base \
-            -o ~{truth_sample_name}_base_level_wittyer4mat
-
-            # Run wittyer4mat script on sv wittyer output
-            mkdir ~{truth_sample_name}_sv_wittyer4mat
+            # Run wittyer4mat script on wittyer output
             conda run --no-capture-output \
             -n wittyer-parser \
             python3 /wittyer4mat/wittyer_4mat.py -i ~{wittyer_stats} \
@@ -138,6 +128,5 @@ workflow Benchmark_CNV_Caller {
         }
         output {
             Array[File] event_level_wittyer_stats = glob("~{truth_sample_name}_event_level_wittyer4mat/*.csv")
-            Array[File] base_level_wittyer_stats = glob("~{truth_sample_name}_base_level_wittyer4mat/*.csv")
         }
     }
