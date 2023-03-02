@@ -120,7 +120,7 @@ workflow Benchmark_CNV_Caller {
             -n wittyer-parser \
             python3 /wittyer4mat/wittyer_4mat.py -i ~{wittyer_stats} \
             -t event \
-            -o ~{truth_sample_name}_event_level_wittyer4mat
+            -o ~{truth_sample_name}_event_level_wittyer4mat \
             -p ~{truth_sample_name}
     >>>
         runtime {
