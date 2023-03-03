@@ -228,7 +228,16 @@ task gsutil_cp{
 	String? target_google_bucket = "gs://fc-735a9d10-0cf6-4ae5-a203-5e5522bf5c3c/tableau_files"
 
 	command <<<
-	gsutil cp ${plate_qc_metrics} ${target_google_bucket}
+		#Run gsutil cp and capture its exit status
+		gsutil cp ${plate_qc_metrics} ${target_google_bucket}
+		gsutil_exit_status=$?
+
+		# Check if gsutil cp was successful
+		if [[ $gsutil_exit_status -eq 0 ]]; then
+		  echo "gsutil cp succeeded"
+		else
+		  echo "gsutil cp failed with exit code $gsutil_exit_status"
+		fi
 	>>>
 
 	runtime{
