@@ -1,0 +1,22 @@
+{
+    "SC_plate.LCSET": "${this.LCSET}",
+    "SC_plate.RPlateQC": "gs://gptag-public/smartseq2/plate_QC.R",
+    "SC_plate.adapt_list": "${this.samples.adapter_content_metrics}",
+    "SC_plate.aln_list": "${this.samples.alignment_summary_metrics}",
+    "SC_plate.annot_gtf": "gs://gptag-public/smartseq2/annot_gtf_file/mouse/gencode.vM21.primary_assembly.annotation.gtf",
+    "SC_plate.base_list": "${this.samples.base_call_dist_metrics}",
+    "SC_plate.cell_types": "${this.samples.cell_type}",
+    "SC_plate.dup_list": "${this.samples.dedup_metrics}",
+    "SC_plate.flowcells": "${this.flowcells}",
+    "SC_plate.graphPlate.extra_boot_space": "${}",
+    "SC_plate.graphPlate.extra_mem": "${}",
+    "SC_plate.graphPlate.extra_space": "${}",
+    "SC_plate.insert_list": "${this.samples.insert_size_metrics}",
+    "SC_plate.metadata": "${this.metadata}",
+    "SC_plate.names": "${this.samples.name}",
+    "SC_plate.qual_list": "${this.samples.quality_by_cycle_metrics}",
+    "SC_plate.rna_list": "${this.samples.rna_metrics}",
+    "SC_plate.rsem_list": "${this.samples.rsem_gene_results}",
+    "SC_plate.smid": "${this.samples.SM_ID}",
+    "SC_plate.species_name": "Mus_musculus"
+}
