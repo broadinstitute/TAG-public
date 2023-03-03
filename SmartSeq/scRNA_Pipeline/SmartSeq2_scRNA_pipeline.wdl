@@ -1,238 +1,224 @@
-#Author: Brian Granger, Micah Rickles-Young
-#Date: 4/3/20
-#Snapshot 42
-#This method is for taking SmartSeq2 qc output and running an R script on the results to try to provide qc at the plate level.
+import "SmartSeq_wdls/hisat2_descriptor.wdl" as run_hisat2
+import "SmartSeq_wdls/hisat2_rsem_descriptor.wdl" as run_hisat2_rsem
 
-workflow SC_plate{
-	File RPlateQC
-	File metadata
-	File annot_gtf
-    String flowcells
-    String? LCSET
-    String species_name
-    Array[String] smid
-    Array[String]? cell_types
-    Array[File] aln_list
-	Array[File] base_list
-    Array[File] dup_list
-    Array[File] insert_list
-    Array[File] rna_list
-    Array[File] qual_list
-    Array[File] rsem_list
-	Array[File]? adapt_list
-    Array[String] names
+## main pipeline:
+## QC track: HISAT2+Picard
+## this track will produce aligned bam file and a set of QC metrics
+## rsem quantification track: HISAT2+RSEM
+## this track involves hisat2 transcriptome alignment and RSEM gene expression estimation.
 
-        call graphPlate {
-         input:
-           RPlateQC = RPlateQC,
-	       metadata = metadata,
-	       annot_gtf = annot_gtf,
-           flowcells = flowcells,
-           LCSET = LCSET,
-           smid=smid,
-           species_name=species_name,
-           cell_types = cell_types,
-           aln_list = aln_list,
-	       base_list = base_list,
-	       dup_list = dup_list,
-	       insert_list = insert_list,
-	       rna_list = rna_list,
-	       qual_list = qual_list,
-	       rsem_list = rsem_list,
-           adapt_list = adapt_list,
-           names = names
-        }
+## Snapshot 23
 
-		call gsutil_cp{
-			input:
-			plate_qc_metrics = graphPlate.plate_qc_metrics
-		}
+workflow SmartSeq2SingleCell {
+
+  # load annotation
+  File gtf_file
+  File genome_ref_fasta
+  File rrna_intervals
+  File gene_ref_flat
+  #load index
+  File hisat2_ref_index
+  File hisat2_ref_trans_index
+  File rsem_ref_index
+  # ref index name
+  String hisat2_ref_name
+  String hisat2_ref_trans_name
+  # samples
+  String stranded
+  String sample_name
+  String output_name
+  String smid
+
+  String? ss2_docker
+  String? ss2_adapter_qc_docker
+
+  File fastq1
+  File fastq2
+  # adapter task
+  Boolean check_adapter
+
+
+  call run_hisat2.RunHisat2Pipeline as qc {
+    input:
+      fastq_read1 = fastq1,
+      fastq_read2 = fastq2,
+      gtf = gtf_file,
+      stranded = stranded,
+      ref_fasta = genome_ref_fasta,
+      rrna_interval = rrna_intervals,
+      ref_flat = gene_ref_flat,
+      hisat2_ref = hisat2_ref_index,
+      hisat2_ref_name = hisat2_ref_name,
+      sample_name = sample_name,
+      output_prefix = output_name + "_qc"
+
+  }
+
+  call run_hisat2_rsem.RunHisat2RsemPipeline as data {
+    input:
+      fastq_read1 = fastq1,
+      fastq_read2 = fastq2,
+      hisat2_ref_trans = hisat2_ref_trans_index,
+      hisat2_ref_trans_name = hisat2_ref_trans_name,
+      rsem_genome = rsem_ref_index,
+      output_prefix = output_name + "_rsem",
+      sample_name = sample_name
+  }
+  if(check_adapter){
+    call AdapterQC as adapter {
+      input:
+          ss2_adapter_qc_docker = select_first([ss2_adapter_qc_docker, "us.gcr.io/tag-team-160914/tag-tools:1.0.0"]),
+          fastq1 = fastq1,
+          fastq2 = fastq2,
+          output_prefix = output_name
+    }
+  }
+
+    call ExtractQC_metrics {
+      input:
+          ss2_docker = select_first([ss2_docker, "us.gcr.io/tag-team-160914/smartseq2_metrics:v1"]),
+          rsem_gene_results = data.rsem_gene_results,
+          dedup_metrics = qc.dedup_metrics,
+          alignment_summary_metrics = qc.alignment_summary_metrics,
+          rna_metrics = qc.rna_metrics,
+          output_prefix = output_name
+
+    }
+
+  output {
+    ## qc outputs
+    File aligned_bam = qc.aligned_bam
+    File? alignment_summary_metrics = qc.alignment_summary_metrics
+    File? bait_bias_detail_metrics = qc.bait_bias_detail_metrics
+    File? bait_bias_summary_metrics = qc.bait_bias_summary_metrics
+    File? base_call_dist_metrics = qc.base_call_dist_metrics
+    File? base_call_pdf = qc.base_call_pdf
+    File? dedup_metrics = qc.dedup_metrics
+    File? error_summary_metrics = qc.error_summary_metrics
+    File? gc_bias_detail_metrics = qc.gc_bias_detail_metrics
+    File? gc_bias_dist_pdf = qc.gc_bias_dist_pdf
+    File? gc_bias_summary_metrics = qc.gc_bias_summary_metrics
+    File? insert_size_hist = qc.insert_size_hist
+    File? insert_size_metrics = qc.insert_size_metrics
+    File hisat2_logfile = qc.logfile
+    File hisat2_metfile = qc.metfile
+    File? pre_adapter_details_metrics = qc.pre_adapter_details_metrics
+    File? quality_by_cycle_metrics = qc.quality_by_cycle_metrics
+    File? quality_by_cycle_pdf = qc.quality_by_cycle_pdf
+    File? quality_distribution_dist_pdf = qc.quality_distribution_dist_pdf
+    File? quality_distribution_metrics = qc.quality_distribution_metrics
+    File? rna_coverage = qc.rna_coverage
+    File? rna_metrics = qc.rna_metrics
+    ## data outputs
+    File aligned_trans_bam = data.aligned_trans_bam
+    File hisat2tran_logfile = data.logfile
+    File hisat2tran_metfile = data.metfile
+    File? rsem_cnt_log = data.rsem_cnt_log
+    File? rsem_gene_results = data.rsem_gene_results
+    File? rsem_isoform_results = data.rsem_isoform_results
+    File? rsem_model_log = data.rsem_model_log
+    File? rsem_theta_log = data.rsem_theta_log
+    File? rsem_time_log = data.rsem_time_log
+    ## adapter outputs
+    File? adapter_content_metrics = adapter.adapter_content_metrics
+    File? read1_adapter_html = adapter.read1_fastqc_html
+    File? read2_adapter_html = adapter.read2_fastqc_html
+
+    #ExtractQC_metrics outputs
+    Float pct_duplication = ExtractQC_metrics.merged_metrics["PERCENT_DUPLICATION"]
+    Int estimated_library_size = ceil(ExtractQC_metrics.merged_metrics["ESTIMATED_LIBRARY_SIZE"])
+    Int total_reads = ceil(ExtractQC_metrics.merged_metrics["TOTAL_READS"])
+    Float pct_aligned = ExtractQC_metrics.merged_metrics["PCT_PF_READS_ALIGNED_PAIR"]
+    Float pct_aligned_read1 = ExtractQC_metrics.merged_metrics["PCT_ALIGNED_READ1"]
+    Float pct_aligned_read2 = ExtractQC_metrics.merged_metrics["PCT_ALIGNED_READ2"]
+    Float pct_ribo = ExtractQC_metrics.merged_metrics["PCT_RIBOSOMAL_BASES"]
+    Float pct_coding = ExtractQC_metrics.merged_metrics["PCT_CODING_BASES"]
+    Float pct_utr = ExtractQC_metrics.merged_metrics["PCT_UTR_BASES"]
+    Float pct_intronic = ExtractQC_metrics.merged_metrics["PCT_INTRONIC_BASES"]
+    Float pct_intergenic = ExtractQC_metrics.merged_metrics["PCT_INTERGENIC_BASES"]
+    Float pct_mRNA = ExtractQC_metrics.merged_metrics["PCT_MRNA_BASES"]
+    Float pct_usable = ExtractQC_metrics.merged_metrics["PCT_USABLE_BASES"]
+    Float median_cv_coverage = ExtractQC_metrics.merged_metrics["MEDIAN_CV_COVERAGE"]
+    Float median_5prime_bias = ExtractQC_metrics.merged_metrics["MEDIAN_5PRIME_BIAS"]
+    Float median_3prime_bias = ExtractQC_metrics.merged_metrics["MEDIAN_3PRIME_BIAS"]
+    Int genes_detected = ceil(ExtractQC_metrics.merged_metrics["GENES_DETECTED"])
+    Float pct_mito = ExtractQC_metrics.merged_metrics["PCT_MITO"]
+
+  }
 }
 
-task graphPlate{
-	File RPlateQC
-	File metadata
-    String metadata_basename = basename(metadata,".metadata.txt")
-	File annot_gtf
-    String flowcells
-    String? LCSET
-    String species_name
-    Array[String]? cell_types
-    Array[String] smid
-    Array[File] aln_list
-	Array[File] base_list
-	Array[File] dup_list
-	Array[File] insert_list
-	Array[File] rna_list
-	Array[File] qual_list
-	Array[File] rsem_list
-    Array[File]? adapt_list
-    Array[String] names
+task AdapterQC {
+  File fastq1
+    File fastq2
+    File adapter_script
+    String output_prefix
 
-    Float? extra_mem
-    Float memory = 7.5 + select_first([extra_mem,0])
+    String ss2_adapter_qc_docker
 
-    Int? extra_space
-    Int disk_space = 500 + select_first([extra_space,0])
+    Float? mem = 4
 
-    Int? extra_boot_space
-    Int boot_disk_space = 10 + select_first([extra_boot_space, 0])
+    Float fastq_size = size(fastq1, "GB") + size(fastq2, "GB")
+    Int? increase_disk_size = 50
+    Int disk_size = ceil(fastq_size * 10)  + increase_disk_size
 
-        command <<<
-        set -euo pipefail
-		# First we have to make a bunch of folders for all the different types of files that we have from the single cell qc. We need aln_sum, base_call, dup_met, insert_met, rna_cov, qual_cyc, rsem_gene
-		# So time for the first one: aln_sum
-        mkdir aln_sum/
+    String basename1 = basename(fastq1,".fastq.gz")
+    String basename2 = basename(fastq2,".fastq.gz")
 
-		mv ${sep=" " aln_list} aln_sum/
-		# Ok, all the files should be moved (and renamed, not sure I want that, but we'll see). Let's check them out.
-        echo 'aln_sum:'
-        ls aln_sum/
+    command <<<
+      perl /usr/tag/scripts/FastQC/fastqc --extract ${fastq1} ${fastq2} -o ./
 
-		# Second folder: base_call
-        mkdir base_call/
-
-		mv ${sep=" " base_list} base_call/
-
-		#Ok, again, all files moved. Let's look
-		echo 'base_call:'
-		ls base_call/
-
-
-		# Third folder: dup_met
-        mkdir dup_met/
-
-		mv ${sep=" " dup_list} dup_met/
-		#Ok, again, all files moved. Let's look
-		echo 'dup_met:'
-		ls dup_met/
-
-		# Fourth folder: insert_met
-		mkdir insert_met/
-
-		mv ${sep=" " insert_list} insert_met/
-
-		echo 'insert_met:'
-		ls insert_met/
-
-
-		# Fifth folder: rna_cov
-		mkdir rna_cov/
-
-		mv ${sep=" " rna_list} rna_cov/
-
-        # This folder's special. This is where we have files that may or may not have a histogram. Current understanding is that it should be all 0s.
-
-        #create a histogram file
-		echo -e "## HISTOGRAM\tjava.lang.Integer\nnormalized_position\tAll_Reads.normalized_coverage" > histo.txt
-
-		for i in `seq 0 100`; do
-			echo -e "$i\t0.0" >> histo.txt
-		done
-		echo "" >> histo.txt
-
-		# add the histogram section to any file in the rna_cov/ folder that's missing it.
-		for filename in rna_cov/*; do
-			read lines f <<< $(wc -l $filename)
-
-			if [ $lines -eq '10' ]
-			then
-				head -n 9 $filename > temp1.txt
-				cat temp1.txt histo.txt > temp2.txt
-				cp temp2.txt $filename
-			fi
-		done
-
-		# clean up temporary files
-        if [ -f temp1.txt ]; then
-			rm temp1.txt
-        fi
-        if [ -f temp2.txt ]; then
-        	rm temp2.txt
-        fi
-
-		echo 'rna_cov:'
-		ls rna_cov/
-		wc -l rna_cov/*
-
-		# Sixth folder: qual_cyc
-		mkdir qual_cyc/
-
-		mv ${sep=" " qual_list} qual_cyc/
-
-		echo 'qual_cyc:'
-		ls qual_cyc/
-
-
-		# Seventh folder: rsem_gene
-		mkdir rsem_gene/
-
-		mv ${sep=" " rsem_list} rsem_gene/
-
-		echo 'rsem_gene:'
-		ls rsem_gene/
-
-		# Eighth folder: adapt_content
-		mkdir adapt_content/
-
-		if [ "${sep=" " adapt_list}" != "" ]; then
-        	mv ${sep=" " adapt_list} adapt_content/
-		fi
-		echo 'adapt_content:'
-		ls adapt_content/
-
-		# Ok, finished moving all the files, ready to run the script after creating an images folder for the output (it might be created by the script, but let's be sure
-		mkdir images
-
-		export R_MAX_MEM_SIZE=750	#I don't think this ends up doing anything honestly.
-
-        CELL_TYPES="$(echo ${sep="," cell_types} | sed 's/ /_/g')"
-		# R-3.4.0 location                      Rscript in  f1       f2         f3       f4          f5       f6                 f7         8          9
-        /usr/tag/software/R/R-3.4.0/bin/Rscript ${RPlateQC} aln_sum/ base_call/ dup_met/ insert_met/ rna_cov/ qual_cyc/ rna_cov/ rsem_gene/ adapt_content/ ${metadata} ${annot_gtf} ${species_name} ${flowcells} ${sep="," smid} $CELL_TYPES ${LCSET}
-
-        echo "Finished running R script\n"
-
-        # each plot is in a separate pdf. I want to combine these into 2 relevant pdfs. We're going to use ghostscript:
-        gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=${metadata_basename}.sequencingqc.pdf p3.pdf p7.pdf p8.pdf p1.pdf p2.pdf p13.pdf
-		gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=${metadata_basename}.transcriptqc.pdf p10.pdf p9.pdf p5.pdf p11.pdf
-
-        tar -cz images processedQC.Rdata > ${metadata_basename}.images.tar.gz
-
-         head -n1 ${metadata_basename}.plate_qc_metrics.txt > ${metadata_basename}.plate_qc_metrics_temp.txt
-         tail -n +2 ${metadata_basename}.plate_qc_metrics.txt | sort -k1,1 -k2,2n >> ${metadata_basename}.plate_qc_metrics_temp.txt
-         mv ${metadata_basename}.plate_qc_metrics_temp.txt ${metadata_basename}.plate_qc_metrics.txt
-
-        echo "Reached end of WDL"
-        >>>
-
-        output {
-		# all our output is in the images folder, plus plots and Rdata in cwd
-		File images = "${metadata_basename}.images.tar.gz"
-        File plate_summary_metrics = "${metadata_basename}.plate_summary_metrics.txt"
-        File sequence_plots = "${metadata_basename}.sequencingqc.pdf"
-        File transcript_plots = "${metadata_basename}.transcriptqc.pdf"
-        File plate_qc_metrics = "${metadata_basename}.plate_qc_metrics.txt"
-        }
-
-	runtime {
-	    docker: "bgranger/ss2_qc:0.1"
-        memory: memory + "GB"
-        cpu: "2"
-		disks: "local-disk "+disk_space+" HDD"
-        bootDiskSizeGb: boot_disk_space
+        python ${adapter_script} ${basename1} ${basename2} ${output_prefix}
+    >>>
+    runtime {
+      docker: ss2_adapter_qc_docker
+      disks: "local-disk " + disk_size + " HDD"
+      memory: mem + "GB"
+      cpu: "1"
+    }
+    output {
+      File adapter_content_metrics = "${output_prefix}.adapter_content_metrics.txt"
+        File read1_fastqc_html = "${basename1}_fastqc.html"
+        File read2_fastqc_html = "${basename2}_fastqc.html"
     }
 }
 
-task gsutil_cp{
-	File plate_qc_metrics
-	String? target_google_bucket = "gs://fc-735a9d10-0cf6-4ae5-a203-5e5522bf5c3c/tableau_files"
+task ExtractQC_metrics {
+    File rsem_gene_results
+    File dedup_metrics
+    File alignment_summary_metrics
+    File rna_metrics
 
-	command <<<
-	gsutil cp ${plate_qc_metrics} ${target_google_bucket}
-	>>>
+    String ss2_docker
 
-	runtime{
-		docker: "gcr.io/google.com/cloudsdktool/google-cloud-cli:latest"
-	}
+    String output_prefix
+
+    Float? mem = 4
+
+
+    command <<<
+
+    paste <(cat ${dedup_metrics} | sed '/^#/d' | cut -f 9,10 | grep -v ^$) \
+    <(cat ${alignment_summary_metrics} | sed '/^#/d' | cut -f 2,7 | sed -n -e 2p -e 5p | sed 's/PCT_PF_READS_ALIGNED/PCT_PF_READS_ALIGNED_PAIR/g') \
+    <(cat ${alignment_summary_metrics} | sed '/^#/d' | cut -f 2,7 | sed -n -e 2p -e 3p | cut -f 2 | sed 's/PCT_PF_READS_ALIGNED/PCT_ALIGNED_READ1/g') \
+    <(cat ${alignment_summary_metrics} | sed '/^#/d' | cut -f 2,7 | cut -f 2 | sed -n -e 2p -e 4p | sed 's/PCT_PF_READS_ALIGNED/PCT_ALIGNED_READ2/g') \
+    <(cat ${rna_metrics} | sed '/^#/d' | cut -f 16-22,24-26 | grep -v ^$) \
+    <(python3 /scripts/rsem_gene_results_metrics.py --rsem_genes_results ${rsem_gene_results}) > metrics_in_columns.txt
+    awk 'BEGIN{FS="\t"}{for(i=1; i<=NF; i++){a[NR,i] = $i}} NF>p { p = NF }END{for(j=1; j<=p; j++){str=a[1,j]; for(i=2; i<=NR; i++){if(a[i,j] == ""){a[i,j]=-1} str=str"\t"a[i,j]};print str}}' metrics_in_columns.txt | grep ^[A-Z] > ${output_prefix}.metric_in_rows.txt
+
+    >>>
+    runtime {
+      docker: ss2_docker
+      disks: "local-disk 25 HDD"
+      memory: mem + "GB"
+      cpu: "1"
+    }
+
+    output {
+
+        File merged_metrics_file = "${output_prefix}.metric_in_rows.txt"
+        Map[String, Float] merged_metrics = read_map("${output_prefix}.metric_in_rows.txt")
+
+    }
+
 
 }
