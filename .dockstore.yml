@@ -1,25 +1,10 @@
 version: 1.2
 workflows:
- - name: SS2_scRNA_pipeline
-   subclass: WDL
-   primaryDescriptorPath: /wdl/SS2_scRNA_pipeline.wdl
-   testParameterFiles:
-   - /input_json/ss2_scRNA_pipeline_inputs.json
- - name: SC_Plate_QC
-   subclass: WDL
-   primaryDescriptorPath: /wdl/SC_Plate_QC.wdl
-   testParameterFiles:
-   - /input_json/SC_Plate_QC_pipeline_inputs.json
- - name: CramToBam
-   subclass: WDL
-   primaryDescriptorPath: /wdl/CramToBam.wdl
-   testParameterFiles:
-   - /input_json/CramToBam_inputs.json
  - name: CollectSamErrorMetrics
    subclass: WDL
-   primaryDescriptorPath: /wdl/CollectSamErrorMetrics.wdl
+   primaryDescriptorPath: /CollectSamError/CollectSamErrorMetrics.wdl
    testParameterFiles:
-   - /input_json/CollectSamErrorMetrics_inputs.json
+   - /CollectSamError/CollectSamErrorMetrics.inputs.json
  - name: BenchmarkCNV
    subclass: WDL
    primaryDescriptorPath: /BenchmarkCNV/BenchmarkCNV.wdl
