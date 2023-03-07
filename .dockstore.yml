@@ -12,16 +12,11 @@ workflows:
    testParameterFiles:
    - /SmartSeq/SC_Plate_QC/SC_Plate_QC.human.terra-inputs.json
    - /SmartSeq/SC_Plate_QC/SC_Plate_QC.mouse.terra-inputs.json
- - name: CramToBam
-   subclass: WDL
-   primaryDescriptorPath: /wdl/CramToBam.wdl
-   testParameterFiles:
-   - /input_json/CramToBam_inputs.json
  - name: CollectSamErrorMetrics
    subclass: WDL
-   primaryDescriptorPath: /wdl/CollectSamErrorMetrics.wdl
+   primaryDescriptorPath: /CollectSamError/CollectSamErrorMetrics.wdl
    testParameterFiles:
-   - /input_json/CollectSamErrorMetrics_inputs.json
+   - /CollectSamError/CollectSamErrorMetrics.inputs.json
  - name: BenchmarkCNV
    subclass: WDL
    primaryDescriptorPath: /BenchmarkCNV/BenchmarkCNV.wdl
