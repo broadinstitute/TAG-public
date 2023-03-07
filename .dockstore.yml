@@ -1,5 +1,17 @@
 version: 1.2
 workflows:
+ - name: SmartSeq2_scRNA_pipeline
+   subclass: WDL
+   primaryDescriptorPath: /SmartSeq/scRNA_Pipeline/SmartSeq2_scRNA_pipeline.wdl
+   testParameterFiles:
+   - /SmartSeq/scRNA_Pipeline/SmartSeq2_scRNA_pipeline.human.terra-inputs.json
+   - /SmartSeq/scRNA_Pipeline/SmartSeq2_scRNA_pipeline.mouse.terra-inputs.json
+ - name: SmartSeq2_SC_Plate_QC
+   subclass: WDL
+   primaryDescriptorPath: /SmartSeq/SC_Plate_QC/SC_Plate_QC.wdl
+   testParameterFiles:
+   - /SmartSeq/SC_Plate_QC/SC_Plate_QC.human.terra-inputs.json
+   - /SmartSeq/SC_Plate_QC/SC_Plate_QC.mouse.terra-inputs.json
  - name: CollectSamErrorMetrics
    subclass: WDL
    primaryDescriptorPath: /CollectSamError/CollectSamErrorMetrics.wdl
