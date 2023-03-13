@@ -74,3 +74,8 @@ workflows:
    primaryDescriptorPath: /BreaKmer/BreaKmer.wdl
    testParameterFiles:
    - /BreaKmer/BreaKmer.inputs.json
+ - name: Griffin_GC_Correction
+   subclass: WDL
+   primaryDescriptorPath: /Griffin/griffin_GC_and_mappability_correction/griffin_GC_and_mappability_correction.wdl
+   testParameterFiles:
+   - /Griffin/griffin_GC_and_mappability_correction/griffin_GC_and_mappability_correction.inputs.json
