@@ -84,6 +84,7 @@ task mappability_bias {
     runtime {
         docker: griffin_docker
         bootDiskSizeGb: 12
+        cpu: cpu_num
         memory: mem_size + " GB"
         disks: "local-disk " + disk_size + " HDD"
         preemptible: 2
