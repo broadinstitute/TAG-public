@@ -1,0 +1,19 @@
+{
+  "gc_and_mappability_correction.mappability_bw": "gs://gptag/resources/Griffin/Ref_hg38/k100.Umap.MultiTrackMappability.bw",
+  "gc_and_mappability_correction.gaps": "gs://gptag/resources/Griffin/Ref_hg38/hg38_gaps.bed",
+  "gc_and_mappability_correction.mappability_bias.cpu": "Int? (optional)",
+  "gc_and_mappability_correction.mappability_bias.disk_size": "Int? (optional)",
+  "gc_and_mappability_correction.mappability_bias.cpu_num": "Int? (optional)",
+  "gc_and_mappability_correction.chrom_sizes": "gs://gptag/resources/Griffin/Ref_hg38/hg38.standard.chrom.sizes",
+  "gc_and_mappability_correction.bam_file": "gs://gptag/resources/Griffin/demo_data/Healthy_GSM1833219_downsampled.sorted.mini.bam",
+  "gc_and_mappability_correction.mappability_bias.disk_space": "Int? (optional)",
+  "gc_and_mappability_correction.mappability_bias.mem": "Int? (optional)",
+  "gc_and_mappability_correction.alternative_haplotypes": "gs://gptag/resources/Griffin/Ref_hg38/hg38_alternative_haplotypes.bed",
+  "gc_and_mappability_correction.mappability_bias.mem_size": "Int? (optional)",
+  "gc_and_mappability_correction.mappability_correction": true,
+  "gc_and_mappability_correction.map_quality": 20,
+  "gc_and_mappability_correction.patches": "gs://gptag/resources/Griffin/Ref_hg38/hg38_fix_patches.bed",
+  "gc_and_mappability_correction.centromeres": "gs://gptag/resources/Griffin/Ref_hg38/hg38_centromeres.bed",
+  "gc_and_mappability_correction.griffin_docker": "us.gcr.io/tag-team-160914/griffin:v1",
+  "gc_and_mappability_correction.encode_exclude": "gs://gptag/resources/Griffin/Ref_hg38/encode_unified_GRCh38_exclusion_list.bed"
+}
