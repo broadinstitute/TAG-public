@@ -28,7 +28,8 @@ workflow gc_and_mappability_correction{
                 patches = patches,
                 alternative_haplotypes = alternative_haplotypes,
                 chrom_sizes = chrom_sizes,
-                map_q = map_quality
+                map_q = map_quality,
+                temp_dir = temp_file()
         }
     }
     output {
@@ -55,6 +56,7 @@ task mappability_bias {
         File patches
         File alternative_haplotypes
         File chrom_sizes
+        File temp_dir
         Int map_q
         Int? cpu
         Int? mem
@@ -67,6 +69,7 @@ task mappability_bias {
     command <<<
         set -e
 
+        mkdir ~{temp_dir}
         # Run griffin_mappability_correction
         conda run --no-capture-output \
         -n griffin_env \
@@ -80,7 +83,7 @@ task mappability_bias {
         --chrom_sizes ~{chrom_sizes} \
         --map_quality ~{map_q} \
         --CPU ~{cpu_num} \
-        --tmp_dir results/tmp_~{sample_name}
+        --tmp_dir ~{temp_dir}
     >>>
     runtime {
         docker: griffin_docker
