@@ -68,7 +68,7 @@ task mappability_bias {
         set -e
 
         # Index the input bam file
-        samtools index ~{bam_file}
+        conda run --no-capture-output -n griffin_env samtools index ~{bam_file}
 
         # Make temporary directory
         mkdir -p results/mappability_bias/temp_~{sample_name}/
