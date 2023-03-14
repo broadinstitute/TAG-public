@@ -73,6 +73,9 @@ task mappability_bias {
         # Make temporary directory
         mkdir -p results/mappability_bias/temp_~{sample_name}/
 
+        # Create a directory for mappability plots
+        mkdir -p results/mappability_plots/
+
         # Run griffin_mappability_correction
         conda run --no-capture-output \
         -n griffin_env \
