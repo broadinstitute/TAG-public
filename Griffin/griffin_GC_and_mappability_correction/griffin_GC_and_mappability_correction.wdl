@@ -4,6 +4,7 @@ workflow gc_and_mappability_correction{
     input {
         Boolean mappability_correction
         File bam_file
+        String sample_name
         File mappability_bw
         File encode_exclude
         File centromeres
@@ -19,7 +20,7 @@ workflow gc_and_mappability_correction{
             input:
                 griffin_docker = griffin_docker,
                 bam_file = bam_file,
-                sample_name = basename(bam_file),
+                sample_name = sample_name,
                 mappability_bw = mappability_bw,
                 encode_exclude = encode_exclude,
                 centromeres = centromeres,
@@ -92,6 +93,6 @@ task mappability_bias {
     output {
         File mappability_bias_file = "results/mappability_bias/~{sample_name}.mappability_bias.txt"
         File mappability_plot = "results/mappability_plots/~{sample_name}.mappability_bias.pdf"
-        File mappability_plot2 = "results/mappability_plots/{samples}.mappability_bias.read_coverage_distribution.pdf"
+        File mappability_plot2 = "results/mappability_plots/{sample_name}.mappability_bias.read_coverage_distribution.pdf"
     }
 }
