@@ -67,6 +67,9 @@ task mappability_bias {
     command <<<
         set -e
 
+        # Index the input bam file
+        samtools index ~{bam_file}
+
         # Make temporary directory
         mkdir -p results/mappability_bias/temp_~{sample_name}/
 
