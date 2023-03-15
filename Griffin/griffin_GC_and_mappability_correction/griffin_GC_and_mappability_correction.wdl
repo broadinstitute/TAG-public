@@ -153,9 +153,6 @@ task GC_counts {
         # Index the input bam file
         conda run --no-capture-output -n griffin_env samtools index ~{bam_file}
 
-        # Create a directory for GC counts output
-        mkdir -p results/GC_counts/
-
         # Run griffin_mappability_correction
         conda run --no-capture-output \
         -n griffin_env \
@@ -165,7 +162,7 @@ task GC_counts {
         --mappable_regions_path ~{mappable_regions} \
         --ref_seq ~{reference_genome} \
         --chrom_sizes ~{chrom_sizes} \
-        --out_dir results/GC_counts/ \
+        --out_dir results/ \
         --map_q ~{map_q} \
         --size_range ~{GC_bias_size_min} ~{GC_bias_size_max} \
         --CPU ~{cpu_num} \
