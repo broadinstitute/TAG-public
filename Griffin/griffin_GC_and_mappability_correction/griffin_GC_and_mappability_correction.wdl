@@ -105,6 +105,6 @@ task mappability_bias {
     output {
         File mappability_bias_file = "results/mappability_bias/~{sample_name}.mappability_bias.txt"
         File mappability_plot = "results/mappability_plots/~{sample_name}.mappability_bias.pdf"
-        File mappability_plot2 = "results/mappability_plots/{sample_name}.mappability_bias.read_coverage_distribution.pdf"
+        File mappability_plot2 = "results/mappability_plots/~{sample_name}.mappability_bias.read_coverage_distribution.pdf"
     }
 }
