@@ -150,6 +150,9 @@ task GC_counts {
     command <<<
         set -e
 
+        # Index the input bam file
+        conda run --no-capture-output -n griffin_env samtools index ~{bam_file}
+
         # Create a directory for GC counts output
         mkdir -p results/GC_counts/
 
