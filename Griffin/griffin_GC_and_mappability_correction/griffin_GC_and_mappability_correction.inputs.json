@@ -12,7 +12,7 @@
   "gc_and_mappability_correction.encode_exclude": "gs://gptag/resources/Griffin/Ref_hg38/encode_unified_GRCh38_exclusion_list.bed",
   "gc_and_mappability_correction.reference_genome": "gs://gptag/resources/Griffin/Ref_hg38/hg38.fa",
   "gc_and_mappability_correction.mappable_regions": "gs://gptag/resources/Griffin/Ref_hg38/k100_minus_exclusion_lists.mappable_regions.hg38.bed",
-  "gc_and_mappability_correction.genome_GC_frequency": "gs://gptag/resources/Griffin/Ref_hg38/genome_GC_frequency",
+  "gc_and_mappability_correction.genome_GC_frequency": "gs://gptag/resources/Griffin/Ref_hg38/genome_GC_frequency.tar.gz",
   "gc_and_mappability_correction.GC_bias_size_min": 15,
   "gc_and_mappability_correction.GC_bias_size_max": 500,
   "gc_and_mappability_correction.mappability_bias.cpu": 8,
