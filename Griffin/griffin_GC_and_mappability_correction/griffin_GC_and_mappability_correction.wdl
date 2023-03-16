@@ -16,6 +16,7 @@ workflow gc_and_mappability_correction{
         String griffin_docker
         File mappable_regions
         File reference_genome
+        File genome_GC_frequency
         Int GC_bias_size_min
         Int GC_bias_size_max
     }
@@ -45,6 +46,17 @@ workflow gc_and_mappability_correction{
             reference_genome = reference_genome,
             chrom_sizes = chrom_sizes,
             map_q = map_quality,
+            GC_bias_size_min = GC_bias_size_min,
+            GC_bias_size_max = GC_bias_size_max
+    }
+
+    call GC_bias {
+        input:
+            griffin_docker = griffin_docker,
+            sample_name = sample_name,
+            GC_counts_file = GC_counts.GC_counts_file,
+            mappable_name = basename(mappable_regions, ".bed"),
+            genome_GC_frequency = genome_GC_frequency,
             GC_bias_size_min = GC_bias_size_min,
             GC_bias_size_max = GC_bias_size_max
     }
@@ -156,7 +168,7 @@ task GC_counts {
         # Index the input bam file
         conda run --no-capture-output -n griffin_env samtools index ~{bam_file}
 
-        # Run griffin_mappability_correction
+        # Run griffin_GC_counts
         conda run --no-capture-output \
         -n griffin_env \
         python3 /BaseImage/Griffin/scripts/griffin_GC_counts.py \
@@ -181,5 +193,46 @@ task GC_counts {
 }
     output {
         File GC_counts_file = "results/GC_counts/~{sample_name}.GC_counts.txt"
+    }
+}
+
+task GC_bias {
+    input {
+        String griffin_docker
+        String sample_name
+        String mappable_name
+        File GC_counts_file
+        File genome_GC_frequency
+        Int GC_bias_size_min
+        Int GC_bias_size_max
+    }
+    command <<<
+        set -e
+
+        # Create an output directory
+        mkdir results
+
+        # Run griffin_GC_bias
+        conda run --no-capture-output \
+        -n griffin_env \
+        python3 /BaseImage/Griffin/scripts/griffin_GC_bias.py \
+        --bam_file_name ~{sample_name} \
+        --mappable_regions_path ~{mappable_name} \
+        --genome_GC_frequency ~{genome_GC_frequency} \
+        --out_dir results \
+        --size_range ~{GC_bias_size_min} ~{GC_bias_size_max} \
+
+    >>>
+    runtime {
+        docker: griffin_docker
+        preemptible: 2
+        bootDiskSizeGb: 12
+        cpu: 2
+        memory: "4 GB"
+        disks: "local-disk " + 25 + " HDD"
+}
+    output {
+        File GC_bias_file = "results/GC_bias/~{sample_name}.GC_bias.txt"
+        File GC_plots = "results/GC_plots/~{sample_name}.GC_bias.summary.pdf"
     }
 }
