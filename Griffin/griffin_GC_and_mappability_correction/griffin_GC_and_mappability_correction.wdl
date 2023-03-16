@@ -214,8 +214,9 @@ task GC_bias {
         # Uncompress the genome_GC_frequency.tar.gz into a direcotry named genome_GC_frequency
         tar -xvf ~{genome_GC_frequency} --directory ./
 
-        # Create an output directory
-        mkdir results
+        # Copy the GC_count_file that were generated from GC_Count task
+        mkdir -p results/GC_counts/
+        cp ~{GC_counts_file} results/GC_counts/
 
         # Run griffin_GC_bias
         conda run --no-capture-output \
