@@ -222,7 +222,7 @@ task GC_bias {
         -n griffin_env \
         python3 /BaseImage/Griffin/scripts/griffin_GC_bias.py \
         --bam_file_name ~{sample_name} \
-        --mappable_regions_path ~{mappable_name} \
+        --mappable_name ~{mappable_name} \
         --genome_GC_frequency ./genome_GC_frequency \
         --out_dir results \
         --size_range ~{GC_bias_size_min} ~{GC_bias_size_max} \
