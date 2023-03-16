@@ -211,6 +211,9 @@ task GC_bias {
     command <<<
         set -e
 
+        # Uncompress the genome_GC_frequency.tar.gz into a direcotry named genome_GC_frequency
+        tar -xvf ~{genome_GC_frequency} --directory ./
+
         # Create an output directory
         mkdir results
 
@@ -220,7 +223,7 @@ task GC_bias {
         python3 /BaseImage/Griffin/scripts/griffin_GC_bias.py \
         --bam_file_name ~{sample_name} \
         --mappable_regions_path ~{mappable_name} \
-        --genome_GC_frequency ~{genome_GC_frequency} \
+        --genome_GC_frequency ./genome_GC_frequency \
         --out_dir results \
         --size_range ~{GC_bias_size_min} ~{GC_bias_size_max} \
 
