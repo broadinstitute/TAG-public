@@ -66,6 +66,8 @@ workflow gc_and_mappability_correction{
         File? mappability_plot = mappability_bias.mappability_plot
         File? mappability_plot2 = mappability_bias.mappability_plot2
         File GC_counts_file = GC_counts.GC_counts_file
+        File GC_bias_file = GC_bias.GC_bias_file
+        File GC_plots = GC_bias.GC_plots
     }
     meta {
         author: "Yueyao Gao"
