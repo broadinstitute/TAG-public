@@ -13,7 +13,7 @@
   "nucleosome_profiling.number_of_sites": 0,
   "nucleosome_profiling.mappability_bw": "gs://gptag/resources/Griffin/Ref_hg38/k100.Umap.MultiTrackMappability.bw",
   "nucleosome_profiling.calc_cov.cpu": "Int? (optional)",
-  "nucleosome_profiling.map_quality": "Int",
+  "nucleosome_profiling.map_quality": 20,
   "nucleosome_profiling.ascending": "none",
   "nucleosome_profiling.chrom_sizes": "gs://gptag/resources/Griffin/Ref_hg38/hg38.standard.chrom.sizes",
   "nucleosome_profiling.position_column": "position",
