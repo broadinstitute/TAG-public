@@ -76,7 +76,7 @@ task calc_cov {
         String chrom_column
         String position_column
         String strand_column
-        String chroms
+        Array[String] chroms
         Array[Int] norm_window
         Array[Int] size_range
         Int map_quality
