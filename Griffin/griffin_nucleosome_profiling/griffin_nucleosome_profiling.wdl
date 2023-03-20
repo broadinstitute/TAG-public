@@ -10,7 +10,7 @@ workflow nucleosome_profiling{
         File reference_genome
         File mappability_bw
         File chrom_sizes
-        File sites_yaml
+        File sites_file
         String chrom_column
         String position_column
         String strand_column
@@ -33,7 +33,7 @@ workflow nucleosome_profiling{
             reference_genome = reference_genome,
             mappability_bw = mappability_bw,
             chrom_sizes = chrom_sizes,
-            sites_yaml = sites_yaml,
+            sites_file = sites_file,
             chrom_column = chrom_column,
             position_column = position_column,
             strand_column = strand_column,
@@ -69,7 +69,7 @@ task calc_cov {
         File reference_genome
         File mappability_bw
         File chrom_sizes
-        File sites_yaml
+        File sites_file
         String chrom_column
         String position_column
         String strand_column
@@ -95,6 +95,12 @@ task calc_cov {
 
         # Make temporary directory
         mkdir -p results/calc_cov/temp/
+        mkdir -p /griffin_nucleosome_profiling_files/sites/
+
+        # Create a sites yaml file from input sites_file
+        echo "site_lists:
+            CTCF_demo: ~{sites_file}" > /griffin_nucleosome_profiling_files/sites/sites.yaml
+
 
         # Run griffin_coverage_script if mappability_bias path was specified
         # when mappability_bias path was specified
@@ -112,7 +118,7 @@ task calc_cov {
         --reference_genome ~{reference_genome} \
         --mappability_bw ~{mappability_bw} \
         --chrom_sizes_path ~{chrom_sizes} \
-        --sites_yaml ~{sites_yaml} \
+        --sites_yaml /griffin_nucleosome_profiling_files/sites/sites.yaml \
         --griffin_scripts /BaseImage/Griffin/scripts/ \
         --chrom_column ~{chrom_column} \
         --position_column ~{position_column} \
@@ -142,7 +148,7 @@ task calc_cov {
         --reference_genome ~{reference_genome} \
         --mappability_bw ~{mappability_bw} \
         --chrom_sizes_path ~{chrom_sizes} \
-        --sites_yaml ~{sites_yaml} \
+        --sites_yaml /griffin_nucleosome_profiling_files/sites/sites.yaml \
         --griffin_scripts /BaseImage/Griffin/scripts/ \
         --chrom_column ~{chrom_column} \
         --position_column ~{position_column} \
