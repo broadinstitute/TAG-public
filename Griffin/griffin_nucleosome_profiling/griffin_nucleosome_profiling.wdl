@@ -126,10 +126,10 @@ task calc_cov {
         --ascending ~{ascending} \
         --CPU ~{cpu_num}
 
-        else
         # Run griffin_coverage_script if mappability_bias path was not specified
         # when mappability_bias path was not specified
         # mappability_correction is False
+        else
         conda run --no-capture-output \
         -n griffin_env \
         python3 /BaseImage/Griffin/scripts/griffin_coverage.py \
@@ -155,6 +155,8 @@ task calc_cov {
         --sort_by ~{sort_by} \
         --ascending ~{ascending} \
         --CPU ~{cpu_num}
+
+        fi
 
         # tar zip the tmp_pybedtools
         tar -zcvf results/calc_cov/temp/tmp_pybedtools.tar.gz results/calc_cov/temp/tmp_pybedtools
