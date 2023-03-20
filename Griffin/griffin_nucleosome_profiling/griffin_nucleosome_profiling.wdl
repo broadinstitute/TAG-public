@@ -117,9 +117,9 @@ task calc_cov {
         --chrom_column ~{chrom_column} \
         --position_column ~{position_column} \
         --strand_column ~{strand_column} \
-        --chroms ~{sep=", " chroms} \
-        --norm_window ~{sep=", " norm_window} \
-        --size_range ~{sep=", " size_range} \
+        --chroms ~{sep=" " chroms} \
+        --norm_window ~{sep=" " norm_window} \
+        --size_range ~{sep=" " size_range} \
         --map_quality ~{map_quality} \
         --number_of_sites ~{number_of_sites} \
         --sort_by ~{sort_by} \
