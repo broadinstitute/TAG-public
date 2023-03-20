@@ -7,7 +7,6 @@ workflow nucleosome_profiling{
         File GC_bias_file
         String sample_name
         File? mappability_bias
-        Boolean mappability_correction = false
         File reference_genome
         File mappability_bw
         File chrom_sizes
@@ -31,7 +30,6 @@ workflow nucleosome_profiling{
             GC_bias_file = GC_bias_file,
             sample_name = sample_name,
             mappability_bias = mappability_bias,
-            mappability_correction = mappability_correction,
             reference_genome = reference_genome,
             mappability_bw = mappability_bw,
             chrom_sizes = chrom_sizes,
@@ -68,7 +66,6 @@ task calc_cov {
         File GC_bias_file
         String sample_name
         File? mappability_bias
-        Boolean mappability_correction
         File reference_genome
         File mappability_bw
         File chrom_sizes
@@ -99,7 +96,10 @@ task calc_cov {
         # Make temporary directory
         mkdir -p results/calc_cov/temp/
 
-        # Run griffin_coverage_script
+        # Run griffin_coverage_script if mappability_bias path was specified
+        # when mappability_bias path was specified
+        # mappability_correction is True
+        if [[ -f "~{mappability_bias}" ]]; then
         conda run --no-capture-output \
         -n griffin_env \
         python3 /BaseImage/Griffin/scripts/griffin_coverage.py \
@@ -107,7 +107,37 @@ task calc_cov {
         --bam ~{bam_file} \
         --GC_bias ~{GC_bias_file} \
         --mappability_bias ~{mappability_bias} \
-        --mappability_correction ~{mappability_correction} \
+        --mappability_correction True \
+        --tmp_dir results/calc_cov/temp \
+        --reference_genome ~{reference_genome} \
+        --mappability_bw ~{mappability_bw} \
+        --chrom_sizes_path ~{chrom_sizes} \
+        --sites_yaml ~{sites_yaml} \
+        --griffin_scripts /BaseImage/Griffin/scripts/ \
+        --chrom_column ~{chrom_column} \
+        --position_column ~{position_column} \
+        --strand_column ~{strand_column} \
+        --chroms ~{sep=" " chroms} \
+        --norm_window ~{sep=" " norm_window} \
+        --size_range ~{sep=" " size_range} \
+        --map_quality ~{map_quality} \
+        --number_of_sites ~{number_of_sites} \
+        --sort_by ~{sort_by} \
+        --ascending ~{ascending} \
+        --CPU ~{cpu_num}
+
+        else
+        # Run griffin_coverage_script if mappability_bias path was not specified
+        # when mappability_bias path was not specified
+        # mappability_correction is False
+        conda run --no-capture-output \
+        -n griffin_env \
+        python3 /BaseImage/Griffin/scripts/griffin_coverage.py \
+        --sample_name ~{sample_name} \
+        --bam ~{bam_file} \
+        --GC_bias ~{GC_bias_file} \
+        --mappability_bias none \
+        --mappability_correction False \
         --tmp_dir results/calc_cov/temp \
         --reference_genome ~{reference_genome} \
         --mappability_bw ~{mappability_bw} \
