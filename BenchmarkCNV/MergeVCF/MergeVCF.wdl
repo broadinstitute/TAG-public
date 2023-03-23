@@ -49,12 +49,16 @@ task mergeVCF {
             echo "vcf1: ~{vcf1}"
             echo "vcf2: ~{vcf2}"
 
+            # bgzf-compress the input vcf files
+            bcftools view ~{vcf1} -Oz -o ~{vcf1}.gz
+            bcftools view ~{vcf2} -Oz -o ~{vcf2}.gz
+
             echo "Index the input VCFs"
-            bcftools index -t ~{vcf1}
-            bcftools index -t ~{vcf2}
+            bcftools index -t ~{vcf1}.gz
+            bcftools index -t ~{vcf2}.gz
 
             # Use bcftools to concat two vcfs
-            bcftools concat -Oz -a ~{vcf1} ~{vcf2} -o ~{sample_name}_merged.vcf.gz
+            bcftools concat -Oz -a ~{vcf1}.gz ~{vcf2}.gz -o ~{sample_name}_merged.vcf.gz
 
             # Print the output file name
             echo "Merged VCF file: ~{sample_name}_merged.vcf.gz"
