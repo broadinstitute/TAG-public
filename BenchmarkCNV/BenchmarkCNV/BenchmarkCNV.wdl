@@ -11,6 +11,7 @@ workflow Benchmark_CNV_Caller {
         String wittyer_evaluation_mode
         String wittyer_docker
         String wittyer4mat_docker
+        Boolean? run_wittyer4mat
     }
 
     # benchmark cnv.vcf and sv.vcf using witty.er tool
@@ -27,11 +28,13 @@ workflow Benchmark_CNV_Caller {
     }
 
     # wittyer4mat to parse the wittyer json output
-    call Wittyer4Mat {
-        input:
-            wittyer4mat_docker = wittyer4mat_docker,
-            wittyer_stats = BenchmarkCNV.wittyer_stats,
-            truth_sample_name = truth_sample_name
+    if (run_wittyer4mat) {
+        call Wittyer4Mat {
+            input:
+                wittyer4mat_docker = wittyer4mat_docker,
+                wittyer_stats = BenchmarkCNV.wittyer_stats,
+                truth_sample_name = truth_sample_name
+        }
     }
 
     # Outputs that will be retained when execution is complete
@@ -39,7 +42,7 @@ workflow Benchmark_CNV_Caller {
         File wittyer_stats = BenchmarkCNV.wittyer_stats
         File wittyer_annotated_vcf = BenchmarkCNV.wittyer_annotated_vcf
         File wittyer_annotated_vcf_index = BenchmarkCNV.wittyer_annotated_vcf_index
-        Array[File] Wittyer4Mat_event_stats = Wittyer4Mat.event_level_wittyer_stats
+        Array[File]? Wittyer4Mat_event_stats = Wittyer4Mat.event_level_wittyer_stats
     }
     meta {
         author: "Yueyao Gao"
