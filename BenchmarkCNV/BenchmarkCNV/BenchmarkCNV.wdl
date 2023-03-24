@@ -11,7 +11,7 @@ workflow Benchmark_CNV_Caller {
         String wittyer_evaluation_mode
         String wittyer_docker
         String wittyer4mat_docker
-        Boolean? run_wittyer4mat
+        Boolean run_wittyer4mat
     }
 
     # benchmark cnv.vcf and sv.vcf using witty.er tool
