@@ -49,7 +49,6 @@ workflow nucleosome_profiling{
     output {
         File uncorrected_bw = calc_cov.uncorrected_bw
         File GC_corrected_bw = calc_cov.GC_corrected_bw
-        File tmp_pybedtools = calc_cov.tmp_pybedtools
     }
 
     meta {
@@ -176,6 +175,5 @@ task calc_cov {
     output {
         File uncorrected_bw = "results/calc_cov/temp/tmp_bigWig/~{sample_name}.uncorrected.bw"
         File GC_corrected_bw = "results/calc_cov/temp/tmp_bigWig/~{sample_name}.GC_corrected.bw"
-        File tmp_pybedtools = "results/calc_cov/temp/tmp_pybedtools.tar.gz"
         }
 }
