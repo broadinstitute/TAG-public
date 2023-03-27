@@ -89,8 +89,9 @@ task calc_cov {
         }
     command <<<
         set -e
-        # Index the input bam file
+        # Index the input bam file and ref genome
         conda run --no-capture-output -n griffin_env samtools index ~{bam_file}
+        conda run --no-capture-output -n griffin_env samtools faidx ~{reference_genome}
 
         # Make temporary directory
         mkdir -p results/calc_cov/temp/
