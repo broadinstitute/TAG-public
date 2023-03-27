@@ -164,8 +164,6 @@ task calc_cov {
 
         fi
 
-        # tar zip the tmp_pybedtools
-        tar -zcvf results/calc_cov/temp/tmp_pybedtools.tar.gz results/calc_cov/temp/tmp_pybedtools
     >>>
     runtime {
         docker: griffin_docker
