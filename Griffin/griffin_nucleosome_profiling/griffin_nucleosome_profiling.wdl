@@ -49,6 +49,7 @@ workflow nucleosome_profiling{
     output {
         File uncorrected_bw = calc_cov.uncorrected_bw
         File GC_corrected_bw = calc_cov.GC_corrected_bw
+        File GC_map_corrected_bw = calc_cov.GC_map_corrected_bw
     }
 
     meta {
