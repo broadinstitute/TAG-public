@@ -21,6 +21,8 @@ workflow nucleosome_profiling{
         Int number_of_sites = 0
         String sort_by = 'none'
         String ascending = 'none'
+        Boolean? mappability_correction = false
+
     }
 
     call calc_cov {
@@ -45,8 +47,23 @@ workflow nucleosome_profiling{
             sort_by = sort_by,
             ascending = ascending
     }
+/*
+    # Griffin merge_sites is not working yet
+    call merge_sites {
+        input:
+            griffin_docker = griffin_docker,
+            sample_name = sample_name,
+            uncorrected_bw = calc_cov.uncorrected_bw,
+            GC_corrected_bw = calc_cov.GC_corrected_bw,
+            GC_map_corrected_bw = calc_cov.GC_map_corrected_bw,
+            mappability_correction = mappability_correction,
+            mappability_bw = mappability_bw,
+            chrom_sizes = chrom_sizes,
 
+    }
+*/
     output {
+        File sites_yaml = calc_cov.sites_yaml
         File uncorrected_bw = calc_cov.uncorrected_bw
         File GC_corrected_bw = calc_cov.GC_corrected_bw
         File GC_map_corrected_bw = calc_cov.GC_map_corrected_bw
@@ -175,6 +192,7 @@ task calc_cov {
         preemptible: 2
         }
     output {
+        File sites_yaml = "/griffin_nucleosome_profiling_files/sites/sites.yaml"
         File uncorrected_bw = "results/calc_cov/temp/~{sample_name}/tmp_bigWig/~{sample_name}.uncorrected.bw"
         File GC_corrected_bw = "results/calc_cov/temp/~{sample_name}/tmp_bigWig/~{sample_name}.GC_corrected.bw"
         File GC_map_corrected_bw = "results/calc_cov/temp/~{sample_name}/tmp_bigWig/~{sample_name}.GC_map_corrected.bw"
