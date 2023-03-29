@@ -21,8 +21,8 @@ workflow nucleosome_profiling{
         Int number_of_sites = 0 # how many sites to analyze. use 0 to analyze all sites
         String sort_by = 'none' # column to use for sorting sites use 'none' if analyzing all sites
         String ascending = 'none' # whether to sort sites in ascending order, use 'none' to analyze all sites
-        Boolean? mappability_correction = false
-        Array[Int] save_window #window around each site to save to outputs
+#        Boolean? mappability_correction = false
+#        Array[Int] save_window #window around each site to save to outputs
 
     }
 
