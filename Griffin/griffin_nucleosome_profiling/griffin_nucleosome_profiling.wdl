@@ -11,17 +11,18 @@ workflow nucleosome_profiling{
         File mappability_bw
         File chrom_sizes
         File sites_file
-        String chrom_column
-        String position_column
-        String strand_column
+        String chrom_column # column containing the chromosome in your sites file
+        String position_column # column containing the site position in your sites file
+        String strand_column # column for indicating site direction in your sites file. If this column doesn't exist, the script will assume non-directional sites.
         Array[String] chroms
-        Array[Int] norm_window
-        Array[Int] size_range
-        Int map_quality
-        Int number_of_sites = 0
-        String sort_by = 'none'
-        String ascending = 'none'
+        Array[Int] norm_window # window around each site for normalizing to 1 (-5000 5000 bp for typical TFBS WGS analysis)
+        Array[Int] size_range # range of fragment lengths to be used for analysis. 100 to 200 captures nucleosome sized fragments. 15 to 500 also okay.
+        Int map_quality # minimum mapping quality to keep a read
+        Int number_of_sites = 0 # how many sites to analyze. use 0 to analyze all sites
+        String sort_by = 'none' # column to use for sorting sites use 'none' if analyzing all sites
+        String ascending = 'none' # whether to sort sites in ascending order, use 'none' to analyze all sites
         Boolean? mappability_correction = false
+        Array[Int] save_window #window around each site to save to outputs
 
     }
 
@@ -59,6 +60,13 @@ workflow nucleosome_profiling{
             mappability_correction = mappability_correction,
             mappability_bw = mappability_bw,
             chrom_sizes = chrom_sizes,
+            sites_file = sites_file,
+            chrom_column = chrom_column,
+            position_column = position_column,
+            strand_column = strand_column,
+            chroms = chroms,
+            norm_window = norm_window,
+            save_window = save_window,
 
     }
 */
@@ -113,11 +121,11 @@ task calc_cov {
 
         # Make temporary directory
         mkdir -p results/calc_cov/temp/
-        mkdir -p /griffin_nucleosome_profiling_files/sites/
+        mkdir -p griffin_nucleosome_profiling_files/sites/
 
         # Create a sites yaml file from input sites_file
         echo "site_lists:
-            CTCF_demo: ~{sites_file}" > /griffin_nucleosome_profiling_files/sites/sites.yaml
+            CTCF_demo: ~{sites_file}" > griffin_nucleosome_profiling_files/sites/sites.yaml
 
 
         # Run griffin_coverage_script if mappability_bias path was specified
@@ -136,7 +144,7 @@ task calc_cov {
         --reference_genome ~{reference_genome} \
         --mappability_bw ~{mappability_bw} \
         --chrom_sizes_path ~{chrom_sizes} \
-        --sites_yaml /griffin_nucleosome_profiling_files/sites/sites.yaml \
+        --sites_yaml griffin_nucleosome_profiling_files/sites/sites.yaml \
         --griffin_scripts /BaseImage/Griffin/scripts/ \
         --chrom_column ~{chrom_column} \
         --position_column ~{position_column} \
@@ -166,7 +174,7 @@ task calc_cov {
         --reference_genome ~{reference_genome} \
         --mappability_bw ~{mappability_bw} \
         --chrom_sizes_path ~{chrom_sizes} \
-        --sites_yaml /griffin_nucleosome_profiling_files/sites/sites.yaml \
+        --sites_yaml griffin_nucleosome_profiling_files/sites/sites.yaml \
         --griffin_scripts /BaseImage/Griffin/scripts/ \
         --chrom_column ~{chrom_column} \
         --position_column ~{position_column} \
@@ -192,7 +200,7 @@ task calc_cov {
         preemptible: 2
         }
     output {
-        File sites_yaml = "/griffin_nucleosome_profiling_files/sites/sites.yaml"
+        File sites_yaml = "griffin_nucleosome_profiling_files/sites/sites.yaml"
         File uncorrected_bw = "results/calc_cov/temp/~{sample_name}/tmp_bigWig/~{sample_name}.uncorrected.bw"
         File GC_corrected_bw = "results/calc_cov/temp/~{sample_name}/tmp_bigWig/~{sample_name}.GC_corrected.bw"
         File GC_map_corrected_bw = "results/calc_cov/temp/~{sample_name}/tmp_bigWig/~{sample_name}.GC_map_corrected.bw"
