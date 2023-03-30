@@ -76,7 +76,7 @@ workflow nucleosome_profiling{
             mappability_correction = mappability_correction,
             mappability_bw = mappability_bw,
             chrom_sizes = chrom_sizes,
-            sites_yaml = calc_cov.sites_yaml,
+            sites_file = sites_file,
             chrom_column = chrom_column,
             position_column = position_column,
             strand_column = strand_column,
@@ -104,7 +104,6 @@ workflow nucleosome_profiling{
     }
 
     output {
-        File sites_yaml = calc_cov.sites_yaml
         File uncorrected_bw = calc_cov.uncorrected_bw
         File GC_corrected_bw = calc_cov.GC_corrected_bw
         File? GC_map_corrected_bw = calc_cov.GC_map_corrected_bw
@@ -235,7 +234,6 @@ task calc_cov {
         preemptible: 2
         }
     output {
-        File sites_yaml = "griffin_nucleosome_profiling_files/sites/sites.yaml"
         File uncorrected_bw = "results/calc_cov/temp/~{sample_name}/tmp_bigWig/~{sample_name}.uncorrected.bw"
         File GC_corrected_bw = "results/calc_cov/temp/~{sample_name}/tmp_bigWig/~{sample_name}.GC_corrected.bw"
         File? GC_map_corrected_bw = "results/calc_cov/temp/~{sample_name}/tmp_bigWig/~{sample_name}.GC_map_corrected.bw"
@@ -252,7 +250,7 @@ task merge_sites {
         Boolean mappability_correction
         File mappability_bw
         File chrom_sizes
-        File sites_yaml
+        File sites_file
         String chrom_column
         String position_column
         String strand_column
@@ -289,6 +287,11 @@ task merge_sites {
         set -e
         # Make temporary directory
         mkdir -p results/merge_sites/temp/
+        mkdir -p griffin_nucleosome_profiling_files/sites/
+
+        # Create a sites yaml file from input sites_file
+        echo "site_lists:
+            CTCF_demo: ~{sites_file}" > griffin_nucleosome_profiling_files/sites/sites.yaml
 
         # Run griffin_merge_sites_script when mappability_correction is True
         if [ ~{mappability_correction} = true ]; then
@@ -304,7 +307,7 @@ task merge_sites {
         --results_dir results/merge_sites \
         --mappability_bw ~{mappability_bw} \
         --chrom_sizes_path ~{chrom_sizes} \
-        --sites_yaml ~{sites_yaml} \
+        --sites_yaml griffin_nucleosome_profiling_files/sites/sites.yaml \
         --griffin_scripts /BaseImage/Griffin/scripts/ \
         --chrom_column ~{chrom_column} \
         --position_column ~{position_column} \
@@ -343,7 +346,7 @@ task merge_sites {
         --results_dir results/merge_sites \
         --mappability_bw ~{mappability_bw} \
         --chrom_sizes_path ~{chrom_sizes} \
-        --sites_yaml ~{sites_yaml} \
+        --sites_yaml griffin_nucleosome_profiling_files/sites/sites.yaml \
         --griffin_scripts /BaseImage/Griffin/scripts/ \
         --chrom_column ~{chrom_column} \
         --position_column ~{position_column} \
