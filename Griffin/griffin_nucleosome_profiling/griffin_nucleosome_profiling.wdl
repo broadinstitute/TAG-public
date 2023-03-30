@@ -299,10 +299,10 @@ task merge_sites {
         --uncorrected_bw_path ~{uncorrected_bw} \
         --GC_corrected_bw_path ~{GC_corrected_bw} \
         --GC_map_corrected_bw_path ~{GC_map_corrected_bw} \
-        --mappeability_correction ~{mappability_correction} \
+        --mappability_correction ~{mappability_correction} \
         --tmp_dir results/merge_sites/temp \
         --results_dir results/merge_sites \
-        --mappeability_bw ~{mappability_bw} \
+        --mappability_bw ~{mappability_bw} \
         --chrom_sizes_path ~{chrom_sizes} \
         --sites_yaml ~{sites_yaml} \
         --griffin_scripts /BaseImage/Griffin/scripts/ \
@@ -338,10 +338,10 @@ task merge_sites {
         --uncorrected_bw_path ~{uncorrected_bw} \
         --GC_corrected_bw_path ~{GC_corrected_bw} \
         --GC_map_corrected_bw_path none \
-        --mappeability_correction ~{mappability_correction} \
+        --mappability_correction ~{mappability_correction} \
         --tmp_dir results/merge_sites/temp \
         --results_dir results/merge_sites \
-        --mappeability_bw ~{mappability_bw} \
+        --mappability_bw ~{mappability_bw} \
         --chrom_sizes_path ~{chrom_sizes} \
         --sites_yaml ~{sites_yaml} \
         --griffin_scripts /BaseImage/Griffin/scripts/ \
