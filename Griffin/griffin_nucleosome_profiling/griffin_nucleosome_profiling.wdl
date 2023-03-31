@@ -357,7 +357,7 @@ task generate_plots {
         conda run --no-capture-output \
         -n griffin_env \
         python3 /BaseImage/Griffin/scripts/griffin_plot.py \
-        --in_dir results/~{sample_name}/ \
+        --in_dir results \
         --samples_yaml griffin_nucleosome_profiling_files/config/samples.GC.yaml \
         --mappability_correction False \
         --save_window ~{sep=" " save_window} \
