@@ -154,10 +154,7 @@ task calc_cov {
         echo "site_lists:
             CTCF_demo: ~{sites_file}" > griffin_nucleosome_profiling_files/sites/sites.yaml
 
-        # Run griffin_coverage_script if mappability_bias path was not specified
-        # when mappability_bias path was not specified
-        # mappability_correction is False
-        else
+        # Run griffin_coverage_script to calculate coverage
         conda run --no-capture-output \
         -n griffin_env \
         python3 /BaseImage/Griffin/scripts/griffin_coverage.py \
@@ -301,3 +298,69 @@ task merge_sites {
         File GC_corrected_cov = "results/merge_sites/~{sample_name}/~{sample_name}.GC_corrected.coverage.tsv"
         }
 }
+/*
+ #This task generates plots from the merged sites (Under Construction)
+task generate_plots {
+    input {
+        String griffin_docker
+        String sample_name
+        File uncorrected_cov
+        File GC_corrected_cov
+        File GC_bias_file
+        File bam_file
+        Array[Int] save_window
+        Int step
+        Boolean individual
+        Int? cpu
+        Int? mem
+        Int? disk_space
+        # If cpu, mem, and disk size were not specified, use 8 cores, 10GB, and 100 GB as default
+        Int cpu_num = select_first([cpu, 8])
+        Int mem_size = select_first([mem, 10])
+        Int disk_size = select_first([disk_space,100])
+        }
+    command <<<
+        set -e
+        # Make temporary directory
+        mkdir -p results/generate_plots/temp/
+        mkdir -p griffin_nucleosome_profiling_files/sites/
+
+        # Create a sites yaml file from input sites_file
+        echo "samples:
+  ~{sample_name}
+    bam: ~{bam_file}
+    GC_bias: ~{GC_bias_file}" > griffin_nucleosome_profiling_files/config/samples.GC.yaml
+
+        # Run griffin_generate_plots_script
+        conda run --no-capture-output \
+        -n griffin_env \
+        python3 /BaseImage/Griffin/scripts/griffin_plot.py \
+        --sample_name ~{sample_name} \
+        --uncorrected_cov_path ~{uncorrected_cov} \
+        --GC_corrected_cov_path ~{GC_corrected_cov} \
+        --GC_map_corrected_cov_path none \
+        --mappability_correction False \
+        --tmp_dir results/generate_plots/temp \
+        --results_dir results/generate_plots \
+        --griffin_scripts /BaseImage/Griffin/scripts/ \
+        --samples_yaml griffin_nucleosome_profiling_files/config/samples.GC.yaml \
+        --save_window ~{sep=" " save_window} \
+        --step ~{step} \
+        --individual ~{individual} \
+        --CPU ~{cpu_num}
+
+    >>>
+    runtime {
+        docker: griffin_docker
+        bootDiskSizeGb: 12
+        cpu: cpu_num
+        memory: mem_size + " GB"
+        disks: "local-disk " + disk_size + " HDD"
+        preemptible: 2
+        }
+    output {
+        File uncorrected_cov = "results/generate_plots/~{sample_name}/~{sample_name}.uncorrected.coverage.tsv"
+        File GC_corrected_cov = "results/generate_plots/~{sample_name}/~{sample_name}.GC_corrected.coverage.tsv"
+        }
+}
+*/
