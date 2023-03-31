@@ -345,7 +345,7 @@ task generate_plots {
         cp ~{GC_corrected_cov} results/~{sample_name}/
 
         # Make config directory to store samples yaml file
-        mkdir griffin_nucleosome_profiling_files/config
+        mkdir -p griffin_nucleosome_profiling_files/config
 
         # Create a sites yaml file from input sites_file
         echo "samples:
