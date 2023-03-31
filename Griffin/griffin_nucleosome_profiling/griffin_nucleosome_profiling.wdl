@@ -349,7 +349,7 @@ task generate_plots {
 
         # Create a sites yaml file from input sites_file
         echo "samples:
-  ~{sample_name}
+  ~{sample_name}:
     bam: ~{bam_file}
     GC_bias: ~{GC_bias_file}" > griffin_nucleosome_profiling_files/config/samples.GC.yaml
 
