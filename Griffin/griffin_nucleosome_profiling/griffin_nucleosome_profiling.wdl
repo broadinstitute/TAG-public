@@ -6,7 +6,6 @@ workflow nucleosome_profiling{
         File bam_file
         File GC_bias_file
         String sample_name
-        File? mappability_bias
         File reference_genome
         File mappability_bw
         File chrom_sizes
@@ -21,7 +20,6 @@ workflow nucleosome_profiling{
         Int number_of_sites = 0 # how many sites to analyze. use 0 to analyze all sites
         String sort_by = 'none' # column to use for sorting sites use 'none' if analyzing all sites
         String ascending = 'none' # whether to sort sites in ascending order, use 'none' to analyze all sites
-        Boolean mappability_correction = false
         Array[Int] save_window # window around each site to save to outputs
         Array[Int] center_window # range of positions used to calculate the central coverage feature
         Array[Int] fft_window
@@ -48,7 +46,6 @@ workflow nucleosome_profiling{
             bam_file = bam_file,
             GC_bias_file = GC_bias_file,
             sample_name = sample_name,
-            mappability_bias = mappability_bias,
             reference_genome = reference_genome,
             mappability_bw = mappability_bw,
             chrom_sizes = chrom_sizes,
@@ -73,7 +70,6 @@ workflow nucleosome_profiling{
             uncorrected_bw = calc_cov.uncorrected_bw,
             GC_corrected_bw = calc_cov.GC_corrected_bw,
             GC_map_corrected_bw = calc_cov.GC_map_corrected_bw,
-            mappability_correction = mappability_correction,
             mappability_bw = mappability_bw,
             chrom_sizes = chrom_sizes,
             sites_file = sites_file,
@@ -106,7 +102,6 @@ workflow nucleosome_profiling{
     output {
         File uncorrected_bw = calc_cov.uncorrected_bw
         File GC_corrected_bw = calc_cov.GC_corrected_bw
-        File? GC_map_corrected_bw = calc_cov.GC_map_corrected_bw
         File uncorrected_cov = merge_sites.uncorrected_cov
         File GC_corrected_cov = merge_sites.GC_corrected_cov
     }
@@ -124,7 +119,6 @@ task calc_cov {
         File bam_file
         File GC_bias_file
         String sample_name
-        File? mappability_bias
         File reference_genome
         File mappability_bw
         File chrom_sizes
@@ -161,37 +155,6 @@ task calc_cov {
         echo "site_lists:
             CTCF_demo: ~{sites_file}" > griffin_nucleosome_profiling_files/sites/sites.yaml
 
-
-        # Run griffin_coverage_script if mappability_bias path was specified
-        # when mappability_bias path was specified
-        # mappability_correction is True
-        if [[ -f "~{mappability_bias}" ]]; then
-        conda run --no-capture-output \
-        -n griffin_env \
-        python3 /BaseImage/Griffin/scripts/griffin_coverage.py \
-        --sample_name ~{sample_name} \
-        --bam ~{bam_file} \
-        --GC_bias ~{GC_bias_file} \
-        --mappability_bias ~{mappability_bias} \
-        --mappability_correction True \
-        --tmp_dir results/calc_cov/temp \
-        --reference_genome ~{reference_genome} \
-        --mappability_bw ~{mappability_bw} \
-        --chrom_sizes_path ~{chrom_sizes} \
-        --sites_yaml griffin_nucleosome_profiling_files/sites/sites.yaml \
-        --griffin_scripts /BaseImage/Griffin/scripts/ \
-        --chrom_column ~{chrom_column} \
-        --position_column ~{position_column} \
-        --strand_column ~{strand_column} \
-        --chroms ~{sep=" " chroms} \
-        --norm_window ~{sep=" " norm_window} \
-        --size_range ~{sep=" " size_range} \
-        --map_quality ~{map_quality} \
-        --number_of_sites ~{number_of_sites} \
-        --sort_by ~{sort_by} \
-        --ascending ~{ascending} \
-        --CPU ~{cpu_num}
-
         # Run griffin_coverage_script if mappability_bias path was not specified
         # when mappability_bias path was not specified
         # mappability_correction is False
@@ -221,9 +184,6 @@ task calc_cov {
         --sort_by ~{sort_by} \
         --ascending ~{ascending} \
         --CPU ~{cpu_num}
-
-        fi
-
     >>>
     runtime {
         docker: griffin_docker
@@ -236,7 +196,6 @@ task calc_cov {
     output {
         File uncorrected_bw = "results/calc_cov/temp/~{sample_name}/tmp_bigWig/~{sample_name}.uncorrected.bw"
         File GC_corrected_bw = "results/calc_cov/temp/~{sample_name}/tmp_bigWig/~{sample_name}.GC_corrected.bw"
-        File? GC_map_corrected_bw = "results/calc_cov/temp/~{sample_name}/tmp_bigWig/~{sample_name}.GC_map_corrected.bw"
         }
 }
 
@@ -247,7 +206,6 @@ task merge_sites {
         File uncorrected_bw
         File GC_corrected_bw
         File? GC_map_corrected_bw
-        Boolean mappability_correction
         File mappability_bw
         File chrom_sizes
         File sites_file
@@ -293,45 +251,6 @@ task merge_sites {
         echo "site_lists:
             CTCF_demo: ~{sites_file}" > griffin_nucleosome_profiling_files/sites/sites.yaml
 
-        # Run griffin_merge_sites_script when mappability_correction is True
-        if [ ~{mappability_correction} = true ]; then
-        conda run --no-capture-output \
-        -n griffin_env \
-        python3 /BaseImage/Griffin/scripts/griffin_merge_sites.py \
-        --sample_name ~{sample_name} \
-        --uncorrected_bw_path ~{uncorrected_bw} \
-        --GC_corrected_bw_path ~{GC_corrected_bw} \
-        --GC_map_corrected_bw_path ~{GC_map_corrected_bw} \
-        --mappability_correction ~{mappability_correction} \
-        --tmp_dir results/merge_sites/temp \
-        --results_dir results/merge_sites \
-        --mappability_bw ~{mappability_bw} \
-        --chrom_sizes_path ~{chrom_sizes} \
-        --sites_yaml griffin_nucleosome_profiling_files/sites/sites.yaml \
-        --griffin_scripts /BaseImage/Griffin/scripts/ \
-        --chrom_column ~{chrom_column} \
-        --position_column ~{position_column} \
-        --strand_column ~{strand_column} \
-        --chroms ~{sep=" " chroms} \
-        --norm_window ~{sep=" " norm_window} \
-        --save_window ~{sep=" " save_window} \
-        --center_window ~{sep=" " center_window} \
-        --fft_window ~{sep=" " fft_window} \
-        --fft_index ~{fft_index} \
-        --smoothing_length ~{smoothing_length} \
-        --exclude_paths ~{encode_exclude} ~{centromeres} ~{gaps} ~{patches} ~{alternative_haplotypes} \
-        --step ~{step} \
-        --CNA_normalization ~{CNA_normalization} \
-        --individual ~{individual} \
-        --smoothing ~{smoothing} \
-        --exclude_outliers ~{exclude_outliers} \
-        --exclude_zero_mappability ~{exclude_zero_mappability} \
-        --number_of_sites ~{number_of_sites} \
-        --sort_by ~{sort_by} \
-        --ascending ~{ascending} \
-        --CPU ~{cpu_num}
-
-        else
         # Run griffin_merge_sites_script when mappability_correction is False
         # whenn mappability_correction is False, GC_map_corrected_bw_path is set to none
         conda run --no-capture-output \
@@ -341,7 +260,7 @@ task merge_sites {
         --uncorrected_bw_path ~{uncorrected_bw} \
         --GC_corrected_bw_path ~{GC_corrected_bw} \
         --GC_map_corrected_bw_path none \
-        --mappability_correction ~{mappability_correction} \
+        --mappability_correction False \
         --tmp_dir results/merge_sites/temp \
         --results_dir results/merge_sites \
         --mappability_bw ~{mappability_bw} \
@@ -369,7 +288,6 @@ task merge_sites {
         --sort_by ~{sort_by} \
         --ascending ~{ascending} \
         --CPU ~{cpu_num}
-        fi
 
     >>>
     runtime {
