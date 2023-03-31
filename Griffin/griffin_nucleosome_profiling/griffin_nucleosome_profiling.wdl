@@ -69,7 +69,6 @@ workflow nucleosome_profiling{
             sample_name = sample_name,
             uncorrected_bw = calc_cov.uncorrected_bw,
             GC_corrected_bw = calc_cov.GC_corrected_bw,
-            GC_map_corrected_bw = calc_cov.GC_map_corrected_bw,
             mappability_bw = mappability_bw,
             chrom_sizes = chrom_sizes,
             sites_file = sites_file,
@@ -205,7 +204,6 @@ task merge_sites {
         String sample_name
         File uncorrected_bw
         File GC_corrected_bw
-        File? GC_map_corrected_bw
         File mappability_bw
         File chrom_sizes
         File sites_file
