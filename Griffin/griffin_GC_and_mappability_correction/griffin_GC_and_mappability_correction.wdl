@@ -17,8 +17,7 @@ workflow gc_and_mappability_correction{
         File mappable_regions
         File reference_genome
         File genome_GC_frequency
-        Int GC_bias_size_min
-        Int GC_bias_size_max
+        Array[Int] GC_bias_size_range
     }
     if (mappability_correction){
         call mappability_bias {
@@ -46,8 +45,7 @@ workflow gc_and_mappability_correction{
             reference_genome = reference_genome,
             chrom_sizes = chrom_sizes,
             map_q = map_quality,
-            GC_bias_size_min = GC_bias_size_min,
-            GC_bias_size_max = GC_bias_size_max
+            GC_bias_size_range = GC_bias_size_range
     }
 
     call GC_bias {
@@ -57,8 +55,7 @@ workflow gc_and_mappability_correction{
             GC_counts_file = GC_counts.GC_counts_file,
             mappable_name = basename(mappable_regions, ".bed"),
             genome_GC_frequency = genome_GC_frequency,
-            GC_bias_size_min = GC_bias_size_min,
-            GC_bias_size_max = GC_bias_size_max
+            GC_bias_size_range = GC_bias_size_range
     }
 
     output {
@@ -151,8 +148,7 @@ task GC_counts {
         File reference_genome
         File chrom_sizes
         Int map_q
-        Int GC_bias_size_min
-        Int GC_bias_size_max
+        Array[Int] GC_bias_size_range
         Int? cpu
         Int? mem
         Int? disk_space
@@ -181,7 +177,7 @@ task GC_counts {
         --chrom_sizes ~{chrom_sizes} \
         --out_dir results \
         --map_q ~{map_q} \
-        --size_range ~{GC_bias_size_min} ~{GC_bias_size_max} \
+        --size_range ~{sep=" " GC_bias_size_range} \
         --CPU ~{cpu_num} \
 
     >>>
@@ -205,8 +201,7 @@ task GC_bias {
         String mappable_name
         File GC_counts_file
         File genome_GC_frequency
-        Int GC_bias_size_min
-        Int GC_bias_size_max
+        Array[Int] GC_bias_size_range
     }
     command <<<
         set -e
@@ -226,7 +221,7 @@ task GC_bias {
         --mappable_name ~{mappable_name} \
         --genome_GC_frequency ./genome_GC_frequency \
         --out_dir results \
-        --size_range ~{GC_bias_size_min} ~{GC_bias_size_max} \
+        --size_range ~{sep=" " GC_bias_size_range} \
 
     >>>
     runtime {
