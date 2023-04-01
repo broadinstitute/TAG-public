@@ -346,6 +346,7 @@ task generate_plots {
 
         # Make config directory to store samples yaml file
         mkdir -p griffin_nucleosome_profiling_files/config
+        mkdir -p results/plots
 
         # Create a sites yaml file from input sites_file
         echo "samples:
