@@ -76,9 +76,9 @@ workflows:
    - /BreaKmer/BreaKmer.inputs.json
  - name: Griffin_GC_Correction
    subclass: WDL
-   primaryDescriptorPath: /Griffin/griffin_GC_and_mappability_correction/griffin_GC_and_mappability_correction.wdl
+   primaryDescriptorPath: /Griffin/griffin_GC_correction/griffin_GC_correction.wdl
    testParameterFiles:
-   - /Griffin/griffin_GC_and_mappability_correction/griffin_GC_and_mappability_correction.inputs.json
+   - /Griffin/griffin_GC_correction/griffin_GC_correction.inputs.json
  - name: Griffin_Nucleosome_Profiling
    subclass: WDL
    primaryDescriptorPath: /Griffin/griffin_nucleosome_profiling/griffin_nucleosome_profiling.wdl
