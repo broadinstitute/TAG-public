@@ -1,5 +1,5 @@
 version 1.0
-import "https://raw.githubusercontent.com/broadinstitute/gatk/4.1.8.1/scripts/mutect2_wdl/mutect2.wdl" as m2
+import "https://raw.githubusercontent.com/broadinstitute/TAG-public/master/Liquid_Biopsy_Duplex_Analysis/MakeCallsFromConsensus/mutect2.wdl" as m2
 
 workflow MakeCallsFromConsensus {
 
