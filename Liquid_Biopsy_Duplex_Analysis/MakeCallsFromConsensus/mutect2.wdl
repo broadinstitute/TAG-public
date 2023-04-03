@@ -535,7 +535,7 @@ task M2 {
 
       # runtime
       String gatk_docker
-      Int? mem
+      Float? mem
       Int? preemptible
       Int? max_retries
       Int? disk_space
@@ -549,7 +549,7 @@ task M2 {
     String output_stats = output_vcf + ".stats"
 
     # Mem is in units of GB but our command and memory runtime values are in MB
-    Int machine_mem = if defined(mem) then mem * 1000 else 3500
+    Int machine_mem = if defined(mem) then ceil(mem * 1000) else 3500
     Int command_mem = machine_mem - 500
 
     parameter_meta{
