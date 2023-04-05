@@ -9,8 +9,8 @@ workflow nucleosome_profiling{
         File reference_genome
         File mappability_bw
         File chrom_sizes
-        String sites_name
-        File sites_file
+        Array[String] sites_names
+        Array[File] sites_files
         String chrom_column # column containing the chromosome in your sites file
         String position_column # column containing the site position in your sites file
         String strand_column # column for indicating site direction in your sites file. If this column doesn't exist, the script will assume non-directional sites.
@@ -50,7 +50,8 @@ workflow nucleosome_profiling{
             reference_genome = reference_genome,
             mappability_bw = mappability_bw,
             chrom_sizes = chrom_sizes,
-            sites_file = sites_file,
+            sites_files = sites_files,
+            sites_names = sites_names,
             chrom_column = chrom_column,
             position_column = position_column,
             strand_column = strand_column,
@@ -71,8 +72,8 @@ workflow nucleosome_profiling{
             GC_corrected_bw = calc_cov.GC_corrected_bw,
             mappability_bw = mappability_bw,
             chrom_sizes = chrom_sizes,
-            sites_file = sites_file,
-            sites_name = sites_name,
+            sites_files = sites_files,
+            sites_names = sites_names,
             chrom_column = chrom_column,
             position_column = position_column,
             strand_column = strand_column,
@@ -107,7 +108,7 @@ workflow nucleosome_profiling{
             GC_corrected_cov = merge_sites.GC_corrected_cov,
             GC_bias_file = GC_bias_file,
             bam_file = bam_file,
-            sites_name = sites_name,
+            sites_names = sites_names,
             save_window = save_window,
             step = step,
             individual = individual
@@ -118,7 +119,7 @@ workflow nucleosome_profiling{
         File GC_corrected_bw = calc_cov.GC_corrected_bw
         File uncorrected_cov = merge_sites.uncorrected_cov
         File GC_corrected_cov = merge_sites.GC_corrected_cov
-        File output_plots = generate_plots.output_plots
+        Array[File] output_plots = generate_plots.output_plots
     }
 
     meta {
@@ -137,7 +138,8 @@ task calc_cov {
         File reference_genome
         File mappability_bw
         File chrom_sizes
-        File sites_file
+        Array[File] sites_files
+        Array[String] sites_names
         String chrom_column
         String position_column
         String strand_column
@@ -166,9 +168,11 @@ task calc_cov {
         mkdir -p results/calc_cov/temp/
         mkdir -p griffin_nucleosome_profiling_files/sites/
 
-        # Create a sites yaml file from input sites_file
-        echo "site_lists:
-            CTCF_demo: ~{sites_file}" > griffin_nucleosome_profiling_files/sites/sites.yaml
+        # Create a sites yaml file from input sites_files and sites_names
+        echo "site_lists:" > griffin_nucleosome_profiling_files/sites/sites.yaml
+        for ((i=0;i<${#~{sites_names}};i++)); do
+          echo "  ${~{sites_names}[i]}: ${~{sites_files}[i]}" >> griffin_nucleosome_profiling_files/sites/sites.yaml
+        done
 
         # Run griffin_coverage_script to calculate coverage
         conda run --no-capture-output \
@@ -219,8 +223,8 @@ task merge_sites {
         File GC_corrected_bw
         File mappability_bw
         File chrom_sizes
-        File sites_file
-        String sites_name
+        Array[File] sites_files
+        Array[String] sites_names
         String chrom_column
         String position_column
         String strand_column
@@ -259,10 +263,11 @@ task merge_sites {
         mkdir -p results/merge_sites/temp/
         mkdir -p griffin_nucleosome_profiling_files/sites/
 
-        # Create a sites yaml file from input sites_file
-        echo "site_lists:
-            ~{sites_name}: ~{sites_file}" > griffin_nucleosome_profiling_files/sites/sites.yaml
-
+        # Create a sites yaml file from input sites_files and sites_names
+        echo "site_lists:" > griffin_nucleosome_profiling_files/sites/sites.yaml
+        for ((i=0;i<${#~{sites_names}};i++)); do
+          echo "  ${~{sites_names}[i]}: ${~{sites_files}[i]}" >> griffin_nucleosome_profiling_files/sites/sites.yaml
+        done
         # Run griffin_merge_sites_script when mappability_correction is False
         # whenn mappability_correction is False, GC_map_corrected_bw_path is set to none
         conda run --no-capture-output \
@@ -321,7 +326,7 @@ task generate_plots {
     input {
         String griffin_docker
         String sample_name
-        String sites_name
+        Array[String] sites_names
         File uncorrected_cov
         File GC_corrected_cov
         File GC_bias_file
@@ -348,7 +353,7 @@ task generate_plots {
         mkdir -p griffin_nucleosome_profiling_files/config
         mkdir -p results/plots
 
-        # Create a sites yaml file from input sites_file
+        # Create a sample yaml file from input sample_name and bam_file
         echo "samples:
                   ~{sample_name}:
                     bam: ~{bam_file}
@@ -376,6 +381,6 @@ task generate_plots {
         preemptible: 2
         }
     output {
-        File output_plots = "results/plots/~{sites_name}.pdf"
+        Array[File] output_plots = glob("results/plots/*.pdf")
         }
 }
