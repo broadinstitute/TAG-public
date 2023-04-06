@@ -169,8 +169,8 @@ task calc_cov {
 
         # Create a sites yaml file from input sites_files and sites_names
         echo "site_lists:" > griffin_nucleosome_profiling_files/sites/sites.yaml
-        for ((i=0;i<${#~{sites_names}};i++)); do
-          echo "  ${~{sites_names}[i]}: ${~{sites_files}[i]}" >> griffin_nucleosome_profiling_files/sites/sites.yaml
+        for ((i=0;i<${#~{sep=" " sites_names}};i++)); do
+          echo "  ${~{sep=" " sites_names}[i]}: ${~{sep=" " sites_files}[i]}" >> griffin_nucleosome_profiling_files/sites/sites.yaml
         done
 
         # Run griffin_coverage_script to calculate coverage
@@ -264,8 +264,8 @@ task merge_sites {
 
         # Create a sites yaml file from input sites_files and sites_names
         echo "site_lists:" > griffin_nucleosome_profiling_files/sites/sites.yaml
-        for ((i=0;i<${#~{sites_names}};i++)); do
-          echo "  ${~{sites_names}[i]}: ${~{sites_files}[i]}" >> griffin_nucleosome_profiling_files/sites/sites.yaml
+        for ((i=0;i<${#~{sep=" " sites_names}};i++)); do
+          echo "  ${~{sep=" " sites_names}[i]}: ${~{sep=" " sites_files}[i]}" >> griffin_nucleosome_profiling_files/sites/sites.yaml
         done
         # Run griffin_merge_sites_script when mappability_correction is False
         # whenn mappability_correction is False, GC_map_corrected_bw_path is set to none
