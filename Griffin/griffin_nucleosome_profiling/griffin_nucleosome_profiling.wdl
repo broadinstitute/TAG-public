@@ -169,8 +169,8 @@ task calc_cov {
 
         # Create a sites yaml file from input sites_files and sites_names
         echo "site_lists:" > griffin_nucleosome_profiling_files/sites/sites.yaml
-        sites_names=(${~{sep=" " sites_names}})
-        sites_files=(${~{sep=" " sites_files}})
+        sites_names=(~{sep=" " sites_names})
+        sites_files=(~{sep=" " sites_files})
         for i in `seq ${#sites_names}`; do
           echo "  ${sites_names[i]}: ${sites_files[i]}" >> griffin_nucleosome_profiling_files/sites/sites.yaml
         done
@@ -266,8 +266,8 @@ task merge_sites {
 
         # Create a sites yaml file from input sites_files and sites_names
         echo "site_lists:" > griffin_nucleosome_profiling_files/sites/sites.yaml
-        sites_names=(${~{sep=" " sites_names}})
-        sites_files=(${~{sep=" " sites_files}})
+        sites_names=(~{sep=" " sites_names})
+        sites_files=(~{sep=" " sites_files})
         for i in `seq ${#sites_names}`; do
           echo "  ${sites_names[i]}: ${sites_files[i]}" >> griffin_nucleosome_profiling_files/sites/sites.yaml
         done
