@@ -108,7 +108,6 @@ workflow nucleosome_profiling{
             GC_corrected_cov = merge_sites.GC_corrected_cov,
             GC_bias_file = GC_bias_file,
             bam_file = bam_file,
-            sites_names = sites_names,
             save_window = save_window,
             step = step,
             individual = individual
@@ -326,7 +325,6 @@ task generate_plots {
     input {
         String griffin_docker
         String sample_name
-        Array[String] sites_names
         File uncorrected_cov
         File GC_corrected_cov
         File GC_bias_file
