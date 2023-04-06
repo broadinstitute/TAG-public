@@ -9,7 +9,8 @@ workflow nucleosome_profiling{
         File reference_genome
         File mappability_bw
         File chrom_sizes
-        File sites_yaml
+        Array[String] sites_names
+        Array[File] sites_files
         String chrom_column # column containing the chromosome in your sites file
         String position_column # column containing the site position in your sites file
         String strand_column # column for indicating site direction in your sites file. If this column doesn't exist, the script will assume non-directional sites.
@@ -49,7 +50,8 @@ workflow nucleosome_profiling{
             reference_genome = reference_genome,
             mappability_bw = mappability_bw,
             chrom_sizes = chrom_sizes,
-            sites_yaml = sites_yaml,
+            sites_files = sites_files,
+            sites_names = sites_names,
             chrom_column = chrom_column,
             position_column = position_column,
             strand_column = strand_column,
@@ -70,7 +72,8 @@ workflow nucleosome_profiling{
             GC_corrected_bw = calc_cov.GC_corrected_bw,
             mappability_bw = mappability_bw,
             chrom_sizes = chrom_sizes,
-            sites_yaml = sites_yaml,
+            sites_files = sites_files,
+            sites_names = sites_names,
             chrom_column = chrom_column,
             position_column = position_column,
             strand_column = strand_column,
@@ -134,7 +137,8 @@ task calc_cov {
         File reference_genome
         File mappability_bw
         File chrom_sizes
-        File sites_yaml
+        Array[File] sites_files
+        Array[String] sites_names
         String chrom_column
         String position_column
         String strand_column
@@ -163,6 +167,13 @@ task calc_cov {
         mkdir -p results/calc_cov/temp/
         mkdir -p griffin_nucleosome_profiling_files/sites/
 
+        # Create a sites yaml file from input sites_files and sites_names
+        echo "site_lists:" > griffin_nucleosome_profiling_files/sites/sites.yaml
+        sites_names=(${~{sep=" " sites_names}})
+        sites_files=(${~{sep=" " sites_files}})
+        for i in `seq ${#sites_names}`; do
+          echo "  ${sites_names[i]}: ${sites_files[i]}" >> griffin_nucleosome_profiling_files/sites/sites.yaml
+        done
 
         # Run griffin_coverage_script to calculate coverage
         conda run --no-capture-output \
@@ -177,7 +188,7 @@ task calc_cov {
         --reference_genome ~{reference_genome} \
         --mappability_bw ~{mappability_bw} \
         --chrom_sizes_path ~{chrom_sizes} \
-        --sites_yaml ~{sites_yaml} \
+        --sites_yaml griffin_nucleosome_profiling_files/sites/sites.yaml \
         --griffin_scripts /BaseImage/Griffin/scripts/ \
         --chrom_column ~{chrom_column} \
         --position_column ~{position_column} \
@@ -213,7 +224,8 @@ task merge_sites {
         File GC_corrected_bw
         File mappability_bw
         File chrom_sizes
-        File sites_yaml
+        Array[File] sites_files
+        Array[String] sites_names
         String chrom_column
         String position_column
         String strand_column
@@ -252,6 +264,14 @@ task merge_sites {
         mkdir -p results/merge_sites/temp/
         mkdir -p griffin_nucleosome_profiling_files/sites/
 
+        # Create a sites yaml file from input sites_files and sites_names
+        echo "site_lists:" > griffin_nucleosome_profiling_files/sites/sites.yaml
+        sites_names=(${~{sep=" " sites_names}})
+        sites_files=(${~{sep=" " sites_files}})
+        for i in `seq ${#sites_names}`; do
+          echo "  ${sites_names[i]}: ${sites_files[i]}" >> griffin_nucleosome_profiling_files/sites/sites.yaml
+        done
+
         # Run griffin_merge_sites_script when mappability_correction is False
         # whenn mappability_correction is False, GC_map_corrected_bw_path is set to none
         conda run --no-capture-output \
@@ -266,7 +286,7 @@ task merge_sites {
         --results_dir results/merge_sites \
         --mappability_bw ~{mappability_bw} \
         --chrom_sizes_path ~{chrom_sizes} \
-        --sites_yaml ~{sites_yaml} \
+        --sites_yaml griffin_nucleosome_profiling_files/sites/sites.yaml \
         --griffin_scripts /BaseImage/Griffin/scripts/ \
         --chrom_column ~{chrom_column} \
         --position_column ~{position_column} \
