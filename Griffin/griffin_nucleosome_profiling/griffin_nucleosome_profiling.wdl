@@ -114,6 +114,7 @@ workflow nucleosome_profiling{
     }
 
     output {
+        File sites_yaml = calc_cov.sites_yaml
         File uncorrected_bw = calc_cov.uncorrected_bw
         File GC_corrected_bw = calc_cov.GC_corrected_bw
         File uncorrected_cov = merge_sites.uncorrected_cov
@@ -213,6 +214,7 @@ task calc_cov {
     output {
         File uncorrected_bw = "results/calc_cov/temp/~{sample_name}/tmp_bigWig/~{sample_name}.uncorrected.bw"
         File GC_corrected_bw = "results/calc_cov/temp/~{sample_name}/tmp_bigWig/~{sample_name}.GC_corrected.bw"
+        File sites_yaml = "griffin_nucleosome_profiling_files/sites/sites.yaml"
         }
 }
 
