@@ -172,8 +172,8 @@ task calc_cov {
         sites_names=(~{sep=" " sites_names})
         sites_files=(~{sep=" " sites_files})
         echo "site_lists:" > griffin_nucleosome_profiling_files/sites/sites.yaml
-        for i in `seq ${#sites_names[@]}`; do
-          echo "  ${sites_names[$i-1]}: ${sites_files[$i-1]}" >> griffin_nucleosome_profiling_files/sites/sites.yaml
+        for i in "${!sites_names[@]}"; do
+          echo "  ${sites_names[$i]}: ${sites_files[$i]}" >> griffin_nucleosome_profiling_files/sites/sites.yaml
         done
 
         # Run griffin_coverage_script to calculate coverage
@@ -270,8 +270,8 @@ task merge_sites {
         sites_names=(~{sep=" " sites_names})
         sites_files=(~{sep=" " sites_files})
         echo "site_lists:" > griffin_nucleosome_profiling_files/sites/sites.yaml
-        for i in `seq ${#sites_names[@]}`; do
-          echo "  ${sites_names[$i-1]}: ${sites_files[$i-1]}" >> griffin_nucleosome_profiling_files/sites/sites.yaml
+        for i in "${!sites_names[@]}"; do
+          echo "  ${sites_names[$i]}: ${sites_files[$i]}" >> griffin_nucleosome_profiling_files/sites/sites.yaml
         done
 
         # Run griffin_merge_sites_script when mappability_correction is False
