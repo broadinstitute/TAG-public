@@ -2,6 +2,11 @@ version 1.0
 
 workflow checkBaitSetName{
   call compareBaitSetName
+  
+  output {
+  	String mismatch_message = compareBaitSetName.mismatch_message
+    Int bait_mismatch = compareBaitSetName.bait_mismatch
+  }
 }
 
 task compareBaitSetName {
@@ -11,12 +16,12 @@ task compareBaitSetName {
     File? bait_intervals
   }
   String target_intervals_name = basename(target_intervals)
-  String bait_intervals_name = if defined(bait_intervals) then basename(bait_intervals) else bait_set + "."
+  String bait_intervals_name = if defined(bait_intervals) then basename(select_first([bait_intervals])) else bait_set + "."
 
   command <<<
 python <<CODE
-target_correct = ~{target_intervals_name}.startswith("~{bait_set}.")
-bait_correct = ~{bait_intervals_name}.startswith("~{bait_set}.")
+target_correct = "~{target_intervals_name}".startswith("~{bait_set}.")
+bait_correct = "~{bait_intervals_name}".startswith("~{bait_set}.")
 if not target_correct and not bait_correct:
   print("Bait and target intervals do not match the bait_set.")
   open("set_mismatch.txt", 'w').write("1")
