@@ -155,7 +155,7 @@ task calc_cov {
         Int? disk_space
         # If cpu, mem, and disk size were not specified, use 8 cores, 10GB, and 100 GB as default
         Int cpu_num = select_first([cpu, 8])
-        Int mem_size = select_first([mem, 10])
+        Int mem_size = select_first([mem, 32])
         Int disk_size = select_first([disk_space,100])
         }
     command <<<
@@ -257,7 +257,7 @@ task merge_sites {
         Int? disk_space
         # If cpu, mem, and disk size were not specified, use 8 cores, 10GB, and 100 GB as default
         Int cpu_num = select_first([cpu, 8])
-        Int mem_size = select_first([mem, 10])
+        Int mem_size = select_first([mem, 32])
         Int disk_size = select_first([disk_space,100])
         }
     command <<<
