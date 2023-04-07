@@ -12,6 +12,7 @@ workflow checkBaitSetName{
 task compareBaitSetName {
   input {
     String bait_set
+    Boolean fail_task
     File target_intervals
     File? bait_intervals
   }
@@ -20,26 +21,27 @@ task compareBaitSetName {
 
   command <<<
 python <<CODE
+import sys
 target_correct = "~{target_intervals_name}".startswith("~{bait_set}.")
 bait_correct = "~{bait_intervals_name}".startswith("~{bait_set}.")
 if not target_correct and not bait_correct:
   print("Bait and target intervals do not match the bait_set.")
-  open("set_mismatch.txt", 'w').write("1")
+  sys.stderr.write("1")
 elif not target_correct:
   print("Target intervals do not match the bait_set.")
-  open("set_mismatch.txt", 'w').write("1")
+  sys.stderr.write("1")
 elif not bait_correct:
   print("Bait intervals do not match the bait_set.")
-  open("set_mismatch.txt", 'w').write("1")
+  sys.stderr.write("1")
 else:
   print("bait_set matches the provided intervals.")
-  open("set_mismatch.txt", 'w').write("0")
+  sys.stderr.write("0")
 CODE
   >>>
 
   output {
     String mismatch_message = read_string(stdout())
-	Int bait_mismatch = read_int("set_mismatch.txt")
+	  Int bait_mismatch = read_int(stderr())
   }
 
   runtime {
@@ -48,5 +50,6 @@ CODE
     disks: "local-disk 10 HDD"
     preemptible: 1
     maxRetries: 1
+    failOnStderr: fail_task
   }
 }
