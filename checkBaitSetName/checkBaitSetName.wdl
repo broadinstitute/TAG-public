@@ -35,7 +35,7 @@ elif not bait_correct:
   sys.stderr.write("1")
 else:
   print("bait_set matches the provided intervals.")
-  sys.stderr.write("0")
+  sys.stdout.write("0")
 CODE
   >>>
 
@@ -49,7 +49,7 @@ CODE
     memory: "2 GB"
     disks: "local-disk 10 HDD"
     preemptible: 1
-    maxRetries: 1
+    maxRetries: 0
     failOnStderr: fail_task
   }
 }
