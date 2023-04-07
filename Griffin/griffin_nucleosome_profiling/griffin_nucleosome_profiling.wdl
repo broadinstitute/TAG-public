@@ -120,6 +120,7 @@ workflow nucleosome_profiling{
         File uncorrected_cov = merge_sites.uncorrected_cov
         File GC_corrected_cov = merge_sites.GC_corrected_cov
         Array[File] output_plots = generate_plots.output_plots
+        File samples_yaml = generate_plots.samples_yaml
     }
 
     meta {
@@ -387,5 +388,6 @@ task generate_plots {
         }
     output {
         Array[File] output_plots = glob("results/plots/*.pdf")
+        File samples_yaml = "griffin_nucleosome_profiling_files/config/samples.GC.yaml"
         }
 }
