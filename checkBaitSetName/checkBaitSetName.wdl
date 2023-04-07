@@ -5,7 +5,7 @@ workflow checkBaitSetName{
   
   output {
   	String mismatch_message = compareBaitSetName.mismatch_message
-    Int bait_mismatch = compareBaitSetName.bait_mismatch
+    Int? bait_mismatch = compareBaitSetName.bait_mismatch
   }
 }
 
