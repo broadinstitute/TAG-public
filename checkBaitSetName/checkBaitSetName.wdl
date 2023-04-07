@@ -41,7 +41,7 @@ CODE
 
   output {
     String mismatch_message = read_string(stdout())
-	  Int bait_mismatch = read_int(stderr())
+    Int? bait_mismatch = read_int(stderr())
   }
 
   runtime {
