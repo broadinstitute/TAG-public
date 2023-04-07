@@ -74,3 +74,6 @@ workflows:
    primaryDescriptorPath: /BreaKmer/BreaKmer.wdl
    testParameterFiles:
    - /BreaKmer/BreaKmer.inputs.json
+- name: checkBaitSetName
+   subclass: WDL
+   primaryDescriptorPath: /checkBaitSetName/checkBaitSetName.wdl
