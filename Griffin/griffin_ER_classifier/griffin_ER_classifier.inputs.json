@@ -1,0 +1,15 @@
+{
+  "ER_status_classification.ER_classifier.mem": "Int? (optional)",
+  "ER_status_classification.ER_classifier.disk_size": "Int? (optional)",
+  "ER_status_classification.griffin_docker": "String",
+  "ER_status_classification.ER_classifier.cpu_num": "Int? (optional)",
+  "ER_status_classification.samples_yaml": "File",
+  "ER_status_classification.ER_classifier.mem_size": "Int? (optional)",
+  "ER_status_classification.ER_classifier.cpu": "Int? (optional)",
+  "ER_status_classification.GC_corrected_cov": "File",
+  "ER_status_classification.sample_name": "String",
+  "ER_status_classification.ER_classifier.disk_space": "Int? (optional)",
+  "ER_status_classification.ER_status_scaler": "File",
+  "ER_status_classification.ER_status_model": "File"
+}
+
