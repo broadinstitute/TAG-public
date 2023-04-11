@@ -211,6 +211,7 @@ task calc_cov {
         memory: mem_size + " GB"
         disks: "local-disk " + disk_size + " HDD"
         preemptible: 2
+        maxRetries: 3
         }
     output {
         File uncorrected_bw = "results/calc_cov/temp/~{sample_name}/tmp_bigWig/~{sample_name}.uncorrected.bw"
@@ -321,6 +322,7 @@ task merge_sites {
         memory: mem_size + " GB"
         disks: "local-disk " + disk_size + " HDD"
         preemptible: 2
+        maxRetries: 3
         }
     output {
         File uncorrected_cov = "results/merge_sites/~{sample_name}/~{sample_name}.uncorrected.coverage.tsv"
@@ -385,6 +387,7 @@ task generate_plots {
         memory: mem_size + " GB"
         disks: "local-disk " + disk_size + " HDD"
         preemptible: 2
+        maxRetries: 3
         }
     output {
         Array[File] output_plots = glob("results/plots/*.pdf")
