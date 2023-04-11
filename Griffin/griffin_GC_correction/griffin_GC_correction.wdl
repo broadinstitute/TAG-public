@@ -103,6 +103,7 @@ task GC_counts {
         memory: mem_size + " GB"
         disks: "local-disk " + disk_size + " HDD"
         preemptible: 2
+        maxRetries: 3
 }
     output {
         File GC_counts_file = "results/GC_counts/~{sample_name}.GC_counts.txt"
@@ -146,6 +147,8 @@ task GC_bias {
         cpu: 2
         memory: "4 GB"
         disks: "local-disk " + 25 + " HDD"
+        preemptible: 2
+        maxRetries: 3
 }
     output {
         File GC_bias_file = "results/GC_bias/~{sample_name}.GC_bias.txt"
