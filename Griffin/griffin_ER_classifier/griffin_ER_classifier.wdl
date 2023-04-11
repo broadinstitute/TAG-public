@@ -52,7 +52,7 @@ task ER_classifier {
         conda run --no-capture-output \
         -n griffin_env \
         python3 /BaseImage/Griffin/scripts/griffin_ER_classifier.py \
-        --sample_name ~{sample_name} \
+        --samples_name ~{sample_name} \
         --samples_yaml ~{samples_yaml} \
         --gc_corrected_coverage ~{GC_corrected_cov} \
         --scaler ~{ER_status_scaler} \
