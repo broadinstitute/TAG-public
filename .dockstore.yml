@@ -84,3 +84,8 @@ workflows:
    primaryDescriptorPath: /Griffin/griffin_nucleosome_profiling/griffin_nucleosome_profiling.wdl
    testParameterFiles:
    - /Griffin/griffin_nucleosome_profiling/griffin_nucleosome_profiling.inputs.json
+ - name: griffin_ER_classifier
+   subclass: WDL
+   primaryDescriptorPath: /Griffin/griffin_ER_classifier/griffin_ER_classifier.wdl
+   testParameterFiles:
+   - /Griffin/griffin_ER_classifier/griffin_ER_classifier.inputs.json
