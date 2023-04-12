@@ -58,8 +58,8 @@ task ER_classifier {
         --scaler ~{ER_status_scaler} \
         --model ~{ER_status_model} \
 
-        awk -F $'\t' '{print $2}' ~{sample_name}_ER_status_prediction.tsv > ER_status.txt
-        awk -F $'\t' '{print $3}' ~{sample_name}_ER_status_prediction.tsv > ER_prob.txt
+        awk -F $'\t' '{print $2}' ~{sample_name}_ER_status_prediction.tsv | sed -n 2p > ER_status.txt
+        awk -F $'\t' '{print $3}' ~{sample_name}_ER_status_prediction.tsv | sed -n 2p > ER_prob.txt
     >>>
     runtime {
         docker: griffin_docker
