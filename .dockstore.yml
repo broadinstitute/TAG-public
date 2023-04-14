@@ -79,3 +79,8 @@ workflows:
    primaryDescriptorPath: /checkBaitSetName/checkBaitSetName.wdl
    testParameterFiles:
     - /checkBaitSetName/checkBaitSetName.inputs.json
+ - name: checkBaitSetName_dev
+   subclass: WDL
+   primaryDescriptorPath: /checkBaitSetName/checkBaitSetName.dev.wdl
+   testParameterFiles:
+    - /checkBaitSetName/checkBaitSetName.dev.inputs.json
