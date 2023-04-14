@@ -1,5 +1,5 @@
 # Import BaitSetNameCheck task
-import "https://raw.githubusercontent.com/broadinstitute/TAG-public/master/checkBaitSetName/checkBaitSetName.wdl" as CheckBaitSetName
+import "https://raw.githubusercontent.com/broadinstitute/TAG-public/6346350e07f4e7fc929d66518266cc56a9451e2e/checkBaitSetName/checkBaitSetName.dev.wdl" as checkBaitSetName
 
 workflow GenerateDuplexConsensusBams {
 
@@ -58,7 +58,7 @@ workflow GenerateDuplexConsensusBams {
    # This is added to every task as padding, should increase if systematically you need more disk for every call
    Int disk_pad = 10 + select_first([emergency_extra_disk,0])
 
-   call CheckBaitSetName.CheckBaitSetName {
+   call checkBaitSetName.compareBaitSetName as checkBaitSetName {
       input:
          bait_set = bait_set,
          bait_intervals = bait_intervals,
@@ -377,6 +377,9 @@ workflow GenerateDuplexConsensusBams {
    }
 
    output {
+
+      String mismatch_message = checkBaitSetName.mismatch_message
+      Int bait_mismatch = checkBaitSetName.bait_mismatch
 
       File duplex_output_bam = BQSRDuplex.output_bam
       File duplex_output_bam_index = BQSRDuplex.output_bam_index
