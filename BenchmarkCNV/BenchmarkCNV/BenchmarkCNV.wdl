@@ -97,7 +97,7 @@ workflow Benchmark_CNV_Caller {
             File wittyer_annotated_vcf_index = "~{truth_sample_name}_wittyer_output/Wittyer.~{truth_sample_name}.Vs.~{query_sample_name}.vcf.gz.tbi"
         }
 }
-    # Task3: Format the wittyer json output
+    # Task2: Format the wittyer json output
     task Wittyer4Mat{
 
         input{
