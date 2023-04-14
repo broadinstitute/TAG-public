@@ -89,3 +89,9 @@ workflows:
    primaryDescriptorPath: /BenchmarkCNV/BenchmarkCNV/BenchmarkCNV.wdl
    testParameterFiles:
    - /BenchmarkCNV/BenchmarkCNV/BenchmarkCNV.inputs.json
+ - name: checkBaitSetName_dev
+   subclass: WDL
+   primaryDescriptorPath: /checkBaitSetName/checkBaitSetName.dev.wdl
+   testParameterFiles:
+    - /checkBaitSetName/checkBaitSetName.dev.inputs.json
+
