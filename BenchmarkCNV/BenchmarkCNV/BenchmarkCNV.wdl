@@ -75,24 +75,14 @@ workflow Benchmark_CNV_Caller {
         command <<<
             set -e
 
-            if [[ -f "~{bedfile}" ]]; then
-            # Run Benchmarking tool wittyer on dragen generated cnv.vcf with bed file
+            # Run Benchmarking tool wittyer on dragen generated cnv.vcf and truth set
             /opt/Wittyer/Wittyer -i ~{eval_vcf} \
             -t ~{truth_vcf} \
             -em ~{wittyer_evaluation_mode} \
             --configFile ~{wittyer_config} \
-            --includeBed ~{bedfile} \
+            ~{'--includeBed '+ bedfile} \
             -o ~{truth_sample_name}_wittyer_output
 
-            else
-            # Run Benchmarking tool wittyer on dragen generated cnv.vcf
-            /opt/Wittyer/Wittyer -i ~{eval_vcf} \
-            -t ~{truth_vcf} \
-            -em ~{wittyer_evaluation_mode} \
-            --configFile ~{wittyer_config} \
-            -o ~{truth_sample_name}_wittyer_output
-
-            fi
         >>>
         runtime {
             docker: wittyer_docker
