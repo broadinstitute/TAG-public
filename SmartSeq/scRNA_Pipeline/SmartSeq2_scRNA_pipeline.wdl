@@ -36,12 +36,12 @@ workflow SmartSeq2SingleCell {
   File fastq2
   # adapter task
   Boolean check_adapter
-  
+
 
   call run_hisat2.RunHisat2Pipeline as qc {
     input:
       fastq_read1 = fastq1,
-      fastq_read2 = fastq2, 
+      fastq_read2 = fastq2,
       gtf = gtf_file,
       stranded = stranded,
       ref_fasta = genome_ref_fasta,
@@ -51,13 +51,13 @@ workflow SmartSeq2SingleCell {
       hisat2_ref_name = hisat2_ref_name,
       sample_name = sample_name,
       output_prefix = output_name + "_qc"
-      
+
   }
 
   call run_hisat2_rsem.RunHisat2RsemPipeline as data {
     input:
-      fastq_read1 = fastq1, 
-      fastq_read2 = fastq2, 
+      fastq_read1 = fastq1,
+      fastq_read2 = fastq2,
       hisat2_ref_trans = hisat2_ref_trans_index,
       hisat2_ref_trans_name = hisat2_ref_trans_name,
       rsem_genome = rsem_ref_index,
@@ -68,8 +68,8 @@ workflow SmartSeq2SingleCell {
     call AdapterQC as adapter {
       input:
           ss2_adapter_qc_docker = select_first([ss2_adapter_qc_docker, "us.gcr.io/tag-team-160914/tag-tools:1.0.0"]),
-          fastq1 = fastq1, 
-          fastq2 = fastq2, 
+          fastq1 = fastq1,
+          fastq2 = fastq2,
           output_prefix = output_name
     }
   }
@@ -152,11 +152,11 @@ task AdapterQC {
     File fastq2
     File adapter_script
     String output_prefix
-    
+
     String ss2_adapter_qc_docker
 
     Float? mem = 4
-    
+
     Float fastq_size = size(fastq1, "GB") + size(fastq2, "GB")
     Int? increase_disk_size = 50
     Int disk_size = ceil(fastq_size * 10)  + increase_disk_size
@@ -193,7 +193,7 @@ task ExtractQC_metrics {
     String output_prefix
 
     Float? mem = 4
-    
+
 
     command <<<
 

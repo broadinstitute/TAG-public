@@ -1,1 +1,0 @@
-{"ichorSummaryBundle.CNA_plots":"${this.samples.allGenomeWidePlots}","ichorSummaryBundle.sample_set_name":"${this.sample_set_id}","ichorSummaryBundle.summary_script":"gs://gptag-public/ichorcna/ichorcna_step2/summary_script/ichor_summary.py"}

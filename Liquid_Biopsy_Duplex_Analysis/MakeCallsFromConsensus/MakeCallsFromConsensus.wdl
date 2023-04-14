@@ -1,11 +1,11 @@
 version 1.0
-import "https://raw.githubusercontent.com/broadinstitute/gatk/4.1.8.1/scripts/mutect2_wdl/mutect2.wdl" as m2
+import "https://raw.githubusercontent.com/broadinstitute/TAG-public/bea8bad857df7277d9fe6ccf3976e7c85c83a8e7/Liquid_Biopsy_Duplex_Analysis/MakeCallsFromConsensus/mutect2.wdl" as m2
 
 workflow MakeCallsFromConsensus {
 
    input {
       # dockers and override jars
-      String bloodbiopsydocker
+      String bloodbiopsydocker 
       String reference_version
       Int preemptible
 
@@ -52,7 +52,7 @@ workflow MakeCallsFromConsensus {
       Boolean? is_benchmark
 
       File? gatk_override
-
+   
       # Fingerprinting haplotype database
       File haplotype_map
       Boolean? fingerprint_tumor_normal
@@ -80,7 +80,7 @@ workflow MakeCallsFromConsensus {
       "max_retries": max_retries_or_default, "preemptible": preemptible, "cpu": small_task_cpu,
       "machine_mem": small_task_mem * 1000, "command_mem": small_task_mem * 1000 - 500,
       "disk": small_task_disk + disk_pad, "boot_disk_size": boot_disk_size}
-
+   
    if(select_first([fingerprint_tumor_normal, true])) {
       call CrosscheckFingerprints {
          input:
@@ -90,6 +90,14 @@ workflow MakeCallsFromConsensus {
             input_bam = tumor_bam,
             second_input_bam = normal_bam,
             haplotype_map = haplotype_map
+      }
+      call FingerprintsResult{
+         input:
+            bloodbiopsydocker = bloodbiopsydocker,
+            preemptible = preemptible,
+            disk_pad = disk_pad,
+            fingerprint_metrics = CrosscheckFingerprints.fingerprint_metrics,
+
       }
    }
 
@@ -150,6 +158,14 @@ workflow MakeCallsFromConsensus {
           gatk_docker = bloodbiopsydocker,
           compress_vcfs = compress_vcfs
    }
+   
+   if(defined(M2Duplex.contamination_table)){
+       call ExtractContam {
+           input: bloodbiopsydocker = bloodbiopsydocker,
+                  preemptible = preemptible,
+                  contamination_table = select_first([M2Duplex.contamination_table])
+       }
+   }
 
    # Apply MRD mapping filter to duplex
    call RunMappingFilter {
@@ -162,17 +178,17 @@ workflow MakeCallsFromConsensus {
          vcf_idx = M2Duplex.filtered_vcf_idx,
          reference = reference,
          reference_idx = reference_idx,
-         reference_dict = reference_dict,
+         reference_dict = reference_dict, 
          blastdb_nhr = blastdb_nhr,
          blastdb_nin = blastdb_nin,
-         blastdb_nsq = blastdb_nsq,
+         blastdb_nsq = blastdb_nsq, 
          preemptible = preemptible,
          disk_pad = disk_pad
    }
 
    # Run additional filtering tasks
    call VariantFiltration {
-      input:
+      input: 
          bloodbiopsydocker = bloodbiopsydocker,
          basename = basename,
          mapping_filter_name = "mapping_filter",
@@ -182,7 +198,7 @@ workflow MakeCallsFromConsensus {
          filter_vcf_idx = RunMappingFilter.map_filtered_vcf_idx,
          reference_fasta = reference,
          reference_fasta_idx = reference_idx,
-         reference_dict = reference_dict,
+         reference_dict = reference_dict, 
          preemptible = preemptible,
          filter_not_in_mask = true,
          disk_pad = disk_pad
@@ -197,21 +213,21 @@ workflow MakeCallsFromConsensus {
          vcf_idx = VariantFiltration.output_vcf_idx,
          reference_fasta = reference,
          reference_fasta_idx = reference_idx,
-         reference_dict = reference_dict,
+         reference_dict = reference_dict, 
          preemptible = preemptible,
          disk_pad = disk_pad
    }
 
    # Create text file of variants
    call VariantsToTable {
-      input:
+      input: 
          bloodbiopsydocker = bloodbiopsydocker,
-         vcf = SplitVCFs.output_snp_vcf,
+         vcf = SplitVCFs.output_snp_vcf, 
          vcf_idx = SplitVCFs.output_snp_vcf_idx,
-         output_name = basename,
+         output_name = basename, 
          preemptible = preemptible,
          disk_pad = disk_pad
-   }
+   } 
 
    # Create annotated maf file containing SNPs
    call m2.Funcotate as FuncotateMafSnps {
@@ -225,9 +241,9 @@ workflow MakeCallsFromConsensus {
          data_sources_tar_gz = data_sources_tar_gz,
          filter_funcotations = filter_funcotations,
          extra_args = funcotator_extra_args,
-         use_gnomad = false,
+         use_gnomad = false, 
          output_format = "MAF",
-         output_file_base_name = basename + "_snp",
+         output_file_base_name = basename + "_snp", 
          compress = true,
          runtime_params = standard_runtime
    }
@@ -244,9 +260,9 @@ workflow MakeCallsFromConsensus {
          data_sources_tar_gz = data_sources_tar_gz,
          filter_funcotations = filter_funcotations,
          extra_args = funcotator_extra_args,
-         use_gnomad = false,
+         use_gnomad = false, 
          output_format = "MAF",
-         output_file_base_name = basename + "_indel",
+         output_file_base_name = basename + "_indel", 
          compress = true,
          runtime_params = standard_runtime
    }
@@ -255,14 +271,14 @@ workflow MakeCallsFromConsensus {
 
    # Create IGV session so that it is easy to examine results of pipeline
    call GenerateIGVSession {
-      input:
+      input: 
          bloodbiopsydocker = bloodbiopsydocker,
          preemptible = preemptible,
          input_files = input_files,
-         file_name =  basename,
+         file_name =  basename, 
          reference_version = reference_version
    }
-
+   
    output {
 
       File igv_session = GenerateIGVSession.igv_session
@@ -278,19 +294,22 @@ workflow MakeCallsFromConsensus {
 
       Int n_passing_snps = SplitVCFs.passing_SNP
       Int n_filtered_snps = SplitVCFs.filtered_SNP
-
+      
       Int n_passing_mnps = SplitVCFs.passing_MNP
       Int n_filtered_mnps = SplitVCFs.filtered_MNP
-
+      
       Int n_passing_indels = SplitVCFs.passing_INDEL
       Int n_filtered_indels = SplitVCFs.filtered_INDEL
 
       File? contamination_table = M2Duplex.contamination_table
+      Float? contamination_fraction = ExtractContam.fracContam
 
       File funcotated_snp_maf = FuncotateMafSnps.funcotated_output_file
       File funcotated_indel_maf = FuncotateMafIndels.funcotated_output_file
 
       File variant_table = VariantsToTable.output_table
+      File? fingerprint_metrics = CrosscheckFingerprints.fingerprint_metrics
+      Int? expected_match = FingerprintsResult.expected_match
 
    }
 }
@@ -311,10 +330,10 @@ task CrosscheckFingerprints {
    }
    command {
       set -e
-
+      
       gatk CrosscheckFingerprints \
          --I ~{input_bam} \
-         ~{"--I " + second_input_bam}
+         ~{"--I " + second_input_bam} \
          --EXIT_CODE_WHEN_MISMATCH 1 \
          --CROSSCHECK_BY SAMPLE \
          --EXPECT_ALL_GROUPS_TO_MATCH true \
@@ -330,6 +349,44 @@ task CrosscheckFingerprints {
     output {
        File fingerprint_metrics = "fingerprint_metrics.txt"
     }
+}
+
+task FingerprintsResult{
+   input{
+      File fingerprint_metrics
+      String bloodbiopsydocker
+      Int preemptible
+      Int disk_pad
+      Int disk_size = 20 + disk_pad
+      Int? memory
+      Int mem = select_first([memory, 5])
+   }
+   command{
+      # Extract output from the fingerprint matrix
+
+      python3 <<CODE 
+      import pandas as pd
+
+      fps_mtx = pd.read_csv("${fingerprint_metrics}",sep='\t',skiprows=6)
+      # Get a brief output from crosscheck-result.txt
+      # if all samples matched with each other 
+      # it means they are very likely from the same individual
+      with open('crosscheck-result.txt', 'w') as f:
+         if 'EXPECTED_MATCH' in fps_mtx['RESULT'].unique():
+               f.write('1')
+         else:
+               f.write('0')
+      CODE
+   }
+   runtime {
+       docker: bloodbiopsydocker
+       memory: mem + " GB"
+       disks: "local-disk " + disk_size + " HDD"
+       preemptible: preemptible
+    }
+   output{
+       Int expected_match = read_int('crosscheck-result.txt')
+   }
 }
 
 
@@ -526,7 +583,7 @@ task SplitVCFs {
          -select-type SNP \
          -select-type MNP
 
-      #passing only SNPs
+      #passing only SNPs 
       gatk --java-options "-Xmx15G" SelectVariants \
          -V "${basename}.snp.vcf.gz" \
          -O "${basename}.snp.passing.vcf.gz" \
@@ -536,7 +593,7 @@ task SplitVCFs {
 
       passing_SNP="$(gatk CountVariants -V ${basename}.snp.passing.vcf.gz | tail -1)"
       echo "$passing_SNP" > passing_snp.txt
-
+      
       #passing only MNPs
       gatk --java-options "-Xmx15G" SelectVariants \
          -V "${basename}.snp.vcf.gz" \
@@ -544,7 +601,7 @@ task SplitVCFs {
          -R ${reference_fasta} \
          --exclude-filtered \
          -select-type MNP
-
+         
       passing_MNP="$(gatk CountVariants -V ${basename}.mnp.passing.vcf.gz | tail -1)"
       echo "$passing_MNP" > passing_mnp.txt
 
@@ -554,18 +611,18 @@ task SplitVCFs {
          -XL "${basename}.snp.passing.vcf.gz" \
          -O "${basename}.snp.filtered.vcf.gz" \
          -select-type SNP \
-         -R ${reference_fasta}
+         -R ${reference_fasta} 
 
       filtered_SNP="$(gatk CountVariants -V ${basename}.snp.filtered.vcf.gz | tail -1)"
       echo "$filtered_SNP" > filtered_snp.txt
-
+      
       #filtered only MNPs
       gatk --java-options "-Xmx15G" SelectVariants \
          -V "${basename}.snp.vcf.gz" \
          -XL "${basename}.mnp.passing.vcf.gz" \
          -O "${basename}.mnp.filtered.vcf.gz" \
          -select-type MNP \
-         -R ${reference_fasta}
+         -R ${reference_fasta} 
 
       filtered_MNP="$(gatk CountVariants -V ${basename}.mnp.filtered.vcf.gz | tail -1)"
       echo "$filtered_MNP" > filtered_mnp.txt
@@ -577,7 +634,7 @@ task SplitVCFs {
          -select-type INDEL \
          -select-type MIXED
 
-      #passing only
+      #passing only 
       gatk --java-options "-Xmx15G" SelectVariants \
          -V "${basename}.indel.vcf.gz" \
          -O "${basename}.indel.passing.vcf.gz" \
@@ -587,7 +644,7 @@ task SplitVCFs {
       passing_INDEL="$(gatk CountVariants -V ${basename}.indel.passing.vcf.gz | tail -1)"
       echo "$passing_INDEL" > passing_indel.txt
 
-      #filtered only
+      #filtered only          
       bcftools isec -C -O v -o ${basename}.indel.filtered.vcf -w1 ${basename}.indel.vcf.gz ${basename}.indel.passing.vcf.gz
       filtered_INDEL="$(gatk CountVariants -V ${basename}.indel.filtered.vcf | tail -1)"
       echo "$filtered_INDEL" > filtered_indel.txt
@@ -607,7 +664,7 @@ task SplitVCFs {
 
       Int passing_SNP = read_int("passing_snp.txt")
       Int filtered_SNP = read_int("filtered_snp.txt")
-
+      
       Int passing_MNP = read_int("passing_mnp.txt")
       Int filtered_MNP = read_int("filtered_mnp.txt")
 
@@ -616,8 +673,8 @@ task SplitVCFs {
 
       Int passing_INDEL = read_int("passing_indel.txt")
       Int filtered_INDEL = read_int("filtered_indel.txt")
-
-   }
+      
+   }   
 }
 
 #creates an IGV session
@@ -648,6 +705,25 @@ task GenerateIGVSession {
    }
 }
 
+task ExtractContam {
+
+   input {
+      String bloodbiopsydocker
+      File contamination_table
+      Int preemptible
+   }
+
+   command {
+      tail -n1 ~{contamination_table} | cut -f2 > fraction_contamination.txt
+   }
+   runtime {
+      docker: bloodbiopsydocker
+      preemptible: preemptible
+   }
+   output {
+      Float fracContam=read_float("fraction_contamination.txt")
+   }
+}
 
 task VariantsToTable {
    input {
@@ -690,4 +766,3 @@ task VariantsToTable {
       File output_table = "${output_name}.table"
    }
 }
-

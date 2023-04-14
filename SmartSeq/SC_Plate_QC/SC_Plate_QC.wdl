@@ -19,9 +19,9 @@ workflow SC_plate{
     Array[File] rna_list
     Array[File] qual_list
     Array[File] rsem_list
-	Array[File] adapt_list
+	Array[File]? adapt_list
     Array[String] names
-        
+
         call graphPlate {
          input:
            RPlateQC = RPlateQC,
@@ -42,6 +42,11 @@ workflow SC_plate{
            adapt_list = adapt_list,
            names = names
         }
+
+		call gsutil_cp{
+			input:
+			plate_qc_metrics = graphPlate.plate_qc_metrics
+		}
 }
 
 task graphPlate{
@@ -61,15 +66,15 @@ task graphPlate{
 	Array[File] rna_list
 	Array[File] qual_list
 	Array[File] rsem_list
-    Array[File] adapt_list
+    Array[File]? adapt_list
     Array[String] names
-    
+
     Float? extra_mem
     Float memory = 7.5 + select_first([extra_mem,0])
-    
+
     Int? extra_space
     Int disk_space = 500 + select_first([extra_space,0])
-    
+
     Int? extra_boot_space
     Int boot_disk_space = 10 + select_first([extra_boot_space, 0])
 
@@ -78,7 +83,7 @@ task graphPlate{
 		# First we have to make a bunch of folders for all the different types of files that we have from the single cell qc. We need aln_sum, base_call, dup_met, insert_met, rna_cov, qual_cyc, rsem_gene
 		# So time for the first one: aln_sum
         mkdir aln_sum/
-                
+
 		mv ${sep=" " aln_list} aln_sum/
 		# Ok, all the files should be moved (and renamed, not sure I want that, but we'll see). Let's check them out.
         echo 'aln_sum:'
@@ -96,7 +101,7 @@ task graphPlate{
 
 		# Third folder: dup_met
         mkdir dup_met/
-		
+
 		mv ${sep=" " dup_list} dup_met/
 		#Ok, again, all files moved. Let's look
 		echo 'dup_met:'
@@ -115,9 +120,9 @@ task graphPlate{
 		mkdir rna_cov/
 
 		mv ${sep=" " rna_list} rna_cov/
-        
+
         # This folder's special. This is where we have files that may or may not have a histogram. Current understanding is that it should be all 0s.
-        
+
         #create a histogram file
 		echo -e "## HISTOGRAM\tjava.lang.Integer\nnormalized_position\tAll_Reads.normalized_coverage" > histo.txt
 
@@ -145,11 +150,11 @@ task graphPlate{
         if [ -f temp2.txt ]; then
         	rm temp2.txt
         fi
-        
+
 		echo 'rna_cov:'
 		ls rna_cov/
 		wc -l rna_cov/*
-        
+
 		# Sixth folder: qual_cyc
 		mkdir qual_cyc/
 
@@ -163,15 +168,16 @@ task graphPlate{
 		mkdir rsem_gene/
 
 		mv ${sep=" " rsem_list} rsem_gene/
-        
+
 		echo 'rsem_gene:'
 		ls rsem_gene/
-        
+
 		# Eighth folder: adapt_content
 		mkdir adapt_content/
 
-		mv ${sep=" " adapt_list} adapt_content/
-
+		if [ "${sep=" " adapt_list}" != "" ]; then
+        	mv ${sep=" " adapt_list} adapt_content/
+		fi
 		echo 'adapt_content:'
 		ls adapt_content/
 
@@ -179,23 +185,23 @@ task graphPlate{
 		mkdir images
 
 		export R_MAX_MEM_SIZE=750	#I don't think this ends up doing anything honestly.
-        
+
         CELL_TYPES="$(echo ${sep="," cell_types} | sed 's/ /_/g')"
-		# R-3.4.0 location                      Rscript in  f1       f2         f3       f4          f5       f6                 f7         8          9 
+		# R-3.4.0 location                      Rscript in  f1       f2         f3       f4          f5       f6                 f7         8          9
         /usr/tag/software/R/R-3.4.0/bin/Rscript ${RPlateQC} aln_sum/ base_call/ dup_met/ insert_met/ rna_cov/ qual_cyc/ rna_cov/ rsem_gene/ adapt_content/ ${metadata} ${annot_gtf} ${species_name} ${flowcells} ${sep="," smid} $CELL_TYPES ${LCSET}
-        
+
         echo "Finished running R script\n"
-        
+
         # each plot is in a separate pdf. I want to combine these into 2 relevant pdfs. We're going to use ghostscript:
         gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=${metadata_basename}.sequencingqc.pdf p3.pdf p7.pdf p8.pdf p1.pdf p2.pdf p13.pdf
 		gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=${metadata_basename}.transcriptqc.pdf p10.pdf p9.pdf p5.pdf p11.pdf
-        
+
         tar -cz images processedQC.Rdata > ${metadata_basename}.images.tar.gz
-        
+
          head -n1 ${metadata_basename}.plate_qc_metrics.txt > ${metadata_basename}.plate_qc_metrics_temp.txt
          tail -n +2 ${metadata_basename}.plate_qc_metrics.txt | sort -k1,1 -k2,2n >> ${metadata_basename}.plate_qc_metrics_temp.txt
          mv ${metadata_basename}.plate_qc_metrics_temp.txt ${metadata_basename}.plate_qc_metrics.txt
-        
+
         echo "Reached end of WDL"
         >>>
 
@@ -207,7 +213,7 @@ task graphPlate{
         File transcript_plots = "${metadata_basename}.transcriptqc.pdf"
         File plate_qc_metrics = "${metadata_basename}.plate_qc_metrics.txt"
         }
-        
+
 	runtime {
 	    docker: "bgranger/ss2_qc:0.1"
         memory: memory + "GB"
@@ -215,4 +221,27 @@ task graphPlate{
 		disks: "local-disk "+disk_space+" HDD"
         bootDiskSizeGb: boot_disk_space
     }
+}
+
+task gsutil_cp{
+	File plate_qc_metrics
+	String? target_google_bucket = "gs://fc-735a9d10-0cf6-4ae5-a203-5e5522bf5c3c/tableau_files"
+
+	command <<<
+		#Run gsutil cp and capture its exit status
+		gsutil cp ${plate_qc_metrics} ${target_google_bucket}
+		gsutil_exit_status=$?
+
+		# Check if gsutil cp was successful
+		if [[ $gsutil_exit_status -eq 0 ]]; then
+		  echo "gsutil cp succeeded"
+		else
+		  echo "gsutil cp failed with exit code $gsutil_exit_status"
+		fi
+	>>>
+
+	runtime{
+		docker: "gcr.io/google.com/cloudsdktool/google-cloud-cli:latest"
+	}
+
 }

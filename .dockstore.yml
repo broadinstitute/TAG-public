@@ -1,40 +1,22 @@
 version: 1.2
 workflows:
- - name: SS2_scRNA_pipeline
+ - name: SmartSeq2_scRNA_pipeline
    subclass: WDL
-   primaryDescriptorPath: /wdl/SS2_scRNA_pipeline.wdl
+   primaryDescriptorPath: /SmartSeq/scRNA_Pipeline/SmartSeq2_scRNA_pipeline.wdl
    testParameterFiles:
-   - /input_json/ss2_scRNA_pipeline_inputs.json
- - name: SC_Plate_QC
+   - /SmartSeq/scRNA_Pipeline/SmartSeq2_scRNA_pipeline.human.terra-inputs.json
+   - /SmartSeq/scRNA_Pipeline/SmartSeq2_scRNA_pipeline.mouse.terra-inputs.json
+ - name: SmartSeq2_SC_Plate_QC
    subclass: WDL
-   primaryDescriptorPath: /wdl/SC_Plate_QC.wdl
+   primaryDescriptorPath: /SmartSeq/SC_Plate_QC/SC_Plate_QC.wdl
    testParameterFiles:
-   - /input_json/SC_Plate_QC_pipeline_inputs.json
- - name: CramToBam
-   subclass: WDL
-   primaryDescriptorPath: /wdl/CramToBam.wdl
-   testParameterFiles:
-   - /input_json/CramToBam_inputs.json
+   - /SmartSeq/SC_Plate_QC/SC_Plate_QC.human.terra-inputs.json
+   - /SmartSeq/SC_Plate_QC/SC_Plate_QC.mouse.terra-inputs.json
  - name: CollectSamErrorMetrics
    subclass: WDL
-   primaryDescriptorPath: /wdl/CollectSamErrorMetrics.wdl
+   primaryDescriptorPath: /CollectSamError/CollectSamErrorMetrics.wdl
    testParameterFiles:
-   - /input_json/CollectSamErrorMetrics_inputs.json
- - name: SelectSampleFromCallSet
-   subclass: WDL
-   primaryDescriptorPath: /BenchmarkCNV/SelectSampleFromCallSet/SelectSampleFromCallSet.wdl
-   testParameterFiles:
-   - /BenchmarkCNV/SelectSampleFromCallSet/SelectSampleFromCallSet.inputs.json
- - name: MergeVCF
-   subclass: WDL
-   primaryDescriptorPath: /BenchmarkCNV/MergeVCF/MergeVCF.wdl
-   testParameterFiles:
-   - /BenchmarkCNV/MergeVCF/MergeVCF.inputs.json
- - name: BenchmarkCNV
-   subclass: WDL
-   primaryDescriptorPath: /BenchmarkCNV/BenchmarkCNV/BenchmarkCNV.wdl
-   testParameterFiles:
-   - /BenchmarkCNV/BenchmarkCNV/BenchmarkCNV.inputs.json
+   - /CollectSamError/CollectSamErrorMetrics.inputs.json
  - name: GATK4_CNV
    subclass: WDL
    primaryDescriptorPath: /GATK_CNV_Mutect2/GATK4_CNV/GATK4_CNV.wdl
@@ -76,3 +58,34 @@ workflows:
    primaryDescriptorPath: /LegoPlotter/lego_plotter.wdl
    testParameterFiles:
    - /LegoPlotter/lego_plotter.inputs.json
+ - name: SomaticSV_SvABA
+   subclass: WDL
+   primaryDescriptorPath: /SomaticSV_SvABA/SomaticSV_SvABA.wdl
+   testParameterFiles:
+   - /SomaticSV_SvABA/SomaticSV_SvABA.inputs.json
+   - /SomaticSV_SvABA/SomaticSV_SvABA_Tonly.inputs.json
+ - name: BreaKmer
+   subclass: WDL
+   primaryDescriptorPath: /BreaKmer/BreaKmer.wdl
+   testParameterFiles:
+   - /BreaKmer/BreaKmer.inputs.json
+ - name: checkBaitSetName
+   subclass: WDL
+   primaryDescriptorPath: /checkBaitSetName/checkBaitSetName.wdl
+   testParameterFiles:
+    - /checkBaitSetName/checkBaitSetName.inputs.json
+ - name: SelectSampleFromCallSet
+   subclass: WDL
+   primaryDescriptorPath: /BenchmarkCNV/SelectSampleFromCallSet/SelectSampleFromCallSet.wdl
+   testParameterFiles:
+   - /BenchmarkCNV/SelectSampleFromCallSet/SelectSampleFromCallSet.inputs.json
+ - name: MergeVCF
+   subclass: WDL
+   primaryDescriptorPath: /BenchmarkCNV/MergeVCF/MergeVCF.wdl
+   testParameterFiles:
+   - /BenchmarkCNV/MergeVCF/MergeVCF.inputs.json
+ - name: BenchmarkCNV
+   subclass: WDL
+   primaryDescriptorPath: /BenchmarkCNV/BenchmarkCNV/BenchmarkCNV.wdl
+   testParameterFiles:
+   - /BenchmarkCNV/BenchmarkCNV/BenchmarkCNV.inputs.json
