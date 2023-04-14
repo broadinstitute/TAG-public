@@ -9,7 +9,7 @@ workflow Benchmark_CNV_Caller {
         File wittyer_config
         File? bedfile
         String wittyer_evaluation_mode
-        String wittyer_docker
+        String wittyer_docker = "yg96/wittyer:v2"
         String wittyer4mat_docker
         Boolean run_wittyer4mat
     }
