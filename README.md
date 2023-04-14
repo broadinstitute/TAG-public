@@ -1,24 +1,13 @@
-# Translational Analysis Group (TAG) Public Repo
+# Translational Analysis Group (TAG) Workflow Repository
 
-This github repository contains public Terra workflows maintained by
-Translational Analysis Group (TAG). Below is the workflows TAG published.
+This is Translational Analysis Group (TAG) public repository, where we maintain frequently 
+used utility workflows for the team. Our goal is to facilitate their use on Terra through 
+Dockstore, allowing for easy access and streamlined usage.
 
-## SmartSeq QC
-A pipeline for quality control of Smart Seq single cell analysis:
-* SS2_scRNA_pipeline
-* SC_Plate_QC
+**NOTE: this Repo is public, so anything you add to this repo is viewable by anyone.**
 
-## ichorCNA 
-A workflow that estimates tumor purity and ploidy of blood samples using ultra-low pass (ULP) whole-genome sequencing 
-(WGS) technology. 
-* ichorCNA_step1
-* ichorCNA_step2
-
-## CramToBam
-A workflow for converting CRAM file to BAM file.
-
-## CollectSamErrorMetrics
-A workflow for collecting error metrics from alignment file.
-
-## BenchmarkCNV
-A workflow for benchmarking copy number variation detection algorithms.
+## Using the Dockstore Automatically Update Workflows in Terra
+Workflows registered in Dockstore can be automatically synced when changes are pushed 
+to this repo by adding their information to `.dockstore.yml`. This allows any updates or 
+changes made to a workflow in this repo to be immediately reflected in any Terra workspaces 
+using that workflow. 

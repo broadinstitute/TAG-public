@@ -64,4 +64,3 @@ task CollectSamErrorMetricsTask {
         cpu: "1"
     }
 }
-
