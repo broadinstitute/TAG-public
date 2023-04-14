@@ -18,8 +18,8 @@ task compareBaitSetName {
   command <<<
 python <<CODE
 import sys
-target_correct = "~{target_intervals_name}".startswith("~{bait_set}.")
-bait_correct = "~{bait_intervals_name}".startswith("~{bait_set}.")
+target_correct = "${target_intervals_name}".startswith("${bait_set}.")
+bait_correct = "${bait_intervals_name}".startswith("${bait_set}.")
 if not target_correct and not bait_correct:
   print("Bait and target intervals do not match the bait_set.")
   open("set_mismatch.txt", 'w').write("1")
