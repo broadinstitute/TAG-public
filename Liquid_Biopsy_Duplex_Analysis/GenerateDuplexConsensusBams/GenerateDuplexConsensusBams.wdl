@@ -1,5 +1,5 @@
 # Import BaitSetNameCheck task
-import "https://raw.githubusercontent.com/broadinstitute/TAG-public/6346350e07f4e7fc929d66518266cc56a9451e2e/checkBaitSetName/checkBaitSetName.dev.wdl" as checkBaitSetName
+import "https://raw.githubusercontent.com/broadinstitute/TAG-public/master/checkBaitSetName/checkBaitSetName.dev.wdl" as checkBaitSetName
 
 workflow GenerateDuplexConsensusBams {
 
