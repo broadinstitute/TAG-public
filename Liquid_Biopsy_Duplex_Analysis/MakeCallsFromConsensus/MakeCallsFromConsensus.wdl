@@ -1,5 +1,6 @@
 version 1.0
 import "https://raw.githubusercontent.com/broadinstitute/gatk/4.1.8.1/scripts/mutect2_wdl/mutect2.wdl" as m2
+import "https://raw.githubusercontent.com/broadinstitute/TAG-public/master/checkBaitSetName/checkBaitSetName.wdl" as checkBaitSetName
 
 workflow MakeCallsFromConsensus {
 
@@ -23,6 +24,7 @@ workflow MakeCallsFromConsensus {
       File? raw_normal_bam_idx
 
       File target_intervals
+      Boolean fail_on_intervals_mismatch
       File reference
       File reference_idx
       File reference_dict
@@ -100,7 +102,11 @@ workflow MakeCallsFromConsensus {
 
       }
    }
-
+   call checkBaitSetName.compareBaitSetName as checkBaitSetName {
+      input:
+         target_intervals = target_intervals,
+         fail_task = fail_on_intervals_mismatch
+   }
    # Collect Sequencing Artifact Metrics after deduplication by start and stop
    # positions (but not including UMIs).
    call CollectSequencingArtifactMetrics as ConsensusArtifactMetricsTumor {
