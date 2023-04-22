@@ -5,6 +5,8 @@ workflow CollectSamErrorMetrics {
         File input_bam
         File vcf_file
         File vcf_index_file
+        File vcf_file2
+        File vcf_index_file2
         File ref_fasta
         File ref_fai
         File ref_dict
@@ -19,6 +21,8 @@ workflow CollectSamErrorMetrics {
             picard_docker=picard_docker,
             vcf_file=vcf_file,
             vcf_index_file=vcf_index_file,
+            vcf_file2=vcf_file2,
+            vcf_index_file2=vcf_index_file2,
             ref_fasta=ref_fasta,
             ref_fai=ref_fai,
             ref_dict=ref_dict,
@@ -40,13 +44,17 @@ task CollectSamErrorMetricsTask {
         File ref_dict
         File vcf_file
         File vcf_index_file
+        File vcf_file2
+        File vcf_index_file2
         File intervals
         Int disk_gb = 400
         Int memory_gb = 16
     }
     command {
         java -Xms2000m -jar /usr/gitc/picard.jar CollectSamErrorMetrics I=~{input_bam} \
-        O=~{output_name} R=~{ref_fasta} V=~{vcf_file} L=~{intervals} \
+        O=~{output_name} R=~{ref_fasta} \
+        V=~{vcf_file} V=~{vcf_file2} \
+        L=~{intervals} \
         MAX_LOCI=1000000 \
         ERROR_METRICS=null \
         ERROR_METRICS="ERROR:READ_ORDINALITY:INSERT_LENGTH" \
