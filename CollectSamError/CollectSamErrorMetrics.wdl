@@ -50,6 +50,7 @@ task CollectSamErrorMetricsTask {
         V=~{vcf_file} \
         L=~{intervals} \
         MAX_LOCI=10000000 \
+        MIN_MAPPING_Q=60 \
         ERROR_METRICS=null \
         ERROR_METRICS="ERROR:READ_ORDINALITY:INSERT_LENGTH" \
         ERROR_METRICS="ERROR:READ_ORDINALITY:CYCLE" \
