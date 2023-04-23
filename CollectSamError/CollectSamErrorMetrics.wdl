@@ -49,7 +49,7 @@ task CollectSamErrorMetricsTask {
         O=~{output_name} R=~{ref_fasta} \
         V=~{vcf_file} \
         L=~{intervals} \
-        MAX_LOCI=10000000 \
+        MAX_LOCI=100000000 \
         MIN_MAPPING_Q=60 \
         ERROR_METRICS=null \
         ERROR_METRICS="ERROR:READ_ORDINALITY:INSERT_LENGTH" \
