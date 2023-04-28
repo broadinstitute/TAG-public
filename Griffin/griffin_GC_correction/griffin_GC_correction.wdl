@@ -64,13 +64,10 @@ task GC_counts {
         File chrom_sizes
         Int map_q
         Array[Int] GC_bias_size_range
-        Int? cpu
-        Int? mem
-        Int? disk_space
         # If cpu, mem, and disk size were not specified, use 8 cores, 8GB, and 100 GB as default
-        Int cpu_num = select_first([cpu, 8])
-        Int mem_size = select_first([mem, 8])
-        Int disk_size = select_first([disk_space,100])
+        Int cpu_num = 8
+        Int mem_size = 8
+        Int disk_size = 100
     }
     command <<<
         set -e
