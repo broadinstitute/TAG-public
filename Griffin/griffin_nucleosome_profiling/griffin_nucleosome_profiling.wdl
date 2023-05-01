@@ -48,7 +48,6 @@ workflow nucleosome_profiling{
             GC_bias_file = GC_bias_file,
             sample_name = sample_name,
             reference_genome = reference_genome,
-            mappability_bw = mappability_bw,
             chrom_sizes = chrom_sizes,
             sites_files = sites_files,
             sites_names = sites_names,
@@ -137,7 +136,6 @@ task calc_cov {
         File GC_bias_file
         String sample_name
         File reference_genome
-        File mappability_bw
         File chrom_sizes
         Array[File] sites_files
         Array[String] sites_names
