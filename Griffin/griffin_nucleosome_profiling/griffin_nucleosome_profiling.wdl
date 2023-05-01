@@ -151,13 +151,10 @@ task calc_cov {
         Int number_of_sites
         String sort_by
         String ascending
-        Int? cpu
-        Int? mem
-        Int? disk_space
         # If cpu, mem, and disk size were not specified, use 8 cores, 10GB, and 100 GB as default
-        Int cpu_num = select_first([cpu, 8])
-        Int mem_size = select_first([mem, 32])
-        Int disk_size = select_first([disk_space,100])
+        Int cpu_num = 8
+        Int mem_size = 32
+        Int disk_size = 100
         }
     command <<<
         set -e
@@ -188,7 +185,7 @@ task calc_cov {
         --mappability_correction False \
         --tmp_dir results/calc_cov/temp \
         --reference_genome ~{reference_genome} \
-        --mappability_bw ~{mappability_bw} \
+        --mappability_bw none \
         --chrom_sizes_path ~{chrom_sizes} \
         --sites_yaml griffin_nucleosome_profiling_files/sites/sites.yaml \
         --griffin_scripts /BaseImage/Griffin/scripts/ \
@@ -254,13 +251,10 @@ task merge_sites {
         Int number_of_sites
         String sort_by
         String ascending
-        Int? cpu
-        Int? mem
-        Int? disk_space
         # If cpu, mem, and disk size were not specified, use 8 cores, 10GB, and 100 GB as default
-        Int cpu_num = select_first([cpu, 8])
-        Int mem_size = select_first([mem, 32])
-        Int disk_size = select_first([disk_space,100])
+        Int cpu_num = 8
+        Int mem_size = 32
+        Int disk_size = 100
         }
     command <<<
         set -e
@@ -342,13 +336,10 @@ task generate_plots {
         Array[Int] save_window
         Int step
         Boolean individual
-        Int? cpu
-        Int? mem
-        Int? disk_space
         # If cpu, mem, and disk size were not specified, use 8 cores, 10GB, and 100 GB as default
-        Int cpu_num = select_first([cpu, 8])
-        Int mem_size = select_first([mem, 10])
-        Int disk_size = select_first([disk_space,100])
+        Int cpu_num = 1
+        Int mem_size = 4
+        Int disk_size = 100
         }
     command <<<
         set -e

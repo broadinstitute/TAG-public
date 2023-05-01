@@ -134,7 +134,7 @@ task GC_bias {
         --mappable_name ~{mappable_name} \
         --genome_GC_frequency ./genome_GC_frequency \
         --out_dir results \
-        --size_range ~{sep=" " GC_bias_size_range} \
+        --size_range ~{sep=" " GC_bias_size_range}
 
     >>>
     runtime {
