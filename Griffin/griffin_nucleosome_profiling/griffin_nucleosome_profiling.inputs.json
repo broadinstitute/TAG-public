@@ -1,8 +1,8 @@
 {
     "nucleosome_profiling.griffin_docker": "us.gcr.io/tag-team-160914/griffin:v1",
     "nucleosome_profiling.sample_name": "healthy_demo",
-    "nucleosome_profiling.sites_file": "gs://gptag/resources/Griffin/sites/CTCF.hg38.1000.txt",
-    "nucleosome_profiling.sites_name": "CTCF_demo",
+    "nucleosome_profiling.sites_file": ["gs://gptag/resources/Griffin/sites/CTCF.hg38.1000.txt"],
+    "nucleosome_profiling.sites_name": ["CTCF_demo"],
     "nucleosome_profiling.GC_bias_file": "gs://gptag/resources/Griffin/demo_data/healthy_demo.GC_bias.txt",
     "nucleosome_profiling.reference_genome": "gs://gptag/resources/Griffin/Ref_hg38/hg38.fa",
     "nucleosome_profiling.bam_file": "gs://gptag/resources/Griffin/demo_data/Healthy_GSM1833219_downsampled.sorted.mini.bam",

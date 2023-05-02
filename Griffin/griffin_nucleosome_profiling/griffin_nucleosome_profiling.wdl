@@ -322,7 +322,7 @@ task merge_sites {
         }
 }
 
- #This task generates plots from the merged sites (Under Construction)
+ #This task generates plots from the merged sites
 task generate_plots {
     input {
         String griffin_docker

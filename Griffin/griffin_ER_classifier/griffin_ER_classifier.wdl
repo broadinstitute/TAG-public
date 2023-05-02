@@ -38,13 +38,10 @@ task ER_classifier {
         File ER_status_scaler
         File ER_status_model
         String griffin_docker
-        Int? cpu
-        Int? mem
-        Int? disk_space
         # If cpu, mem, and disk size were not specified, use 8 cores, 10GB, and 100 GB as default
-        Int cpu_num = select_first([cpu, 1])
-        Int mem_size = select_first([mem, 4])
-        Int disk_size = select_first([disk_space,100])
+        Int cpu_num = 1
+        Int mem_size = 4
+        Int disk_size = 100
     }
     command <<<
         set -e
