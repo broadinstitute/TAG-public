@@ -1,0 +1,9 @@
+{
+  "SelectSampleFromCallSet.SelectSample.mem": "Int? (optional)",
+  "SelectSampleFromCallSet.sample_name": "HG00513",
+  "SelectSampleFromCallSet.SelectSample.disk_size": "Int? (optional)",
+  "SelectSampleFromCallSet.variant_callset": "gs://gptag/tag_1455_Dragen_CNV_Caller_Validation/1KGP_3202.gatksv_svtools_novelins.freeze_V3_fixed.wAF.vcf",
+  "SelectSampleFromCallSet.SelectSample.disk_space": "Int? (optional)",
+  "SelectSampleFromCallSet.SelectSample.mem_size": "Int? (optional)",
+  "SelectSampleFromCallSet.bcftools_docker": "us.gcr.io/broad-dsde-methods/liquidbiopsy:0.0.4.3"
+}
