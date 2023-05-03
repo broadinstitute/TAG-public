@@ -1,0 +1,12 @@
+{
+  "ER_status_classification.ER_classifier.disk_size": "Int (optional, default = 100)",
+  "ER_status_classification.griffin_docker": "us.gcr.io/tag-team-160914/griffin:v2",
+  "ER_status_classification.ER_classifier.cpu_num": "Int (optional, default = 1)",
+  "ER_status_classification.samples_yaml": "gs://fc-8da03192-7472-4dcc-8c87-521ad883f2e3/submissions/27b1adc7-6c91-4c36-a962-13ae7179167d/nucleosome_profiling/5bccb908-61fb-4c06-80d0-fecacba98264/call-generate_plots/griffin_nucleosome_profiling_files/config/samples.GC.yaml",
+  "ER_status_classification.ER_classifier.mem_size": "Int (optional, default = 4)",
+  "ER_status_classification.GC_corrected_cov": "gs://fc-8da03192-7472-4dcc-8c87-521ad883f2e3/submissions/27b1adc7-6c91-4c36-a962-13ae7179167d/nucleosome_profiling/5bccb908-61fb-4c06-80d0-fecacba98264/call-merge_sites/results/merge_sites/MBCProject_0061_BLOOD_P/MBCProject_0061_BLOOD_P.GC_corrected.coverage.tsv",
+  "ER_status_classification.sample_name": "MBCProject_0061_BLOOD_P",
+  "ER_status_classification.ER_status_scaler": "gs://gptag/gaoyy/Griffin_DockerImage/ER_status_scaler.pkl",
+  "ER_status_classification.ER_status_model": "gs://gptag/gaoyy/Griffin_DockerImage/ER_status_model.pkl"
+}
+

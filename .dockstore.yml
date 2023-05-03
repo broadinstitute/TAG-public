@@ -69,6 +69,21 @@ workflows:
    primaryDescriptorPath: /BreaKmer/BreaKmer.wdl
    testParameterFiles:
    - /BreaKmer/BreaKmer.inputs.json
+ - name: Griffin_GC_Correction
+   subclass: WDL
+   primaryDescriptorPath: /Griffin/griffin_GC_correction/griffin_GC_correction.wdl
+   testParameterFiles:
+   - /Griffin/griffin_GC_correction/griffin_GC_correction.inputs.json
+ - name: Griffin_Nucleosome_Profiling
+   subclass: WDL
+   primaryDescriptorPath: /Griffin/griffin_nucleosome_profiling/griffin_nucleosome_profiling.wdl
+   testParameterFiles:
+   - /Griffin/griffin_nucleosome_profiling/griffin_nucleosome_profiling.inputs.json
+ - name: griffin_ER_classifier
+   subclass: WDL
+   primaryDescriptorPath: /Griffin/griffin_ER_classifier/griffin_ER_classifier.wdl
+   testParameterFiles:
+   - /Griffin/griffin_ER_classifier/griffin_ER_classifier.inputs.json
  - name: checkBaitSetName
    subclass: WDL
    primaryDescriptorPath: /checkBaitSetName/checkBaitSetName.wdl
@@ -94,4 +109,3 @@ workflows:
    primaryDescriptorPath: /checkBaitSetName/checkBaitSetName.dev.wdl
    testParameterFiles:
     - /checkBaitSetName/checkBaitSetName.dev.inputs.json
-
