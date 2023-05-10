@@ -47,9 +47,9 @@ workflow SelectSampleFromCallSet {
 
                 # Remove Complex SV from the sample vcf because wittyer can't process CPX variants
                 # Remove INV from the sample vcf because wittyer's exception
-                # Remove reference allele
+                # Remove reference allele (NO-CALLS)
 
-                bcftools view -e 'SVTYPE="INV" | SVTYPE="CPX" | GT="0/0"' ~{sample_name}.vcf -o ~{sample_name}_filtered.vcf
+                bcftools view -e 'SVTYPE="INV" | SVTYPE="CPX" | GT="0/0" | GT="0|0"' ~{sample_name}.vcf -o ~{sample_name}_filtered.vcf
 
                 >>>
             runtime {
