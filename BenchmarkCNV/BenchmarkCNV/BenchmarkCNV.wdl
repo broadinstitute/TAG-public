@@ -93,8 +93,8 @@ workflow Benchmark_CNV_Caller {
         }
         output {
             File wittyer_stats = "~{truth_sample_name}_wittyer_output/Wittyer.Stats.json"
-            File wittyer_annotated_vcf = "~{truth_sample_name}_wittyer_output/Wittyer.~{truth_sample_name}.Vs.~{query_sample_name}.vcf.gz"
-            File wittyer_annotated_vcf_index = "~{truth_sample_name}_wittyer_output/Wittyer.~{truth_sample_name}.Vs.~{query_sample_name}.vcf.gz.tbi"
+            File? wittyer_annotated_vcf = "~{truth_sample_name}_wittyer_output/Wittyer.~{truth_sample_name}.Vs.~{query_sample_name}.vcf.gz"
+            File? wittyer_annotated_vcf_index = "~{truth_sample_name}_wittyer_output/Wittyer.~{truth_sample_name}.Vs.~{query_sample_name}.vcf.gz.tbi"
         }
 }
     # Task2: Format the wittyer json output
