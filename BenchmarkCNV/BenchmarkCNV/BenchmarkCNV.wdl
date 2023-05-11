@@ -40,8 +40,8 @@ workflow Benchmark_CNV_Caller {
     # Outputs that will be retained when execution is complete
     output {
         File wittyer_stats = BenchmarkCNV.wittyer_stats
-        File wittyer_annotated_vcf = BenchmarkCNV.wittyer_annotated_vcf
-        File wittyer_annotated_vcf_index = BenchmarkCNV.wittyer_annotated_vcf_index
+        File? wittyer_annotated_vcf = BenchmarkCNV.wittyer_annotated_vcf
+        File? wittyer_annotated_vcf_index = BenchmarkCNV.wittyer_annotated_vcf_index
         Array[File]? Wittyer4Mat_event_stats = Wittyer4Mat.event_level_wittyer_stats
     }
     meta {
