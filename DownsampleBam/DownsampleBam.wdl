@@ -1,5 +1,5 @@
 workflow DownsampleBam{
-	String output_name
+    String output_name
     File? target_intervals
     File? bait_intervals
     Boolean is_wgs 
@@ -85,8 +85,8 @@ workflow DownsampleBam{
 
 task GetMeanTargetCoverage {
 
-  	File hs_metrics
-	Int? extra_disk
+    File hs_metrics
+    Int? extra_disk
     Int disk_size = 50 + select_first([extra_disk,0])
 
 	command <<<
@@ -108,8 +108,8 @@ task GetMeanTargetCoverage {
 
 task GetMeanCoverage {
 
-  	File wgs_metrics
-	Int? extra_disk
+    File wgs_metrics
+    Int? extra_disk
     Int disk_size = 50 + select_first([extra_disk,0])
 
 	command <<<
@@ -131,15 +131,14 @@ task GetMeanCoverage {
 }
 
 task CollectWgsMetrics {
-	File bam
-	File bam_index
-	File ref_fasta
-	File ref_fai
-	String output_name
+    File bam
+    File bam_index 
+    File ref_fasta
+    File ref_fai
+    String output_name
     File? interval_list
-	Int? extra_disk
+    Int? extra_disk
     Float? extra_mem
-    
     Int disk_size = ceil(size(bam,"GB") * 1.5) + 20 + select_first([extra_disk,0])
     Float memory = 5 + select_first([extra_mem, 0])
 
@@ -161,14 +160,13 @@ task CollectWgsMetrics {
 }
 
 task CollectHsMetrics {
-	File bam
-	File bam_index
-	String output_name
+    File bam
+    File bam_index
+    String output_name
     File bait_intervals
     File target_intervals
-	Int? extra_disk
+    Int? extra_disk
     Float? extra_mem
-    
     Int disk_size = ceil(size(bam,"GB") * 1.5) + 20 + select_first([extra_disk,0])
     Float memory = 5 + select_first([extra_mem, 0])
 
@@ -199,9 +197,7 @@ task MarkDuplicates {
    Int disk_size = ceil(size(bam,"GB") * 1.5) + 20 + select_first([extra_disk,0])
    Int? preemptible_attempts
    Int? memory
-
    Int mem = select_first([memory, 8])
-
    String out_basename = basename(bam, ".bam")
 
    command {
@@ -227,20 +223,19 @@ task MarkDuplicates {
    }
 }
 task DownsampleSam {
-	File bam
-	File bam_index
+    File bam
+    File bam_index
     File? ref_fasta
     File? ref_fasta_index
     File? ref_fasta_dict
-	Float coverage
-	Float? desired_coverage
+    Float coverage
+    Float? desired_coverage
     Float? desired_frac
     Int? random_seed
-	String output_name
-	Int? extra_disk
+    String output_name
+    Int? extra_disk
     Float? extra_mem 
     Float? downsampleFraction = if defined(desired_frac) then desired_frac else desired_coverage/coverage
-    
     Int disk_size = ceil(size(bam,"GB") * 2.5 + 50) + select_first([extra_disk,0])
     Float memory = 7.5 + select_first([extra_mem, 0])
 
