@@ -1,0 +1,19 @@
+{
+    "DownsampleBam.CollectHsMetrics.extra_disk": "${}",
+    "DownsampleBam.CollectHsMetrics.extra_mem": "${}",
+    "DownsampleBam.CollectWgsMetrics.extra_disk": "${}",
+    "DownsampleBam.CollectWgsMetrics.extra_mem": "${}",
+    "DownsampleBam.DownsampleSam.desired_coverage": "${30}",
+    "DownsampleBam.DownsampleSam.desired_frac": "${}",
+    "DownsampleBam.DownsampleSam.extra_disk": "${}",
+    "DownsampleBam.DownsampleSam.extra_mem": "${}",
+    "DownsampleBam.GetMeanCoverage.extra_disk": "${}",
+    "DownsampleBam.bait_intervals": "${}",
+    "DownsampleBam.input_bam": "${this.bam}",
+    "DownsampleBam.input_bam_index": "${this.bai}",
+    "DownsampleBam.is_wgs": "${true}",
+    "DownsampleBam.output_name": "${this.name}",
+    "DownsampleBam.ref_fai": "${workspace.referenceData_hg38_ref_fasta_index}",
+    "DownsampleBam.ref_fasta": "${workspace.referenceData_hg38_ref_fasta}",
+    "DownsampleBam.target_intervals": "${workspace.referenceData_hg38_eval_interval_list}"
+}
