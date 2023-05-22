@@ -114,6 +114,13 @@ workflow Benchmark_CNV_Caller {
             python3 /wittyer4mat/wittyer_4mat.py -i ~{wittyer_stats} \
             -t event \
             -o ~{truth_sample_name}_event_level_wittyer4mat
+
+            # Run wittyer4mat script on wittyer output
+            conda run --no-capture-output \
+            -n wittyer-parser \
+            python3 /wittyer4mat/wittyer_4mat.py -i ~{wittyer_stats} \
+            -t base \
+            -o ~{truth_sample_name}_base_level_wittyer4mat
     >>>
         runtime {
             docker: wittyer4mat_docker
