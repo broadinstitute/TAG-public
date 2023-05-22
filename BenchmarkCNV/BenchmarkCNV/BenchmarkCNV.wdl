@@ -48,10 +48,7 @@ workflow Benchmark_CNV_Caller {
     meta {
         author: "Yueyao Gao"
         email: "gaoyueya@broadinstitute.org"
-        description: "BenchmarkCNV.wdl is designed to evaluate the performance of a CNV or SV caller against
-                     any input truthset. It uses the Wittyer tool to compare the truthset and the query vcf.
-                     The output is a json file that contains the benchmarking statistics. The json file can be
-                     parsed by wittyer4mat tool to generate event level and base level statistics."
+        description: "BenchmarkCNV.wdl is designed to evaluate the performance of a CNV or SV caller against any input truthset. It uses the Wittyer tool to compare the truthset and the query vcf. The output is a json file that contains the benchmarking statistics. The json file can be parsed by wittyer4mat tool to generate event level and base level statistics."
     }
 }
 
