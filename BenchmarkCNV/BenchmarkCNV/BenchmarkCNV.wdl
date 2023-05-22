@@ -43,11 +43,15 @@ workflow Benchmark_CNV_Caller {
         File? wittyer_annotated_vcf = BenchmarkCNV.wittyer_annotated_vcf
         File? wittyer_annotated_vcf_index = BenchmarkCNV.wittyer_annotated_vcf_index
         Array[File]? Wittyer4Mat_event_stats = Wittyer4Mat.event_level_wittyer_stats
+        Array[File]? base_level_wittyer_stats = Wittyer4Mat.base_level_wittyer_stats
     }
     meta {
         author: "Yueyao Gao"
         email: "gaoyueya@broadinstitute.org"
-        description: "BenchmarkCNV.wdl is designed to evaluate the performance of Dragen CNV (Copy Number Variation) caller against GATK SV (Structural Variation) caller."
+        description: "BenchmarkCNV.wdl is designed to evaluate the performance of a CNV or SV caller against
+                     any input truthset. It uses the Wittyer tool to compare the truthset and the query vcf.
+                     The output is a json file that contains the benchmarking statistics. The json file can be
+                     parsed by wittyer4mat tool to generate event level and base level statistics."
     }
 }
 
@@ -128,5 +132,7 @@ workflow Benchmark_CNV_Caller {
         }
         output {
             Array[File] event_level_wittyer_stats = glob("~{truth_sample_name}_event_level_wittyer4mat/*.csv")
+            Array[File] base_level_wittyer_stats = glob("~{truth_sample_name}_base_level_wittyer4mat/*.csv")
+
         }
     }
