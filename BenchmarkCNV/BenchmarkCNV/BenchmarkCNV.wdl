@@ -43,7 +43,7 @@ workflow Benchmark_CNV_Caller {
         File? wittyer_annotated_vcf = BenchmarkCNV.wittyer_annotated_vcf
         File? wittyer_annotated_vcf_index = BenchmarkCNV.wittyer_annotated_vcf_index
         Array[File]? Wittyer4Mat_event_stats = Wittyer4Mat.event_level_wittyer_stats
-        Array[File]? base_level_wittyer_stats = Wittyer4Mat.base_level_wittyer_stats
+        Array[File]? Wittyer4Mat_base_stats = Wittyer4Mat.base_level_wittyer_stats
     }
     meta {
         author: "Yueyao Gao"
