@@ -10,17 +10,17 @@ workflow SC_plate{
     String flowcells
     String? LCSET
     String species_name
-    Array[String] smid
+    Array[String]+ smid
     Array[String]? cell_types
-    Array[File] aln_list
-	Array[File] base_list
-    Array[File] dup_list
-    Array[File] insert_list
-    Array[File] rna_list
-    Array[File] qual_list
-    Array[File] rsem_list
+    Array[File]+ aln_list
+	Array[File]+ base_list
+    Array[File]+ dup_list
+    Array[File]+ insert_list
+    Array[File]+ rna_list
+    Array[File]+ qual_list
+    Array[File]+ rsem_list
 	Array[File]? adapt_list
-    Array[String] names
+    Array[String]+ names
 
         call graphPlate {
          input:
