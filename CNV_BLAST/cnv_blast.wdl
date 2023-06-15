@@ -28,11 +28,18 @@ version 1.0
             }
             command <<<
                 set -e
+                # Unzip the input file if it is gzipped
+                if [[ ~{cnv_vcf.name} == *.gz ]]; then
+                  gunzip -c ~{cnv_vcf} > temp.vcf
+                else
+                  cp ~{cnv_vcf} temp.vcf
+                fi
+
                 # Extract the PASS events from the DRAGEN CNV VCF and save them to a file
-                cat ~{cnv_vcf}| grep -v '#' | awk '$7 == "PASS" {print}' | awk '{print $3}' > pass_cnv_events.txt
+                cat temp.vcf | grep -v '#' | awk '$7 == "PASS" {print}' | awk '{print $3}' > pass_cnv_events.txt
 
                 # Print the number of GAINS and LOSSES that DRAGEN found
-                cat NA24385.cnv_sv.vcf| grep -v '#' | awk '$7 == "PASS" {print}' | awk '{print $3}' | awk 'BEGIN {FS=":"} {print $2}' | sort | uniq -c | sort
+                cat temp.vcf | grep -v '#' | awk '$7 == "PASS" {print}' | awk '{print $3}' | awk 'BEGIN {FS=":"} {print $2}' | sort | uniq -c | sort
             >>>
             output {
                 File cnv_events = "pass_cnv_events.txt"
