@@ -29,7 +29,7 @@ version 1.0
             command <<<
                 set -e
                 # Unzip the input file if it is gzipped
-                if [[ ~{cnv_vcf.name} == *.gz ]]; then
+                if [[ "${basename(cnv_vcf)}" == *.gz ]]; then
                   gunzip -c ~{cnv_vcf} > temp.vcf
                 else
                   cp ~{cnv_vcf} temp.vcf
