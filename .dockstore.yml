@@ -113,4 +113,9 @@ workflows:
    subclass: WDL
    primaryDescriptorPath: /DownsampleBam/DownsampleBam.wdl
    testParameterFiles:
-    - /DownsampleBam/DownsampleBam.inputs.json 
+    - /DownsampleBam/DownsampleBam.inputs.json
+ - name: CNV_BLAST
+   subclass: WDL
+   primaryDescriptorPath: /CNV_BLAST/cnv_blast.wdl
+   testParameterFiles:
+    - /CNV_BLAST/cnv_blast.inputs.json

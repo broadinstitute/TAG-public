@@ -1,0 +1,7 @@
+{
+  "cnv_blast.cnv_vcf": "gs://dragenv4_2_validation/hg38/NA24385/NA24385.cnv.vcf.gz",
+  "cnv_blast.extract_cnv.mem_size": "Int (optional, default = 4)",
+  "cnv_blast.extract_cnv.disk_size": "Int (optional, default = 10)",
+  "cnv_blast.extract_cnv.cpu_num": "Int (optional, default = 1)"
+}
+
