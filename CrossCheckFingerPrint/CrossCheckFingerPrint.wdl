@@ -50,6 +50,9 @@ task CrosscheckFingerprints {
             I=~{input_bamA} \
             I=~{input_bamB} \
             HAPLOTYPE_MAP=~{hapmap} \
+            EXIT_CODE_WHEN_MISMATCH=1 \
+            CROSSCHECK_BY=SAMPLE \
+            EXPECT_ALL_GROUPS_TO_MATCH=true \
             O=~{output_name}.crosscheck_metrics \
             REFERENCE_SEQUENCE=~{reference} \
             TMP_DIR=./temp_dir
