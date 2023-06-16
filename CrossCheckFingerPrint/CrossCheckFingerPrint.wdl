@@ -20,6 +20,10 @@ workflow CrosscheckFingerprintsWorkflow {
             picard_docker = picard_docker
     }
 
+    output {
+        File crosscheckmetrics = CrosscheckFingerprints.crosscheckmetrics
+    }
+
     meta {
         author: "Yueyao Gao"
         email: "tag@broadinstitute.org"
