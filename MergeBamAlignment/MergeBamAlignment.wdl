@@ -20,6 +20,7 @@ version 1.0
         }
         output{
             File merged_bam = MergeBamAlignment.merged_bam
+            File merged_bam_index = MergeBamAlignment.merged_bam_index
         }
     }
 
@@ -57,7 +58,7 @@ version 1.0
         >>>
         output{
             File merged_bam = "~{basename}.merged.bam"
-            File merged_bam = "~{basename}.merged.bai"
+            File merged_bam_index = "~{basename}.merged.bai"
         }
         runtime{
             docker: docker
