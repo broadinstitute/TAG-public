@@ -114,3 +114,8 @@ workflows:
    primaryDescriptorPath: /DownsampleBam/DownsampleBam.wdl
    testParameterFiles:
     - /DownsampleBam/DownsampleBam.inputs.json 
+ - name: MergeBamAlignment
+   subclass: WDL
+   primaryDescriptorPath: /MergeBamAlignment/MergeBamAlignment.wdl
+   testParameterFiles:
+    - /MergeBamAlignment/MergeBamAlignment.inputs.json

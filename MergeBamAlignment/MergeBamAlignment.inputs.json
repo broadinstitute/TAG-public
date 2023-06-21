@@ -1,0 +1,16 @@
+{
+  "MergeBamAlignment.MergeBamAlignment.preemptible_count": "Int? (optional, default = 3)",
+  "MergeBamAlignment.MergeBamAlignment.docker": "String? (optional)",
+  "MergeBamAlignment.unmapped_bam": "File",
+  "MergeBamAlignment.reference_fasta": "File",
+  "MergeBamAlignment.MergeBamAlignment.mem": "Float? (optional, default = 8)",
+  "MergeBamAlignment.MergeBamAlignment.docker_override": "String? (optional)",
+  "MergeBamAlignment.additional_args": "String? (optional)",
+  "MergeBamAlignment.MergeBamAlignment.disk_size": "Int? (optional, default = 500)",
+  "MergeBamAlignment.unmap_contaminant_reads": "Boolean",
+  "MergeBamAlignment.aligned_bam": "File",
+  "MergeBamAlignment.basename": "String",
+  "MergeBamAlignment.MergeBamAlignment.additional_args": "String? (optional)",
+  "MergeBamAlignment.docker_override": "String? (optional)"
+}
+
