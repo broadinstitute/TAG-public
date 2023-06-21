@@ -38,11 +38,19 @@ version 1.0
             Int? disk_size = 500
         }
         command <<<
-                /gatk/gatk MergeBamAlignment \
+            set -e
+            mkdir -p /cromwell_root/reference
+
+            cp ~{reference_fasta} /cromwell_root/reference/reference.fasta
+            /gatk/gatk CreateSequenceDictionary \
+                -R /cromwell_root/reference/reference.fasta \
+                -O /cromwell_root/reference/reference.dict
+
+            /gatk/gatk MergeBamAlignment \
                 -ALIGNED_BAM ~{aligned_bam} \
                 -UNMAPPED_BAM ~{unmapped_bam} \
                 -O ~{basename}.merged.bam \
-                -REFERENCE_SEQUENCE ~{reference_fasta} \
+                -REFERENCE_SEQUENCE /cromwell_root/reference/reference.fasta \
                 -UNMAP_CONTAM ~{unmap_contaminant_reads} \
                 ${additional_args}
         >>>
