@@ -52,10 +52,12 @@ version 1.0
                 -O ~{basename}.merged.bam \
                 -REFERENCE_SEQUENCE /cromwell_root/reference/reference.fasta \
                 -UNMAP_CONTAM ~{unmap_contaminant_reads} \
+                --CREATE_INDEX true \
                 ${additional_args}
         >>>
         output{
             File merged_bam = "~{basename}.merged.bam"
+            File merged_bam = "~{basename}.merged.bai"
         }
         runtime{
             docker: docker
