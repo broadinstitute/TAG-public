@@ -38,7 +38,7 @@ version 1.0
             Int? disk_size = 500
         }
         command <<<
-            java -jar gatk.jar MergeBamAlignment \
+                /gatk/gatk MergeBamAlignment \
                 -ALIGNED_BAM ~{aligned_bam} \
                 -UNMAPPED_BAM ~{unmapped_bam} \
                 -O ~{basename}.merged.bam \
