@@ -38,7 +38,7 @@ version 1.0
                 fi
 
                 # Extract the PASS events from the DRAGEN CNV VCF and save them to a file
-                cat temp.vcf | grep -v '#' | awk '$7 == "PASS" {print}' | awk '{print $3}' > pass_cnv_events.txt
+                cat temp.vcf | grep -v '#' | awk '$7 == "PASS" {print}' | awk '{print $3}' | awk 'BEGIN {FS=":"} {print $1":"$2"\t"$3":"$4}'> pass_cnv_events.txt
 
                 # Print the number of GAINS and LOSSES that DRAGEN found
                 cat temp.vcf | grep -v '#' | awk '$7 == "PASS" {print}' | awk '{print $3}' | awk 'BEGIN {FS=":"} {print $2}' | sort | uniq -c | sort
@@ -56,5 +56,6 @@ version 1.0
                 #maxRetries: 3
             }
         }
+
 
 
