@@ -56,7 +56,7 @@ task GenerateAnnotation {
         python ~{script} --annotation ~{gencode_annotation} --bed ~{bed_to_annotate} --output_prefix ~{output_prefix}
     }
     runtime {
-        docker: "us.gcr.io/tag-team-160914/annotate_bed"
+        docker: "us.gcr.io/tag-team-160914/annotate_bed:1.0"
         preemptible: preemptible
         disks: "local-disk ~{diskGB} HDD"
         memory: "4GB"
@@ -87,7 +87,7 @@ task CountGeneBases {
             python ~{script} --gene_bed ~{gene_bed} --bed ~{bed_to_annotate} --grouped_by_gene ~{grouped_by_gene} ~{'--gene-list ' + gene_list} --output_prefix ~{output_prefix}
     }
     runtime {
-        docker: "us.gcr.io/tag-team-160914/annotate_bed"
+        docker: "us.gcr.io/tag-team-160914/annotate_bed:1.0"
         preemptible: preemptible
         disks: "local-disk ~{diskGB} HDD"
         memory: "4GB"
