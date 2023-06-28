@@ -113,4 +113,10 @@ workflows:
    subclass: WDL
    primaryDescriptorPath: /DownsampleBam/DownsampleBam.wdl
    testParameterFiles:
-    - /DownsampleBam/DownsampleBam.inputs.json 
+    - /DownsampleBam/DownsampleBam.inputs.json
+ - name: AnnotateBed
+   subclass: WDL
+   primaryDescriptorPath: /AnnotateBed/bed_annotate.wdl
+   testParameterFiles:
+    - /AnnotateBed/AnnotateBed.inputs.json
+   
