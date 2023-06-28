@@ -34,10 +34,10 @@ workflow AnnotateBed{
         output {
         File ungrouped_annotation = "~{output_prefix}.ungrouped_annotation.txt"
         File annotation_per_interval = "~{output_prefix}.grouped_by_interval.annotated.txt"
-        Int intergetic_base_count = read_int("~{output_prefix}.intergenic_base_count.txt")
-        Int coding_base_count = read_int("~{output_prefix}.coding_base_count.txt")
+        Int intergetic_base_count = read_int(file("~{output_prefix}.intergenic_base_count.txt"))
+        Int coding_base_count = read_int(file("~{output_prefix}.coding_base_count.txt"))
         File grouped_by_gene = "~{output_prefix}.grouped_by_gene.txt" 
-        Int? genes_involved = read_int("~{output_prefix}.num_genes_involved.txt")
+        Int? genes_involved = read_int(file("~{output_prefix}.num_genes_involved.txt"))
         File? gene_base_count = "~{output_prefix}.grouped_by_gene.annotated.txt"
 
     }
@@ -66,8 +66,8 @@ task GenerateAnnotation {
         File ungrouped_annotation = "~{output_prefix}.ungrouped_annotation.txt"
         File annotation_per_interval = "~{output_prefix}.grouped_by_interval.annotated.txt"
         File grouped_by_gene = "~{output_prefix}.grouped_by_gene.txt"
-        Int intergetic_base_count = read_int("~{output_prefix}.intergenic_base_count.txt")
-        Int coding_base_count = read_int("~{output_prefix}.coding_base_count.txt")
+        Int intergetic_base_count = read_int(file("~{output_prefix}.intergenic_base_count.txt"))
+        Int coding_base_count = read_int(file("~{output_prefix}.coding_base_count.txt"))
     }
 }
 
@@ -94,7 +94,7 @@ task CountGeneBases {
         maxRetries: maxRetries
     }
     output {
-        Int genes_involved = read_int("~{output_prefix}.num_genes_involved.txt")
+        Int genes_involved = read_int(file("~{output_prefix}.num_genes_involved.txt"))
         File gene_base_count = "~{output_prefix}.grouped_by_gene.annotated.txt"
     }
 }
