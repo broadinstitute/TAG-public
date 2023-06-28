@@ -2,7 +2,7 @@ version 1.0
 workflow AnnotateBed{
     input {
         File annotate_script
-        File gencode_annotation
+        File input_gencode_annotation
         File bed_to_annotate
         String output_prefix
         File? gene_bed
@@ -15,7 +15,7 @@ workflow AnnotateBed{
     call GenerateAnnotation {
         input:
         script = annotation_script
-        gencode_annotation = gencode_annotation 
+        gencode_annotation = input_gencode_annotation 
         bed_to_annotate = bed_to_annotate
         output_prefix = output_prefix
     }
