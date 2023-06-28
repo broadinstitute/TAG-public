@@ -2,7 +2,7 @@ version 1.0
 workflow AnnotateBed{
     input {
         File annotate_script
-        File input_gencode_annotation
+        File gencode_annotation
         File bed_to_annotate
         String output_prefix
         File? gene_bed
@@ -14,9 +14,9 @@ workflow AnnotateBed{
     }
     call GenerateAnnotation {
         input:
-        script = annotation_script
-        gencode_annotation = input_gencode_annotation 
-        bed_to_annotate = bed_to_annotate
+        script = annotation_script,
+        gencode_annotation = gencode_annotation, 
+        bed_to_annotate = bed_to_annotate,
         output_prefix = output_prefix
     }
     output {
@@ -30,11 +30,11 @@ workflow AnnotateBed{
         if (generate_gene_base_count) {
             call CountGeneBases {
                 input:
-                script = gene_base_count_script
-                bed_to_annotate = bed_to_annotate
-                gene_bed = gene_bed
-                gene_list = gene_list
-                grouped_by_gene = GenerateAnnotation.grouped_by_gene
+                script = gene_base_count_script,
+                bed_to_annotate = bed_to_annotate,
+                gene_bed = gene_bed,
+                gene_list = gene_list,
+                grouped_by_gene = GenerateAnnotation.grouped_by_gene,
                 output_prefix = output_prefix
             }
         }
