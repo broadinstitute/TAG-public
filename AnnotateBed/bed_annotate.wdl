@@ -85,10 +85,10 @@ task CountGeneBases {
         String output_prefix
     }
     command {
-         if defined(gene_list) && !empty(gene_list) {
-            python ~{script} --gene_bed ~{gene_bed} --bed ~{bed_to_annotate} --grouped_by_gene ~{grouped_by_gene} --gene_list ~{gene_list} --output_prefix ~{output_prefix}
+       if defined(gene_list) && !empty(gene_list) {
+            python ${script} --gene_bed ${gene_bed} --bed ${bed_to_annotate} --grouped_by_gene ${grouped_by_gene} --gene_list ${gene_list} --output_prefix ${output_prefix}
         } else {
-            python ~{script} --gene_bed ~{gene_bed} --bed ~{bed_to_annotate} --grouped_by_gene ~{grouped_by_gene} --output_prefix ~{output_prefix}
+            python ${script} --gene_bed ${gene_bed} --bed ${bed_to_annotate} --grouped_by_gene ${grouped_by_gene} --output_prefix ${output_prefix}
         }
     }
     runtime {
