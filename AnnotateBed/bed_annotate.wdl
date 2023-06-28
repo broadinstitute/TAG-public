@@ -5,10 +5,10 @@ workflow AnnotateBed{
         File gencode_annotation
         File bed_to_annotate
         String output_prefix
-        File? gene_bed
+        File gene_bed
         Boolean generate_gene_base_count
         File? gene_list
-        File? gene_base_count_script
+        File gene_base_count_script
         Int diskGB = 50
     }
     call GenerateAnnotation {
