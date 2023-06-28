@@ -9,8 +9,7 @@ workflow AnnotateBed{
         Boolean generate_gene_base_count
         File? gene_list
         File? gene_base_count_script
-        Int? diskGB = 50
-        
+        Int diskGB = 50
     }
     call GenerateAnnotation {
         input:
@@ -51,6 +50,7 @@ task GenerateAnnotation {
         String output_prefix
         Int maxRetries = 1
         Int preemptible = 3
+        Int diskGB = 50
     }
     command {
         python ~{script} --annotation ~{gencode_annotation} --bed ~{bed_to_annotate} --output_prefix ~{output_prefix}
@@ -77,9 +77,10 @@ task CountGeneBases {
         File gene_bed
         File bed_to_annotate
         File? gene_list
-        File grouped_by_gene = GenerateAnnotation.grouped_by_gene
+        File grouped_by_gene = grouped_by_gene
         Int maxRetries = 1
         Int preemptible = 3
+        Int diskGB = 50
         String output_prefix
     }
     command {
