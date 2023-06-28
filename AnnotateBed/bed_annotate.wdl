@@ -19,13 +19,6 @@ workflow AnnotateBed{
         bed_to_annotate = bed_to_annotate,
         output_prefix = output_prefix
     }
-    output {
-        File ungrouped_annotation = "~{output_prefix}.ungrouped_annotation.txt"
-        File annotation_per_interval = "~{output_prefix}.grouped_by_interval.annotated.txt"
-        Int intergetic_base_count = read_int("intergenic_base_count.txt")
-        Int coding_base_count = read_int("coding_base_count.txt")
-        File grouped_by_gene = "~{output_prefix}.grouped_by_gene.txt" 
-    }
      scatter (i in [0]) {
         if (generate_gene_base_count) {
             call CountGeneBases {
@@ -40,8 +33,13 @@ workflow AnnotateBed{
         }
     }
         output {
-        Int genes_involved = read_int("num_genes_involved.txt")
-        File gene_base_count = "~{output_prefix}.grouped_by_gene.annotated.txt"
+        File ungrouped_annotation = "~{output_prefix}.ungrouped_annotation.txt"
+        File annotation_per_interval = "~{output_prefix}.grouped_by_interval.annotated.txt"
+        Int intergetic_base_count = read_int("intergenic_base_count.txt")
+        Int coding_base_count = read_int("coding_base_count.txt")
+        File grouped_by_gene = "~{output_prefix}.grouped_by_gene.txt" 
+        Int? genes_involved = read_int("num_genes_involved.txt")
+        File? gene_base_count = "~{output_prefix}.grouped_by_gene.annotated.txt"
 
     }
 }
