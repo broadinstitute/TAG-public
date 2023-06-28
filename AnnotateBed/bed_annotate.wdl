@@ -13,7 +13,7 @@ workflow AnnotateBed{
     }
     call GenerateAnnotation {
         input:
-        script = annotation_script,
+        script = annotate_script,
         gencode_annotation = gencode_annotation, 
         bed_to_annotate = bed_to_annotate,
         output_prefix = output_prefix
