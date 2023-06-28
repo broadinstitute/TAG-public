@@ -19,7 +19,7 @@ workflow AnnotateBed{
         output_prefix = output_prefix
     }
      scatter (i in [0]) {
-        if (generate_gene_base_count) && defined(gene_base_count_script) && defined(gene_bed) {
+        if ((generate_gene_base_count) && defined(gene_base_count_script) && defined(gene_bed)) {
             call CountGeneBases {
                 input:
                 script = gene_base_count_script,
