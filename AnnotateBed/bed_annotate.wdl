@@ -37,7 +37,7 @@ workflow AnnotateBed{
         Int intergetic_base_count = GenerateAnnotation.intergetic_base_count
         Int coding_base_count = GenerateAnnotation.coding_base_count
         File grouped_by_gene = "~{output_prefix}.grouped_by_gene.txt" 
-        Int? genes_involved = CountGeneBases.genes_involved
+        Int genes_involved = CountGeneBases.genes_involved
         File? gene_base_count = "~{output_prefix}.grouped_by_gene.annotated.txt"
 
     }
