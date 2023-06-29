@@ -47,13 +47,14 @@ task GenerateAnnotation {
         File script
         File gencode_annotation
         File bed_to_annotate
+        File gene_bed 
         String output_prefix
         Int maxRetries = 1
         Int preemptible = 3
         Int diskGB = 50
     }
     command {
-        python3 ~{script} --annotation ~{gencode_annotation} --bed ~{bed_to_annotate} --output_prefix ~{output_prefix}
+        python3 ~{script} --annotation ~{gencode_annotation} --bed ~{bed_to_annotate} --gene_bed ~{gene_bed} --output_prefix ~{output_prefix}
     }
     runtime {
         docker: "us.gcr.io/tag-team-160914/annotate_bed:1.0"
