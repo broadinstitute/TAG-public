@@ -17,7 +17,7 @@ workflow AnnotateBed{
         gencode_annotation = gencode_annotation, 
         bed_to_annotate = bed_to_annotate,
         output_prefix = output_prefix,
-        File gene_list = gene_list
+        gene_list = gene_list
         gene_bed = gene_bed
     }
     scatter (i in [0]) {
