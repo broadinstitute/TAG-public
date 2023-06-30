@@ -73,17 +73,18 @@ task GenerateAnnotation {
         File annotation_per_interval = "~{output_prefix}.grouped_by_interval.annotated.txt"
         File grouped_by_gene = "~{output_prefix}.grouped_by_gene.txt"
         File base_count_file = "base_count.txt"
-        Int intergetic_base_count = read_int(stdout())
-        Int coding_base_count = read_int(stdout())
+        Int intergenic_base_count = read_int(ExtractBaseCounts.output_file, 1)
+        Int coding_base_count = read_int(ExtractBaseCounts.output_file, 2)
     }
 }
 task ExtractBaseCounts {
         File input_file
+
         command <<<
-        intergenic_base_count=$(grep "intergenic base count" "${input_file}" | awk '{print $4}')
-        coding_base_count=$(grep "coding base count" "${input_file}" | awk '{print $4}')
-        echo "intergenic_base_count: ${intergenic_base_count}" > output.txt
-        echo "coding_base_count: ${coding_base_count}" >> output.txt
+          intergenic_base_count=$(grep "intergenic base count" "${input_file}" | awk '{print $4}')
+          coding_base_count=$(grep "coding base count" "${input_file}" | awk '{print $4}')
+          echo "intergenic_base_count: ${intergenic_base_count}" > output.txt
+          echo "coding_base_count: ${coding_base_count}" >> output.txt
         >>>
 
   output {
@@ -126,4 +127,3 @@ task CountGeneBases {
         File gene_base_count = "~{output_prefix}.grouped_by_gene.annotated.txt"
     }
 }
-
