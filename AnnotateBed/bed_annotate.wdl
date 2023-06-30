@@ -18,6 +18,10 @@ workflow AnnotateBed{
         bed_to_annotate = bed_to_annotate,
         output_prefix = output_prefix
     }
+    call ExtractBaseCounts {
+    input:
+      input_file = base_count_file
+    }
      scatter (i in [0]) {
         if ((generate_gene_base_count) && defined(gene_base_count_script) && defined(gene_bed)) {
             call CountGeneBases {
@@ -34,8 +38,9 @@ workflow AnnotateBed{
         output {
         File ungrouped_annotation = "~{output_prefix}.ungrouped.annotated.txt"
         File annotation_per_interval = "~{output_prefix}.grouped_by_interval.annotated.txt"
-        Int intergetic_base_count = GenerateAnnotation.intergetic_base_count
-        Int coding_base_count = GenerateAnnotation.coding_base_count
+        File base_count_file= "base_count.txt"
+        Int intergenic_base_count = read_int(ExtractBaseCounts.output_file, 1)
+        Int coding_base_count = read_int(ExtractBaseCounts.output_file, 2)
         File grouped_by_gene = "~{output_prefix}.grouped_by_gene.txt" 
         Array[Int?] genes_involved = CountGeneBases.genes_involved
         File? gene_base_count = "~{output_prefix}.grouped_by_gene.annotated.txt"
@@ -54,7 +59,7 @@ task GenerateAnnotation {
         Int diskGB = 50
     }
     command {
-        /usr/bin/python3 ~{script} --annotation ~{gencode_annotation} --bed ~{bed_to_annotate} --gene_bed ~{gene_bed} --output_prefix ~{output_prefix}
+        python3 ~{script} --annotation ~{gencode_annotation} --bed ~{bed_to_annotate} --gene_bed ~{gene_bed} --output_prefix ~{output_prefix}
     }
     runtime {
         docker: "us.gcr.io/tag-team-160914/annotatebed:test"
@@ -67,9 +72,31 @@ task GenerateAnnotation {
         File ungrouped_annotation = "~{output_prefix}.ungrouped.annotated.txt"
         File annotation_per_interval = "~{output_prefix}.grouped_by_interval.annotated.txt"
         File grouped_by_gene = "~{output_prefix}.grouped_by_gene.txt"
+        File base_count_file = "base_count.txt"
         Int intergetic_base_count = read_int(stdout())
         Int coding_base_count = read_int(stdout())
     }
+}
+task ExtractBaseCounts {
+        File input_file
+        command <<<
+        intergenic_base_count=$(grep "intergenic base count" "${input_file}" | awk '{print $4}')
+        coding_base_count=$(grep "coding base count" "${input_file}" | awk '{print $4}')
+        echo "intergenic_base_count: ${intergenic_base_count}" > output.txt
+        echo "coding_base_count: ${coding_base_count}" >> output.txt
+        >>>
+
+  output {
+        File output_file = "output.txt"
+  }
+
+  runtime {
+        docker: "us.gcr.io/tag-team-160914/annotatebed:test"
+        preemptible: preemptible
+        disks: "local-disk ~{diskGB} HDD"
+        memory: "4GB"
+        maxRetries: maxRetries
+  }
 }
 
 task CountGeneBases {
@@ -85,7 +112,7 @@ task CountGeneBases {
         String output_prefix
     }
     command {
-            /usr/bin/python3 ~{script} --gene_bed ~{gene_bed} --bed ~{bed_to_annotate} --grouped_by_gene ~{grouped_by_gene} ~{'--gene-list ' + gene_list} --output_prefix ~{output_prefix}
+            python3 ~{script} --gene_bed ~{gene_bed} --bed ~{bed_to_annotate} --grouped_by_gene ~{grouped_by_gene} ~{'--gene-list ' + gene_list} --output_prefix ~{output_prefix}
     }
     runtime {
         docker: "us.gcr.io/tag-team-160914/annotatebed:test"
