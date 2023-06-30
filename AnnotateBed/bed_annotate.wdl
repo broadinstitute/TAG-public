@@ -38,13 +38,11 @@ workflow AnnotateBed{
         output {
         File ungrouped_annotation = "~{output_prefix}.ungrouped.annotated.txt"
         File annotation_per_interval = "~{output_prefix}.grouped_by_interval.annotated.txt"
-        File base_count_file= "base_count.txt"
-        Int intergenic_base_count = read_int(ExtractBaseCounts.output_file, 1)
-        Int coding_base_count = read_int(ExtractBaseCounts.output_file, 2)
+        Int intergenic_base_count = read_int(GenerateAnnotation.intergenic_base_count_file)
+        Int coding_base_count = read_int(GenerateAnnotation.coding_base_count_file)
         File grouped_by_gene = "~{output_prefix}.grouped_by_gene.txt" 
         Array[Int?] genes_involved = CountGeneBases.genes_involved
         File? gene_base_count = "~{output_prefix}.grouped_by_gene.annotated.txt"
-
     }
 }
 task GenerateAnnotation {
@@ -72,33 +70,9 @@ task GenerateAnnotation {
         File ungrouped_annotation = "~{output_prefix}.ungrouped.annotated.txt"
         File annotation_per_interval = "~{output_prefix}.grouped_by_interval.annotated.txt"
         File grouped_by_gene = "~{output_prefix}.grouped_by_gene.txt"
-        File base_count_file = "base_count.txt"
-        Int intergenic_base_count = read_int(ExtractBaseCounts.output_file, 1)
-        Int coding_base_count = read_int(ExtractBaseCounts.output_file, 2)
+        File coding_base_count_file= "coding_base_count.txt"
+        File intergenic_base_count_file = "intergenic_base_count.txt"
     }
-}
-task ExtractBaseCounts {
-  input {
-        File input_file
-  }
-  command <<<
-          intergenic_base_count=$(grep "intergenic base count" "${input_file}" | awk '{print $4}')
-          coding_base_count=$(grep "coding base count" "${input_file}" | awk '{print $4}')
-          echo "intergenic_base_count: ${intergenic_base_count}" > output.txt
-          echo "coding_base_count: ${coding_base_count}" >> output.txt
-  >>>
-
-  output {
-        File output_file = "output.txt"
-  }
-
-  runtime {
-        docker: "us.gcr.io/tag-team-160914/annotatebed:test"
-        preemptible: preemptible
-        disks: "local-disk ~{diskGB} HDD"
-        memory: "4GB"
-        maxRetries: maxRetries
-  }
 }
 
 task CountGeneBases {
