@@ -17,6 +17,7 @@ workflow AnnotateBed{
         gencode_annotation = gencode_annotation, 
         bed_to_annotate = bed_to_annotate,
         output_prefix = output_prefix,
+        File gene_list = gene_list
         gene_bed = gene_bed
     }
     scatter (i in [0]) {
@@ -47,14 +48,15 @@ task GenerateAnnotation {
         File script
         File gencode_annotation
         File bed_to_annotate
-        File gene_bed 
+        File gene_bed
+        File? gene_list
         String output_prefix
         Int maxRetries = 1
         Int preemptible = 3
         Int diskGB = 50
     }
     command {
-        python3 ~{script} --annotation ~{gencode_annotation} --bed ~{bed_to_annotate} --gene_bed ~{gene_bed} --output_prefix ~{output_prefix}
+        python3 ~{script} --annotation ~{gencode_annotation} --bed ~{bed_to_annotate} --gene_bed ~{gene_bed} ~{'--gene_list ' + gene_list} --output_prefix ~{output_prefix}
     }
     runtime {
         docker: "us.gcr.io/tag-team-160914/annotatebed:test"
