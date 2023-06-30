@@ -32,13 +32,13 @@ workflow AnnotateBed{
         }
     }
         output {
-        File ungrouped_annotation = "~{output_prefix}.ungrouped.annotated.txt"
-        File annotation_per_interval = "~{output_prefix}.grouped_by_interval.annotated.txt"
+        File ungrouped_annotation = GenerateAnnotation.ungrouped_annotation
+        File annotation_per_interval = GenerateAnnotation.annotation_per_interval
         Int intergenic_base_count = read_int(GenerateAnnotation.intergenic_base_count_file)
         Int coding_base_count = read_int(GenerateAnnotation.coding_base_count_file)
-        File grouped_by_gene = "~{output_prefix}.grouped_by_gene.txt" 
+        File grouped_by_gene = GenerateAnnotation.grouped_by_gene 
         Array[Int?] genes_involved = CountGeneBases.genes_involved
-        File? gene_base_count = "~{output_prefix}.gene_base_count.txt"
+        File? gene_base_count = CountGeneBases.gene_base_count
     }
 }
 task GenerateAnnotation {
