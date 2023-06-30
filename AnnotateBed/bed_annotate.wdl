@@ -38,7 +38,7 @@ workflow AnnotateBed{
         Int coding_base_count = read_int(GenerateAnnotation.coding_base_count_file)
         File grouped_by_gene = "~{output_prefix}.grouped_by_gene.txt" 
         Array[Int?] genes_involved = CountGeneBases.genes_involved
-        File? gene_base_count = "~{output_prefix}.grouped_by_gene.annotated.txt"
+        File? gene_base_count = "~{output_prefix}.gene_base_count.txt"
     }
 }
 task GenerateAnnotation {
@@ -95,6 +95,6 @@ task CountGeneBases {
     }
     output {
         Int genes_involved = read_int(stdout())
-        File gene_base_count = "~{output_prefix}.grouped_by_gene.annotated.txt"
+        File gene_base_count = "~{output_prefix}.gene_base_count.txt"
     }
 }
