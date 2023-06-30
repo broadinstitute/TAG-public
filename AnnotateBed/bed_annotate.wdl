@@ -32,7 +32,7 @@ workflow AnnotateBed{
         }
     }
         output {
-        File ungrouped_annotation = "~{output_prefix}.ungrouped_annotation.txt"
+        File ungrouped_annotation = "~{output_prefix}.ungrouped.annotated.txt"
         File annotation_per_interval = "~{output_prefix}.grouped_by_interval.annotated.txt"
         Int intergetic_base_count = GenerateAnnotation.intergetic_base_count
         Int coding_base_count = GenerateAnnotation.coding_base_count
@@ -64,7 +64,7 @@ task GenerateAnnotation {
         maxRetries: maxRetries
     }
     output {
-        File ungrouped_annotation = "~{output_prefix}.ungrouped_annotation.txt"
+        File ungrouped_annotation = "~{output_prefix}.ungrouped.annotated.txt"
         File annotation_per_interval = "~{output_prefix}.grouped_by_interval.annotated.txt"
         File grouped_by_gene = "~{output_prefix}.grouped_by_gene.txt"
         Int intergetic_base_count = read_int(stdout())
