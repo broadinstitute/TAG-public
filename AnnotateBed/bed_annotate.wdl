@@ -78,14 +78,15 @@ task GenerateAnnotation {
     }
 }
 task ExtractBaseCounts {
+  input {
         File input_file
-
-        command <<<
+  }
+  command <<<
           intergenic_base_count=$(grep "intergenic base count" "${input_file}" | awk '{print $4}')
           coding_base_count=$(grep "coding base count" "${input_file}" | awk '{print $4}')
           echo "intergenic_base_count: ${intergenic_base_count}" > output.txt
           echo "coding_base_count: ${coding_base_count}" >> output.txt
-        >>>
+  >>>
 
   output {
         File output_file = "output.txt"
