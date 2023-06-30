@@ -85,7 +85,7 @@ task CountGeneBases {
         String output_prefix
     }
     command {
-            python3 ~{script} --gene_bed ~{gene_bed} --bed ~{bed_to_annotate} --grouped_by_gene ~{grouped_by_gene} ~{'--gene-list ' + gene_list} --output_prefix ~{output_prefix}
+            python3 ~{script} --gene_bed ~{gene_bed} --bed ~{bed_to_annotate} --grouped_by_gene ~{grouped_by_gene} ~{'--gene_list ' + gene_list} --output_prefix ~{output_prefix}
     }
     runtime {
         docker: "us.gcr.io/tag-team-160914/annotatebed:test"
