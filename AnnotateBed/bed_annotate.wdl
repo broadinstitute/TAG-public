@@ -18,11 +18,7 @@ workflow AnnotateBed{
         bed_to_annotate = bed_to_annotate,
         output_prefix = output_prefix
     }
-    call ExtractBaseCounts {
-    input:
-      input_file = base_count_file
-    }
-     scatter (i in [0]) {
+    scatter (i in [0]) {
         if ((generate_gene_base_count) && defined(gene_base_count_script) && defined(gene_bed)) {
             call CountGeneBases {
                 input:
