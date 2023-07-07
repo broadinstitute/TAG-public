@@ -107,7 +107,7 @@ version 1.0
         command <<<
         set -e
 
-        cat ~{cnv_interval_txt} >> cnv_intervals.txt
+        cat ~{sep=" " cnv_interval_txt} >> cnv_intervals.txt
             >>>
         output {
             File gathered_intervals_txt = "cnv_intervals.txt"
