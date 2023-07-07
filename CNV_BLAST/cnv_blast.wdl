@@ -19,7 +19,7 @@ version 1.0
         Array[File] test_results = test_task.cnv_interval_txt
         call gather_results {
             input:
-                cnv_interval_txt = test_results
+                cnv_interval_files = test_results
         }
 
         output {
@@ -102,12 +102,12 @@ version 1.0
 
     task gather_results {
         input{
-            Array[File] cnv_interval_txt
+            Array[File] cnv_interval_files
          }
         command <<<
         set -e
 
-        cat ~{sep=" " cnv_interval_txt} >> cnv_intervals.txt
+        cat ~{sep=" " cnv_interval_files} >> cnv_intervals.txt
             >>>
         output {
             File gathered_intervals_txt = "cnv_intervals.txt"
