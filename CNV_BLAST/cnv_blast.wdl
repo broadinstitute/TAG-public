@@ -84,10 +84,10 @@ version 1.0
         command <<<
             set -e
 
-            echo `cat ~{cnv_interval}` + " is a CNV interval" > annoed_~{cnv_interval}
+            echo "$(cat ~{cnv_interval}) is a CNV interval" > annoed_interval.txt
             >>>
         output {
-            File cnv_interval_txt = "annoed_~{cnv_interval}"
+            File cnv_interval_txt = "annoed_interval.txt"
         }
         runtime {
                 docker: "us.gcr.io/broad-dsde-methods/liquidbiopsy:0.0.3.7"
