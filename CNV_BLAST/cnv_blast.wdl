@@ -16,10 +16,10 @@ version 1.0
                     cnv_interval = cnv_event_file
             }
         }
-
+        Array[File] test_results = test_task.cnv_interval_txt
         call gather_results {
             input:
-                cnv_interval_txt = test_task.cnv_interval_txt
+                cnv_interval_txt = test_results
         }
 
         output {
@@ -84,10 +84,10 @@ version 1.0
         command <<<
             set -e
 
-            echo `cat ~{cnv_interval}` + " is a CNV interval" > ~{cnv_interval}.txt
+            echo `cat ~{cnv_interval}` + " is a CNV interval" > annoed_~{cnv_interval}
             >>>
         output {
-            File cnv_interval_txt = "~{cnv_interval}.txt"
+            File cnv_interval_txt = "annoed_~{cnv_interval}"
         }
         runtime {
                 docker: "us.gcr.io/broad-dsde-methods/liquidbiopsy:0.0.3.7"
