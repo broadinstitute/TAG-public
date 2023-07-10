@@ -122,8 +122,8 @@ version 1.0
                   cp ~{cnv_vcf} temp.vcf
                 fi
 
-                cat temp.vcf | grep ~{cnv_interval}   | awk '{print $5}' > cnv_event_type.txt
-                paste cnv_event_type.txt /blastn/output/~{cnv_interval}_copy_number.txt > annoed_blast_interval.txt
+                cat temp.vcf | grep $interval | awk '{print $5}' > cnv_event_type.txt
+                paste cnv_event_type.txt /blastn/output/${interval}_copy_number.txt > annoed_blast_interval.txt
             >>>
         output {
             File blasted_cnv_interval = "annoed_blast_interval.txt"
