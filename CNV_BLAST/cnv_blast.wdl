@@ -3,6 +3,9 @@ version 1.0
     workflow cnv_blast{
         input {
             File cnv_vcf
+            File reference_fasta
+            File reference_blast_database
+            File T2T_blast_database
         }
         call extract_cnv {
             input:
@@ -11,15 +14,19 @@ version 1.0
 
         scatter (cnv_event_file in extract_cnv.cnv_intervals_files) {
 
-            call test_task {
+            call blastn {
                 input:
                     cnv_interval = cnv_event_file
+                    cnv_vcf = cnv_vcf
+                    reference_fasta = reference_fasta
+                    reference_blast_database = reference_blast_database
+                    T2T_blast_database = T2T_blast_database
             }
         }
-        Array[File] test_results = test_task.cnv_interval_txt
+        Array[File] blasted_interval_results = blastn.blasted_cnv_interval
         call gather_results {
             input:
-                cnv_interval_files = test_results
+                cnv_blasted_results = blasted_interval_results
         }
 
         output {
@@ -63,6 +70,7 @@ version 1.0
                 cat temp.vcf | grep -v '#' | awk '$7 == "PASS" {print}' | awk '{print $3}' | awk 'BEGIN {FS=":"} {print $2}' | sort | uniq -c | sort
             >>>
             output {
+                File uncompressed_cnv_vcf = "temp.vcf"
                 File cnv_events_file = "pass_cnv_event.txt"
                 Array[File] cnv_intervals_files = glob("*_interval.txt")
 
@@ -77,24 +85,51 @@ version 1.0
                 #maxRetries: 3
             }
         }
-    task test_task {
+    task blastn {
         input {
-            File cnv_interval
+                File cnv_interval
+                File cnv_vcf
+                File reference_fasta
+                File reference_blast_database
+                File T2T_blast_database
             }
         command <<<
-            set -e
+                set -e
 
-            echo "$(cat ~{cnv_interval}) is a CNV interval" > annoed_interval.txt
+                # Extract blast database from tar files
+                mkdir -p /blastdb/reference_database
+                mkdir -p /blastdb/t2t_database
+                tar -xvf ~{reference_blast_database} -C /blastdb/reference_database
+                tar -xvf ~{T2T_blast_database} -C /blastdb/t2t_database
+
+                # Basename for the blast database
+                reference_db_path=$(echo "`readlink -f /blastdb/reference_database/*`/`basename /blastdb/reference_database/*/*.nhr | cut -d '.' -f 1`")
+                t2t_db_path=$(echo "`readlink -f /blastdb/t2t_database/*`/`basename /blastdb/t2t_database/*/*.nhr | cut -d '.' -f 1`")
+
+                # Run Blastn
+                python3 main.py -i  ~{cnv_interval} -r ~{reference_fasta} -rd $reference_db_path -td $t2t_db_path
+
+                # Extract the CNV event name from the input file name
+                filename=$(basename ~{cnv_vcf})
+                # Unzip the input file if it is gzipped
+                if test "${filename##*.}" = "gz"; then
+                  gunzip -c ~{cnv_vcf} > temp.vcf
+                else
+                  cp ~{cnv_vcf} temp.vcf
+                fi
+
+                cat temp.vcf | grep ~{cnv_interval}   | awk '{print $5}' > cnv_event_type.txt
+                paste cnv_event_type.txt ~{cnv_interval}_copy_number.txt > annoed_blast_interval.txt
             >>>
         output {
-            File cnv_interval_txt = "annoed_interval.txt"
+            File blasted_cnv_interval = "annoed_blast_interval.txt"
         }
         runtime {
-                docker: "us.gcr.io/broad-dsde-methods/liquidbiopsy:0.0.3.7"
+                docker: "us.gcr.io/tag-team-160914/cnv_blastn:1.0.0"
                 bootDiskSizeGb: 12
-                cpu: 1
-                memory: "4 GB"
-                disks: "local-disk 10 HDD"
+                cpu: 4
+                memory: "32 GB"
+                disks: "local-disk 100 HDD"
                 preemptible: 2
                 #maxRetries: 3
         }
@@ -102,22 +137,22 @@ version 1.0
 
     task gather_results {
         input{
-            Array[File] cnv_interval_files
+            Array[File] cnv_blasted_results
          }
         command <<<
         set -e
 
-        cat ~{sep=" " cnv_interval_files} >> cnv_intervals.txt
+        cat ~{sep=" " cnv_blasted_results} >> cnv_blasted.txt
             >>>
         output {
-            File gathered_intervals_txt = "cnv_intervals.txt"
+            File gathered_intervals_txt = "cnv_blasted.txt"
         }
         runtime {
                 docker: "us.gcr.io/broad-dsde-methods/liquidbiopsy:0.0.3.7"
                 bootDiskSizeGb: 12
                 cpu: 1
                 memory: "4 GB"
-                disks: "local-disk 10 HDD"
+                disks: "local-disk 100 HDD"
                 preemptible: 2
                 #maxRetries: 3
         }
