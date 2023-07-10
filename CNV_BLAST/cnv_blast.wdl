@@ -16,10 +16,10 @@ version 1.0
 
             call blastn {
                 input:
-                    cnv_interval = cnv_event_file
-                    cnv_vcf = cnv_vcf
-                    reference_fasta = reference_fasta
-                    reference_blast_database = reference_blast_database
+                    cnv_interval = cnv_event_file,
+                    cnv_vcf = cnv_vcf,
+                    reference_fasta = reference_fasta,
+                    reference_blast_database = reference_blast_database,
                     T2T_blast_database = T2T_blast_database
             }
         }
