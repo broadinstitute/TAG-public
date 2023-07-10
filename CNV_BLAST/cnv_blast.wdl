@@ -99,15 +99,15 @@ version 1.0
                 # Extract blast database from tar files
                 mkdir -p /blastdb/reference_database
                 mkdir -p /blastdb/t2t_database
-                tar -xvf ~{reference_blast_database} -C /blastdb/reference_database
-                tar -xvf ~{T2T_blast_database} -C /blastdb/t2t_database
+                tar -xvf ~{reference_blast_database} -C /blastdb/reference_database/
+                tar -xvf ~{T2T_blast_database} -C /blastdb/t2t_database/
 
                 # Basename for the blast database
                 reference_db_path=$(echo "`readlink -f /blastdb/reference_database/*`/`basename /blastdb/reference_database/*/*.nhr | cut -d '.' -f 1`")
                 t2t_db_path=$(echo "`readlink -f /blastdb/t2t_database/*`/`basename /blastdb/t2t_database/*/*.nhr | cut -d '.' -f 1`")
 
                 # Run Blastn
-                python3 main.py -i  ~{cnv_interval} -r ~{reference_fasta} -rd $reference_db_path -td $t2t_db_path
+                python3 /blastn/main.py -i  ~{cnv_interval} -r ~{reference_fasta} -rd $reference_db_path -td $t2t_db_path
 
                 # Extract the CNV event name from the input file name
                 filename=$(basename ~{cnv_vcf})
