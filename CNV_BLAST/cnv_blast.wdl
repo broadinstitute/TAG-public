@@ -110,7 +110,8 @@ version 1.0
                 interval=$(cat ~{cnv_interval})
 
                 # Run Blastn
-                python3 /blastn/main.py -i $interval -r ~{reference_fasta} -rd $reference_db_path -td $t2t_db_path
+                mkdir /blastn/output
+                python3 /blastn/main.py -i $interval -r ~{reference_fasta} -rd $reference_db_path -td $t2t_db_path -o /blastn/output
 
                 # Extract the CNV event name from the input file name
                 filename=$(basename ~{cnv_vcf})
@@ -122,7 +123,7 @@ version 1.0
                 fi
 
                 cat temp.vcf | grep ~{cnv_interval}   | awk '{print $5}' > cnv_event_type.txt
-                paste cnv_event_type.txt ~{cnv_interval}_copy_number.txt > annoed_blast_interval.txt
+                paste cnv_event_type.txt /blastn/output/~{cnv_interval}_copy_number.txt > annoed_blast_interval.txt
             >>>
         output {
             File blasted_cnv_interval = "annoed_blast_interval.txt"
