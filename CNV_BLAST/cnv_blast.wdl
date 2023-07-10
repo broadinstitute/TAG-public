@@ -135,7 +135,7 @@ version 1.0
                 memory: "32 GB"
                 disks: "local-disk 100 HDD"
                 preemptible: 2
-                #maxRetries: 3
+                maxRetries: 3
         }
     }
 
@@ -158,7 +158,7 @@ version 1.0
                 memory: "4 GB"
                 disks: "local-disk 100 HDD"
                 preemptible: 2
-                #maxRetries: 3
+                maxRetries: 3
         }
     }
 
