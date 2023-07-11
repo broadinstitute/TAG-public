@@ -109,10 +109,13 @@ version 1.0
                 # Collect interval name
                 interval=$(cat ~{cnv_interval})
 
-                # Run Blastn
+                # Try running Blastn
                 mkdir /blastn/output
-                python3 /blastn/main.py -i $interval -r ~{reference_fasta} -rd $reference_db_path -td $t2t_db_path -o /blastn/output
-
+                (
+                    python3 /blastn/main.py -i $interval -r ~{reference_fasta} -rd $reference_db_path -td $t2t_db_path -o /blastn/output
+                ) || (
+                    echo "$interval\tFail\tFail" > /blastn/output/${interval}_copy_number.txt
+                )
                 # Extract the CNV event name from the input file name
                 filename=$(basename ~{cnv_vcf})
                 # Unzip the input file if it is gzipped
