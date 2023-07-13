@@ -114,3 +114,8 @@ workflows:
    primaryDescriptorPath: /DownsampleBam/DownsampleBam.wdl
    testParameterFiles:
     - /DownsampleBam/DownsampleBam.inputs.json 
+ - name: CoverageAnalysis
+   subclass: WDL
+   primaryDescriptorPath: /CoverageAnalysis/CoverageAnalysis.modified.wdl
+   testParameterFiles:
+    - /CoverageAnalysis/CoverageAnalysis.inputs.json
