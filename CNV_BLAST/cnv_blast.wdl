@@ -13,9 +13,14 @@ version 1.0
         }
 
         scatter (cnv_event_file in extract_cnv.cnv_intervals_files) {
+            call length_check {
+                input:
+                    cnv_interval = cnv_event_file
+            }
 
             call blastn {
                 input:
+                    cnv_length = length_check.cnv_event_length,
                     cnv_interval = cnv_event_file,
                     cnv_vcf = cnv_vcf,
                     reference_fasta = reference_fasta,
@@ -85,8 +90,37 @@ version 1.0
                 #maxRetries: 3
             }
         }
+    task length_check {
+        input {
+            File cnv_interval
+        }
+        command <<<
+            set -e
+            interval=$(cat ~{cnv_interval})
+
+            start_pos=$(cat ~{cnv_interval} | cut -d ':' -f 2 | cut -d '-' -f 1)
+            end_pos=$(cat ~{cnv_interval} | cut -d ':' -f 2 | cut -d '-' -f 2)
+
+            event_length=$((end_pos - start_pos))
+            echo $event_length > cnv_length.txt
+            >>>
+        output {
+            Int cnv_event_length = read_int('cnv_length.txt')
+        }
+        runtime {
+            docker: "us.gcr.io/broad-dsde-methods/liquidbiopsy:0.0.3.7"
+            bootDiskSizeGb: 12
+            cpu: 1
+            memory: "8 GB"
+            disks: "local-disk 100 HDD"
+            preemptible: 2
+            maxRetries: 3
+        }
+    }
+
     task blastn {
         input {
+                Int cnv_length
                 File cnv_interval
                 File cnv_vcf
                 File reference_fasta
