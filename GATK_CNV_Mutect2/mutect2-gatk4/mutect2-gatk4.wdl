@@ -164,7 +164,7 @@ workflow Mutect2 {
     Float small_input_to_output_multiplier = 2.0
 
     # logic about output file names -- these are the names *without* .vcf extensions
-    String output_basename = basename(tumor_bam, ".bam")
+    String output_basename = if defined(normal_bam) then basename(tumor_bam, ".bam") + "_" + basename(select_first([normal_bam]), ".bam") else basename(tumor_bam, ".bam")
     String unfiltered_name = output_basename + "-unfiltered"
     String filtered_name = output_basename + "-filtered"
     String funcotated_name = output_basename + "-funcotated"
@@ -415,6 +415,7 @@ workflow Mutect2 {
     if (run_oncotator_or_default) {
         call oncotate_m2 {
             input:
+                output_basename = output_basename,
                 m2_vcf = oncotate_vcf_input,
                 onco_ds_tar_gz = onco_ds_tar_gz,
                 onco_ds_local_db_dir = onco_ds_local_db_dir,
@@ -1031,6 +1032,7 @@ task oncotate_m2 {
     String? sequence_source
     File? default_config_file
     String case_id
+    String output_basename
     String? control_id
     String? oncotator_extra_args
 
@@ -1071,7 +1073,7 @@ task oncotate_m2 {
         fi
 
         ${default="/root/oncotator_venv/bin/oncotator" oncotator_exe} --db-dir onco_dbdir/ -c $HOME/tx_exact_uniprot_matches.AKT1_CRLF2_FGFR1.txt  \
-            -v ${m2_vcf} ${case_id}.maf.annotated hg19 -i VCF -o TCGAMAF --skip-no-alt --infer-onps --collapse-number-annotations --log_name oncotator.log \
+            -v ${m2_vcf} ${output_basename}.maf.annotated hg19 -i VCF -o TCGAMAF --skip-no-alt --infer-onps --collapse-number-annotations --log_name oncotator.log \
             -a Center:${default="Unknown" sequencing_center} \
             -a source:${default="Unknown" sequence_source} \
             -a normal_barcode:${control_id} \
@@ -1091,7 +1093,7 @@ task oncotate_m2 {
     }
 
     output {
-        File oncotated_m2_maf="${case_id}.maf.annotated"
+        File oncotated_m2_maf="${output_basename}.maf.annotated"
     }
 }
 
