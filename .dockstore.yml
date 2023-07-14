@@ -22,7 +22,6 @@ workflows:
    primaryDescriptorPath: /GATK_CNV_Mutect2/GATK4_CNV/GATK4_CNV.wdl
    testParameterFiles:
    - /GATK_CNV_Mutect2/GATK4_CNV/GATK4_CNV.terra-inputs.json
-   - /GATK_CNV_Mutect2/GATK4_CNV/GATK4_CNV.local-inputs.json
  - name: mutect2-gatk4
    subclass: WDL
    primaryDescriptorPath: /GATK_CNV_Mutect2/mutect2-gatk4/mutect2-gatk4.wdl
