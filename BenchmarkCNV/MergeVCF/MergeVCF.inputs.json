@@ -1,0 +1,10 @@
+{
+  "MergeVCF.mergeVCF.mem_size": "Int? (optional)",
+  "MergeVCF.mergeVCF.mem": "Int? (optional)",
+  "MergeVCF.mergeVCF.disk_space": "Int? (optional)",
+  "MergeVCF.vcf1": "File",
+  "MergeVCF.sample_name": "String",
+  "MergeVCF.vcf2": "File",
+  "MergeVCF.bcftools_docker": "us.gcr.io/broad-dsde-methods/liquidbiopsy:0.0.4.3",
+  "MergeVCF.mergeVCF.disk_size": "Int? (optional)"
+}
