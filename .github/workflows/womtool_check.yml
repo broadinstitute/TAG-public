@@ -1,0 +1,19 @@
+# This workflow validates all pipeline WDL files in TAG-public repo using the 'womtool' tool.
+name: WomtoolCheck
+
+on: 
+  push:
+    branches:
+      - '*'
+
+jobs:
+  validate_wdl_job:
+    runs-on: ubuntu-latest
+    name: Validate all wdl using womtool
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          repository: broadinstitute/TAG-public
+      - name: Run womtools
+        run: |
+          ./test_scripts/validate_wdls.sh
