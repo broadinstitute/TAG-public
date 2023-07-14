@@ -502,7 +502,7 @@ workflow ScatteredCoverage {
                 min_mapping_quality = min_mapping_quality,
                 disk_size = (bam_size * 1.5) + additional_disk,
                 preemptible_tries = preemptible_tries,
-                extra_arguments = "--countType COUNT_FRAGMENTS_REQUIRE_SAME_BASE -allowPotentiallyMisencodedQuals"
+                extra_arguments = "--countType COUNT_READS -drf DuplicateRead"
                 
       }
 
