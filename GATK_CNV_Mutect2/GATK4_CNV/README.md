@@ -29,6 +29,11 @@ is modified to output the number of segments, amplifications, and deletions in a
 
 ## Example invocation
 ```angular2html
-java -jar cromwell.jar run GATK_CNV.wdl -i my_parameters.json
+java -jar cromwell.jar run GATK_CNV.wdl -i GATK4_CNV.local-inputs.json
 ```
+
+**GATK4_CNV.local-inputs.json only provide a general structure of the required input to `GATK4_CNV.wdl`. It is the user’s responsibility to correctly set the reference and resource input variables.**
+
+When execute this workflow on Terra, please use the `GATK4_CNV.terra-inputs.json`.
+
 
