@@ -1,0 +1,21 @@
+{
+    "SomaticRearrangement.control_bam": "gs://gptag/tag_183/SM-CEMHS.bam",
+    "SomaticRearrangement.control_bam_index": "gs://gptag/tag_183/SM-CEMHS.bai",
+    "SomaticRearrangement.cpu_num": "${32}",
+    "SomaticRearrangement.dbsnp_vcf": "gs://gptag/somatic/aux/SvABA_filters/dbsnp_138.b37_indel.vcf",
+    "SomaticRearrangement.disk_size": "${200}",
+    "SomaticRearrangement.germline_sv_bed": "gs://gptag/somatic/aux/SvABA_filters/svaba_germline_160413.bed",
+    "SomaticRearrangement.memory_size": "${50}",
+    "SomaticRearrangement.reference_amb": "gs://gptag/somatic/aux/references/Homo_sapiens_assembly19/Homo_sapiens_assembly19.fasta.amb",
+    "SomaticRearrangement.reference_ann": "gs://gptag/somatic/aux/references/Homo_sapiens_assembly19/Homo_sapiens_assembly19.fasta.ann",
+    "SomaticRearrangement.reference_bwt": "gs://gptag/somatic/aux/references/Homo_sapiens_assembly19/Homo_sapiens_assembly19.fasta.bwt",
+    "SomaticRearrangement.reference_fai": "gs://gptag/somatic/aux/references/Homo_sapiens_assembly19/Homo_sapiens_assembly19.fasta.fai",
+    "SomaticRearrangement.reference_fasta": "gs://gptag/somatic/aux/references/Homo_sapiens_assembly19/Homo_sapiens_assembly19.fasta",
+    "SomaticRearrangement.reference_pac": "gs://gptag/somatic/aux/references/Homo_sapiens_assembly19/Homo_sapiens_assembly19.fasta.pac",
+    "SomaticRearrangement.reference_sa": "gs://gptag/somatic/aux/references/Homo_sapiens_assembly19/Homo_sapiens_assembly19.fasta.sa",
+    "SomaticRearrangement.sample_name": "${this.name}",
+    "SomaticRearrangement.target_interval": "${workspace.target_intervals}",
+    "SomaticRearrangement.tumor_bam": "${this.cram_or_bam_path}",
+    "SomaticRearrangement.tumor_bam_index": "${this.crai_or_bai_path}",
+    "SomaticRearrangement.xomere_bed": "gs://gptag/somatic/aux/SvABA_filters/centromere_telomere_hg19.bed"
+}

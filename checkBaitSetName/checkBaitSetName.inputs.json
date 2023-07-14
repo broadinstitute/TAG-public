@@ -1,0 +1,5 @@
+{
+  "checkBaitSetName.compareBaitSetName.bait_intervals": "File? (optional)",
+  "checkBaitSetName.compareBaitSetName.target_intervals": "File",
+  "checkBaitSetName.compareBaitSetName.bait_set": "String"
+}
