@@ -6,6 +6,7 @@ version 1.0
             File reference_fasta
             File reference_blast_database
             File T2T_blast_database
+            String blast_docker = "us.gcr.io/tag-team-160914/cnv_blastn:1.0.1"
         }
         call extract_cnv {
             input:
@@ -20,6 +21,7 @@ version 1.0
 
             call blastn {
                 input:
+                    docker = blast_docker,
                     cnv_length = length_check.cnv_event_length,
                     cnv_interval = cnv_event_file,
                     cnv_vcf = cnv_vcf,
@@ -120,6 +122,7 @@ version 1.0
 
     task blastn {
         input {
+                String docker
                 Int cnv_length
                 File cnv_interval
                 File cnv_vcf
@@ -172,7 +175,7 @@ version 1.0
             File blasted_cnv_interval = "annoed_blast_interval.txt"
         }
         runtime {
-                docker: "us.gcr.io/tag-team-160914/cnv_blastn:1.0.0"
+                docker: docker
                 bootDiskSizeGb: 12
                 cpu: if cnv_length > 15000 then 16 else 4
                 memory: if cnv_length>15000 then "128GB" else "32GB"
