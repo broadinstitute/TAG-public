@@ -42,11 +42,18 @@ workflow SC_plate{
            adapt_list = adapt_list,
            names = names
         }
+		call ConvertMetricsToXLSX{
+			input:
+			plate_qc_metrics = graphPlate.plate_qc_metrics,
+			plate_summary_metrics = graphPlate.plate_summary_metrics,
+			metadata = metadata
+		}
 
 		call gsutil_cp{
 			input:
 			plate_qc_metrics = graphPlate.plate_qc_metrics
 		}
+		
 }
 
 task graphPlate{
@@ -221,6 +228,42 @@ task graphPlate{
 		disks: "local-disk "+disk_space+" HDD"
         bootDiskSizeGb: boot_disk_space
     }
+}
+
+task ConvertMetricsToXLSX{
+	File metadata
+	String metadata_basename = basename(metadata,".metadata.txt")
+	File plate_qc_metrics
+	File plate_summary_metrics
+
+	command <<<
+
+    python <<END
+    import pandas as pd
+    import os
+    plate_qc_metrics = "${plate_qc_metrics}"
+    plate_summary_metrics = "${plate_summary_metrics}"
+	metadata = "${metadata}"
+	metadata_basename = os.path.splitext(os.path.basename(metadata))[0]
+
+    # Read plate_qc_metrics and convert to XLSX
+    qc_metrics_df = pd.read_csv(plate_qc_metrics, sep='\t')
+    qc_metrics_df.to_excel(f"{metadata_basename}.plate_qc_metrics.xlsx", index=False)
+
+    # Read plate_summary_metrics and convert to XLSX
+    summary_metrics_df = pd.read_csv(plate_summary_metrics, sep='\t')
+    summary_metrics_df.to_excel(f"{metadata_basename}.plate_summary_metrics.xlsx", index=False)
+    END
+	>>>
+	
+	output {
+        File plate_summary_metrics_xlsx = "${metadata_basename}.plate_summary_metrics.xlsx"
+        File plate_qc_metrics_xlsx = "${metadata_basename}.plate_qc_metrics.xlsx"
+        }
+	runtime {
+		docker:"us.gcr.io/tag-team-160914/csvtoexcel:test" 
+	}
+
 }
 
 task gsutil_cp{
