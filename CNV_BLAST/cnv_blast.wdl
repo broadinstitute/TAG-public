@@ -143,10 +143,16 @@ version 1.0
                 # Collect interval name
                 interval=$(cat ~{cnv_interval})
 
+                if ((~{cnv_length} > 5000)); then
+                    cpu_num=$(( (~{cnv_length} + 999) / 1000 ))
+                else
+                    cpu_num=4
+                fi
+
                 # Try running Blastn
                 mkdir /blastn/output
                 (
-                    python3 /blastn/main.py -i $interval -r ~{reference_fasta} -rd $reference_db_path -td $t2t_db_path -o /blastn/output
+                    python3 /blastn/main.py -i $interval -r ~{reference_fasta} -rd $reference_db_path -td $t2t_db_path -o /blastn/output -c $cpu_num
                 ) || (
                     echo "$interval\tFail\tFail" > /blastn/output/${interval}_copy_number.txt
                 )
@@ -168,8 +174,8 @@ version 1.0
         runtime {
                 docker: "us.gcr.io/tag-team-160914/cnv_blastn:1.0.0"
                 bootDiskSizeGb: 12
-                cpu: 4
-                memory: "32 GB"
+                cpu: if cnv_length > 5000 then ceil(cnv_length+999 / 1000) else 4
+                memory: if cnv_length>15000 then "128GB" else "32GB"
                 disks: "local-disk 100 HDD"
                 preemptible: 2
                 maxRetries: 3
