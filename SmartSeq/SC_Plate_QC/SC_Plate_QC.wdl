@@ -229,42 +229,42 @@ task graphPlate{
         bootDiskSizeGb: boot_disk_space
     }
 }
+task ConvertMetricsToXLSX {
+  File metadata
+  String metadata_basename = basename(metadata, ".metadata.txt")
+  File plate_qc_metrics
+  File plate_summary_metrics
 
-task ConvertMetricsToXLSX{
-	File metadata
-	String metadata_basename = basename(metadata,".metadata.txt")
-	File plate_qc_metrics
-	File plate_summary_metrics
-
-	command <<<
-
+  command <<<
     python3 <<END
-    import pandas as pd
-    import os
-    plate_qc_metrics = "${plate_qc_metrics}"
-    plate_summary_metrics = "${plate_summary_metrics}"
-	metadata = "${metadata}"
-	metadata_basename = os.path.splitext(os.path.basename(metadata))[0]
+import pandas as pd
+import os
 
-    # Read plate_qc_metrics and convert to XLSX
-    qc_metrics_df = pd.read_csv(plate_qc_metrics, sep='\t')
-    qc_metrics_df.to_excel(f"{metadata_basename}.plate_qc_metrics.xlsx", index=False)
+plate_qc_metrics = "${plate_qc_metrics}"
+plate_summary_metrics = "${plate_summary_metrics}"
+metadata = "${metadata}"
+metadata_basename = os.path.splitext(os.path.basename(metadata))[0]
 
-    # Read plate_summary_metrics and convert to XLSX
-    summary_metrics_df = pd.read_csv(plate_summary_metrics, sep='\t')
-    summary_metrics_df.to_excel(f"{metadata_basename}.plate_summary_metrics.xlsx", index=False)
-    END
-	>>>
-	
-	output {
-        File plate_summary_metrics_xlsx = "${metadata_basename}.plate_summary_metrics.xlsx"
-        File plate_qc_metrics_xlsx = "${metadata_basename}.plate_qc_metrics.xlsx"
-        }
-	runtime {
-		docker:"us.gcr.io/tag-team-160914/csvtoexcel:test" 
-	}
+# Read plate_qc_metrics and convert to XLSX
+qc_metrics_df = pd.read_csv(plate_qc_metrics, sep='\t')
+qc_metrics_df.to_excel(f"{metadata_basename}.plate_qc_metrics.xlsx", index=False)
 
+# Read plate_summary_metrics and convert to XLSX
+summary_metrics_df = pd.read_csv(plate_summary_metrics, sep='\t')
+summary_metrics_df.to_excel(f"{metadata_basename}.plate_summary_metrics.xlsx", index=False)
+END
+  >>>
+  
+  output {
+    File plate_summary_metrics_xlsx = "${metadata_basename}.plate_summary_metrics.xlsx"
+    File plate_qc_metrics_xlsx = "${metadata_basename}.plate_qc_metrics.xlsx"
+  }
+  
+  runtime {
+    docker: "us.gcr.io/tag-team-160914/csvtoexcel:test"
+  }
 }
+
 
 task gsutil_cp{
 	File plate_qc_metrics
