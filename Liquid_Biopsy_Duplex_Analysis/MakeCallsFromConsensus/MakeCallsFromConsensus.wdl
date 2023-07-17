@@ -1,5 +1,8 @@
 version 1.0
-import "https://raw.githubusercontent.com/broadinstitute/TAG-public/bea8bad857df7277d9fe6ccf3976e7c85c83a8e7/Liquid_Biopsy_Duplex_Analysis/MakeCallsFromConsensus/mutect2.wdl" as m2
+
+import "../../checkBaitSetName/checkBaitSetName.wdl" as checkBaitSetName
+import "./mutect2.wdl" as m2
+
 
 workflow MakeCallsFromConsensus {
 
@@ -23,6 +26,7 @@ workflow MakeCallsFromConsensus {
       File? raw_normal_bam_idx
 
       File target_intervals
+      Boolean fail_on_intervals_mismatch
       File reference
       File reference_idx
       File reference_dict
@@ -100,7 +104,11 @@ workflow MakeCallsFromConsensus {
 
       }
    }
-
+   call checkBaitSetName.compareBaitSetName as checkBaitSetName {
+      input:
+         target_intervals = target_intervals,
+         fail_task = fail_on_intervals_mismatch
+   }
    # Collect Sequencing Artifact Metrics after deduplication by start and stop
    # positions (but not including UMIs).
    call CollectSequencingArtifactMetrics as ConsensusArtifactMetricsTumor {

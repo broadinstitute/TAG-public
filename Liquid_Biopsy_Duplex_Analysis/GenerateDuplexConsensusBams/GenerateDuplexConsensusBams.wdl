@@ -1,3 +1,5 @@
+# Import BaitSetNameCheck task
+import "../../checkBaitSetName/checkBaitSetName.dev.wdl" as checkBaitSetName
 
 workflow GenerateDuplexConsensusBams {
 
@@ -28,6 +30,8 @@ workflow GenerateDuplexConsensusBams {
    File bait_intervals
 
    # parameters
+   String bait_set
+   Boolean fail_on_intervals_mismatch
    Int minimum_base_quality
    Int allowable_umi_distance
    String minimum_consensus_reads
@@ -54,6 +58,13 @@ workflow GenerateDuplexConsensusBams {
    # This is added to every task as padding, should increase if systematically you need more disk for every call
    Int disk_pad = 10 + select_first([emergency_extra_disk,0])
 
+   call checkBaitSetName.compareBaitSetName as checkBaitSetName {
+      input:
+         bait_set = bait_set,
+         bait_intervals = bait_intervals,
+         target_intervals = target_intervals,
+         fail_task = fail_on_intervals_mismatch
+   }
    # Get the version of BWA that we are using.
    call GetBwaVersion {
       input:
@@ -366,6 +377,9 @@ workflow GenerateDuplexConsensusBams {
    }
 
    output {
+
+      String mismatch_message = checkBaitSetName.mismatch_message
+      Int bait_mismatch = checkBaitSetName.bait_mismatch
 
       File duplex_output_bam = BQSRDuplex.output_bam
       File duplex_output_bam_index = BQSRDuplex.output_bam_index
