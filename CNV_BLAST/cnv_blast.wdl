@@ -143,8 +143,8 @@ version 1.0
                 # Collect interval name
                 interval=$(cat ~{cnv_interval})
 
-                if ((~{cnv_length} > 5000)); then
-                    cpu_num=$(( (~{cnv_length} + 999) / 1000 ))
+                if ((~{cnv_length} > 15000)); then
+                    cpu_num=16
                 else
                     cpu_num=4
                 fi
@@ -174,7 +174,7 @@ version 1.0
         runtime {
                 docker: "us.gcr.io/tag-team-160914/cnv_blastn:1.0.0"
                 bootDiskSizeGb: 12
-                cpu: if cnv_length > 5000 then ceil(cnv_length+999 / 1000) else 4
+                cpu: if cnv_length > 15000 then 16 else 4
                 memory: if cnv_length>15000 then "128GB" else "32GB"
                 disks: "local-disk 100 HDD"
                 preemptible: 2
