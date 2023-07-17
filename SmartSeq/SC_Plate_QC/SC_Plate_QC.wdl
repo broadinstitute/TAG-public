@@ -238,7 +238,7 @@ task ConvertMetricsToXLSX{
 
 	command <<<
 
-    python <<END
+    python3 <<END
     import pandas as pd
     import os
     plate_qc_metrics = "${plate_qc_metrics}"
