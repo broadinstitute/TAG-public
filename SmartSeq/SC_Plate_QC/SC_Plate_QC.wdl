@@ -229,6 +229,7 @@ task graphPlate{
         bootDiskSizeGb: boot_disk_space
     }
 }
+
 task ConvertMetricsToXLSX {
   File metadata
   String metadata_basename = basename(metadata, ".metadata.txt")
@@ -243,7 +244,7 @@ import os
 plate_qc_metrics = "${plate_qc_metrics}"
 plate_summary_metrics = "${plate_summary_metrics}"
 metadata = "${metadata}"
-metadata_basename = os.path.splitext(os.path.basename(metadata))[0]
+metadata_basename = "${metadata_basename}"
 
 # Read plate_qc_metrics and convert to XLSX
 qc_metrics_df = pd.read_csv(plate_qc_metrics, sep='\t')
