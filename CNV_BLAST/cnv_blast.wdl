@@ -178,7 +178,7 @@ version 1.0
                 docker: docker
                 bootDiskSizeGb: 12
                 cpu: if cnv_length > 15000 then 16 else 4
-                memory: if cnv_length>15000 then "128GB" else "32GB"
+                memory: if cnv_length>15000 then "256GB" else "32GB"
                 disks: "local-disk 100 HDD"
                 preemptible: 2
                 maxRetries: 3
