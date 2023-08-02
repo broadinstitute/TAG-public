@@ -4,6 +4,7 @@ version 1.0
         input {
             File cnv_vcf
             File reference_fasta
+            File t2t_reference_fasta
             File reference_blast_database
             File T2T_blast_database
             String blast_docker = "us.gcr.io/tag-team-160914/cnv_blastn:1.0.1"
@@ -26,6 +27,7 @@ version 1.0
                     cnv_interval = cnv_event_file,
                     cnv_vcf = cnv_vcf,
                     reference_fasta = reference_fasta,
+                    t2t_reference_fasta = t2t_reference_fasta,
                     reference_blast_database = reference_blast_database,
                     T2T_blast_database = T2T_blast_database
             }
@@ -127,6 +129,7 @@ version 1.0
                 File cnv_interval
                 File cnv_vcf
                 File reference_fasta
+                File t2t_reference_fasta
                 File reference_blast_database
                 File T2T_blast_database
             }
@@ -140,6 +143,7 @@ version 1.0
                 tar -xvf ~{T2T_blast_database} -C /blastdb/t2t_database/
 
                 # Basename for the blast database
+                # If there are dot in the name, it will cause error in extracting the basename
                 reference_db_path=$(echo "`readlink -f /blastdb/reference_database/*`/`basename /blastdb/reference_database/*/*.nhr | cut -d '.' -f 1`")
                 t2t_db_path=$(echo "`readlink -f /blastdb/t2t_database/*`/`basename /blastdb/t2t_database/*/*.nhr | cut -d '.' -f 1`")
 
@@ -155,7 +159,7 @@ version 1.0
                 # Try running Blastn
                 mkdir /blastn/output
                 (
-                    python3 /blastn/main.py -i $interval -r ~{reference_fasta} -rd $reference_db_path -td $t2t_db_path -o /blastn/output -c $cpu_num
+                    python3 /blastn/main.py -i $interval -r ~{reference_fasta} -t ~{t2t_reference_fasta} -rd $reference_db_path -td $t2t_db_path -o /blastn/output -c $cpu_num
                 ) || (
                     echo "$interval\tFail\tFail" > /blastn/output/${interval}_copy_number.txt
                 )
@@ -180,7 +184,7 @@ version 1.0
                 cpu: if cnv_length > 15000 then 16 else 4
                 memory: if cnv_length>15000 then "256GB" else "32GB"
                 disks: "local-disk 100 HDD"
-                preemptible: 2
+                preemptible: 0
                 maxRetries: 3
         }
     }
