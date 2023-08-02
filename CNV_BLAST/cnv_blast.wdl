@@ -150,7 +150,7 @@ version 1.0
                 # Collect interval name
                 interval=$(cat ~{cnv_interval})
 
-                if ((~{cnv_length} > 15000)); then
+                if ((~{cnv_length} > 10000)); then
                     cpu_num=64
                 else
                     cpu_num=4
