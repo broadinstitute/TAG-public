@@ -181,8 +181,8 @@ version 1.0
         runtime {
                 docker: docker
                 bootDiskSizeGb: 12
-                cpu: if cnv_length > 15000 then 64 else 4
-                memory: if cnv_length>15000 then "512GB" else "32GB"
+                cpu: if cnv_length > 10000 then 64 else 4
+                memory: if cnv_length>10000 then "512GB" else "32GB"
                 disks: "local-disk 100 HDD"
                 preemptible: 0
                 maxRetries: 3
