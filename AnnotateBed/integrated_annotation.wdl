@@ -38,18 +38,20 @@ workflow AnnotateBed{
             output_prefix = output_prefix
             }
         }
-    call samtools_coverage {
-        input:
-        bam_files = bam_files,
-        bam_indices = bam_indices,
-        sample_ids = sample_ids,
-        bed_to_annotate = bed_to_annotate,
-        memory_gb = memory_gb,
-        disk_size = disk_size
+    scatter (i in range(length(sample_ids))) {
+        call samtools_coverage {
+            input:
+                bam_file = bam_files[i],
+                bai_file = bam_indices[i],
+                bed_to_annotate = bed_to_annotate,
+                sample_id = sample_ids[i],
+                memory_gb = memory_gb,
+                disk_size = disk_size
+        }
     }
     call summarize_coverage {
         input:
-        coverage_output = samtools_coverage.coverage_output
+        coverage_outputs = samtools_coverage.coverage_output
     }
     call generate_clinvar_results {
         input:
@@ -75,6 +77,7 @@ workflow AnnotateBed{
         File grouped_by_gene = GenerateAnnotation.grouped_by_gene 
         Int? genes_involved = CountGeneBases.genes_involved
         File? gene_base_count = CountGeneBases.gene_base_count
+        Array[File] coverage_outputs = samtools_coverage.coverage_output
         File samtools_coverage_summary = summarize_coverage.samtools_coverage_summary
         File clinvar_annotation = generate_clinvar_results.clinvar_annotation
         File integrated_annotation_file = concatenate_results.integrated_annotation_file
@@ -142,30 +145,23 @@ task CountGeneBases {
 }
 task samtools_coverage {
     input {
-        Array[File] bam_files
-        Array[File] bam_indices
-        File bed_to_annotate
-        Array[String] sample_ids
-        Int memory_gb
-        Int disk_size
+       File bam_file
+       File bai_file
+       File bed_to_annotate
+       String sample_id
+       Int memory_gb
+       Int disk_size
     }
     command <<<
-    for ((i = 0; i < length(sample_ids); i++))
-    do
-        sample_id = sample_ids[i]
-        bam_file = bam_files[i]
-        tmp_file = "tmp_${sample_id}"
-
-        for region in $(awk '{print $1":"$2"-"$3}' ~{bed_to_annotate})
+        for region in `awk '{print $1":"$2"-"$3}' ~{bed_to_annotate}`
         do
-            samtools coverage $bam_file -r ${region} >> $tmp_file
+           samtools coverage ~{bam_file} -r ${region} >> tmp
         done
-
-        awk '/startpos/ && c++ > 0 {next} 1' $tmp_file > "${sample_id}.coverage.txt"
-    done
+        awk '/startpos/&&c++>0 {next} 1' tmp > ~{sample_id}.coverage.txt
 >>>
+
     output {
-        Array[File] coverage_output = glob("*.coverage.txt")
+        File coverage_output = "~{sample_id}.coverage.txt"
     }
     runtime {
         docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.5.7-2021-06-09_16-47-48Z"
@@ -175,12 +171,12 @@ task samtools_coverage {
 }
 task summarize_coverage {
     input{
-        Array[File] coverage_output
+        Array[File] coverage_outputs
         Int memory_gb
         Int disk_size
     }
     command {
-    python3 /scripts/summarize_coverage.py "${sep=' ' coverage_output}"
+    python3 /scripts/summarize_coverage.py "${sep=' ' coverage_outputs}"
 
     }
     output{
