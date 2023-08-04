@@ -8,7 +8,7 @@ workflow AnnotateBed{
         File gene_bed
         Boolean generate_gene_base_count
         File? gene_list
-        File? gene_base_count_script
+        File gene_base_count_script
         Int diskGB = 50
         Array[File] bam_files
         Array[File] bam_indices
