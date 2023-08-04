@@ -8,7 +8,7 @@ workflow AnnotateBed{
         File gene_bed
         Boolean generate_gene_base_count
         File? gene_list
-        File gene_base_count_script
+        File? gene_base_count_script
         Int diskGB = 50
         Array[File] bam_files
         Array[File] bam_indices
@@ -72,8 +72,8 @@ workflow AnnotateBed{
         Int intergenic_base_count = read_int(GenerateAnnotation.intergenic_base_count_file)
         Int coding_base_count = read_int(GenerateAnnotation.coding_base_count_file)
         File grouped_by_gene = GenerateAnnotation.grouped_by_gene 
-        Int genes_involved = CountGeneBases.genes_involved
-        File gene_base_count = CountGeneBases.gene_base_count
+        Int? genes_involved = CountGeneBases.genes_involved
+        File? gene_base_count = CountGeneBases.gene_base_count
         File samtools_coverage_summary = summarize_coverage.samtools_coverage_summary
         File clinvar_annotation = generate_clinvar_results.clinvar_annotation
         File integrated_annotation_file = concatenate_results.integrated_annotation_file
