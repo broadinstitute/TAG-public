@@ -6,13 +6,13 @@ workflow AnnotateBed{
         File bed_to_annotate
         String output_prefix
         File gene_bed
+        File exome_bed
         Boolean generate_gene_base_count
         File? gene_list
         File gene_base_count_script
         Int diskGB = 50
         Array[File] bam_files
         Array[File] bam_indices
-        File bed_file
         Array[File] sample_ids
         Int memory_gb
         Int disk_size
@@ -21,6 +21,7 @@ workflow AnnotateBed{
         input:
         script = annotate_script,
         gencode_annotation = gencode_annotation, 
+        exome_bed = exome_bed,
         bed_to_annotate = bed_to_annotate,
         output_prefix = output_prefix,
         gene_list = gene_list,
@@ -42,7 +43,7 @@ workflow AnnotateBed{
         bam_files = bam_files,
         bam_indices = bam_indices,
         sample_ids = sample_ids,
-        bed_file = bed_to_annotate,
+        bed_to_annotate = bed_to_annotate,
         memory_gb = memory_gb,
         disk_size = disk_size
     }
@@ -86,6 +87,7 @@ task GenerateAnnotation {
         File gencode_annotation
         File bed_to_annotate
         File gene_bed
+        File exome_bed
         File? gene_list
         String output_prefix
         Int maxRetries = 1
@@ -93,7 +95,7 @@ task GenerateAnnotation {
         Int diskGB = 50
     }
     command {
-        python3 ~{script} --annotation ~{gencode_annotation} --bed ~{bed_to_annotate} --gene_bed ~{gene_bed} ~{'--gene_list ' + gene_list} --output_prefix ~{output_prefix}
+        python3 ~{script} --annotation ~{gencode_annotation} --bed ~{bed_to_annotate} --gene_bed ~{gene_bed} --exome_bed ~{exome_bed} ~{'--gene_list ' + gene_list} --output_prefix ~{output_prefix}
     }
     runtime {
         docker: "us.gcr.io/tag-team-160914/annotatebed:test"
@@ -142,7 +144,7 @@ task samtools_coverage {
     input {
         Array[File] bam_files
         Array[File] bam_indices
-        File bed_file
+        File bed_to_annotate
         Array[File] sample_ids
         Int memory_gb
         Int disk_size
@@ -154,7 +156,7 @@ task samtools_coverage {
         bam_file = bam_files[i]
         tmp_file = "tmp_${sample_id}"
 
-        for region in $(awk '{print $1":"$2"-"$3}' ~{bed_file})
+        for region in $(awk '{print $1":"$2"-"$3}' ~{bed_to_annotate})
         do
             samtools coverage $bam_file -r ${region} >> $tmp_file
         done
