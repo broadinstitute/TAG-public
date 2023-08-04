@@ -145,7 +145,7 @@ task samtools_coverage {
         Array[File] bam_files
         Array[File] bam_indices
         File bed_to_annotate
-        Array[File] sample_ids
+        Array[String] sample_ids
         Int memory_gb
         Int disk_size
     }
