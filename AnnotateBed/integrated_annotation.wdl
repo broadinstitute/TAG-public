@@ -73,7 +73,7 @@ workflow AnnotateBed{
         Int coding_base_count = read_int(GenerateAnnotation.coding_base_count_file)
         File grouped_by_gene = GenerateAnnotation.grouped_by_gene 
         Array[Int?] genes_involved = CountGeneBases.genes_involved
-        Array[File?] gene_base_count = CountGeneBases.gene_base_count
+        File? gene_base_count = CountGeneBases.gene_base_count
         File samtools_coverage_summary = summarize_coverage.samtools_coverage_summary
         File clinvar_annotation = generate_clinvar_results.clinvar_annotation
         File integrated_annotation_file = concatenate_results.integrated_annotation_file
@@ -179,7 +179,7 @@ task summarize_coverage {
     }
     command {
     python3 /scripts/summarize_coverage.py "${sep=' ' coverage_output}"
-    
+
     }
     output{
     File samtools_coverage_summary = 'samtools_coverage_summary.txt'
