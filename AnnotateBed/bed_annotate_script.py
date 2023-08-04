@@ -20,6 +20,8 @@ parser.add_argument('--annotation', type=str,
 parser.add_argument('--bed', type=str, help='Path to the BED file')
 parser.add_argument('--gene_bed', type=str,
                     help='The bed file contains all gene regions with matching gene build with bed file')
+parser.add_argument('--exome_bed', type=str,
+                    help='The bed file contains all exon regions with matching gene build with bed file')
 parser.add_argument('--gene_list', type=str,
                     help='Path to the gene list file', required=False)
 parser.add_argument('--output_prefix', type=str, default='output',
@@ -42,6 +44,19 @@ non_coding_bed_to_group = bed_file.intersect(
     annotation_file, v=True, wa=True).to_dataframe()
 
 
+def process_non_coding_bed_to_group_file(unformatted_bed):
+    bed_data = unformatted_bed.copy()
+    bed_data = bed_data.drop(bed_data.columns[-2:], axis=1)
+    existing_columns = ['chrom', 'start', 'end']
+    bed_data = bed_data.rename(columns=dict(
+        zip(bed_data.columns[:3], existing_columns)))
+    new_columns = ['gene_name', 'exon_number', 'transcript_id']
+    values = [""] * (len(new_columns) - 1)
+    bed_data = bed_data.assign(
+        **{col: val for col, val in zip(new_columns, values)})
+    return bed_data
+
+
 def process_non_coding_bed_file(unformatted_bed):
     bed_data = unformatted_bed.copy()
     bed_data = bed_data.drop(bed_data.columns[-2:], axis=1)
@@ -60,7 +75,7 @@ def process_non_coding_bed_file(unformatted_bed):
 formatted_non_coding_bed = pd.DataFrame()
 if not non_coding_bed.empty:
     formatted_non_coding_bed = process_non_coding_bed_file(non_coding_bed)
-    formatted_non_coding_bed_to_group = process_non_coding_bed_file(
+    formatted_non_coding_bed_to_group = process_non_coding_bed_to_group_file(
         non_coding_bed_to_group)
 
 
@@ -71,8 +86,8 @@ def process_coding_bed_file(unformatted_coding_bed, gene_list=None):
     for index, row in unformatted_non_coding_bed.iterrows():
         gene_name, gene_type, exon_number, exon_id, transcript_id = "", "", "", "", ""
         fields = row.values
-        chrom, start, end, function = fields[3], fields[6], fields[7], fields[5]
-        sub_fields = fields[11].split(';')
+        chrom, start, end, function = fields[5], fields[8], fields[9], fields[7]
+        sub_fields = fields[13].split(';')
         for sub_field in sub_fields:
             sub_field = sub_field.strip()
             if sub_field.startswith("gene_type"):
@@ -96,6 +111,7 @@ gene_list = None
 if args.gene_list:
     with open(args.gene_list, 'r', encoding='UTF-8') as file:
         gene_list = set(file.read().splitlines())
+
 
 formatted_coding_bed = process_coding_bed_file(coding_bed_file, gene_list)
 
@@ -141,8 +157,6 @@ sort_filter_annotation_file(
 
 
 def sort_internal_elements(row):
-    row['exon_id'] = ','.join(
-        sorted(x for x in row['exon_id'].split(',')))
     row['transcript_id'] = ','.join(
         sorted(x for x in row['transcript_id'].split(',')))
     exon_numbers = [int(x) for x in row['exon_number'].split(
@@ -181,34 +195,31 @@ input_file.to_csv(ungrouped_annotation_file, sep='\t', index=False)
 
 def process_coding_bed_to_group_file(unformatted_coding_bed, gene_list=None):
     unformatted_non_coding_bed = unformatted_coding_bed.to_dataframe()
-    formatted_coding_bed = pd.DataFrame(columns=['chrom', 'start', 'end', 'function',
-                                                 'gene_type', 'gene_name', 'exon_number', 'exon_id', 'transcript_id'])
+    formatted_coding_bed = pd.DataFrame(
+        columns=['chrom', 'start', 'end', 'gene_name', 'exon_number', 'transcript_id'])
     for index, row in unformatted_non_coding_bed.iterrows():
-        gene_name, gene_type, exon_number, exon_id, transcript_id = "", "", "", "", ""
+        gene_name, exon_number, transcript_id = "", "", ""
         fields = row.values
-        chrom, start, end, function = fields[0], fields[1], fields[2], fields[5]
-        sub_fields = fields[11].split(';')
+        chrom, start, end, function = fields[0], fields[1], fields[2], fields[7]
+        sub_fields = fields[13].split(';')
         for sub_field in sub_fields:
             sub_field = sub_field.strip()
-            if sub_field.startswith("gene_type"):
-                gene_type = sub_field.split('"')[1]
             if sub_field.startswith("gene_name"):
                 gene_name = sub_field.split('"')[1]
             if sub_field.startswith("exon_number"):
                 exon_number = sub_field.split(" ")[1]
-            if sub_field.startswith("exon_id"):
-                exon_id = sub_field.split('"')[1]
             if sub_field.startswith("transcript_id"):
                 transcript_id = sub_field.split('"')[1]
         if gene_list is not None and gene_name not in gene_list:
             continue
-        formatted_coding_bed.loc[index] = [chrom, start, end, function,
-                                           gene_type, gene_name, exon_number, exon_id, transcript_id]
+        formatted_coding_bed.loc[index] = [chrom, start, end,
+                                           gene_name, exon_number, transcript_id]
     return formatted_coding_bed
 
 
 formatted_coding_bed_to_group = process_coding_bed_to_group_file(
     coding_bed_to_group_file, gene_list)
+
 # concatenate coding and non-coding files into a single annotation file if non-coding file is not empty
 if not non_coding_bed.empty:
     # concatenate non coding regions and coding regions
@@ -218,39 +229,103 @@ if not non_coding_bed.empty:
                          header=0, index=False)
 else:
     # take only infos from coding file
-    header = ['chrom', 'start', 'end', 'function', 'gene_type',
-              'gene_name', 'exon_number', 'exon_id', 'transcript_id']
+    header = ['chrom', 'start', 'end', 'gene_name',
+              'exon_number', 'transcript_id']
     formatted_coding_bed_to_group.to_csv('grouped_annotation.txt',
                                          sep='\t', header=header, index=False)
 
-grouped_by_gene[['exon_number', 'exon_id', 'transcript_id']] = grouped_by_gene[['exon_number',
-                                                                                'exon_id', 'transcript_id']].apply(sort_internal_elements, axis=1)
+grouped_by_gene[['exon_number', 'transcript_id']] = grouped_by_gene[[
+    'exon_number', 'transcript_id']].apply(sort_internal_elements, axis=1)
 
 sort_filter_annotation_file(
     'grouped_annotation.txt', 'tmp_grouped_annotation.txt')
 
 input_file = pd.read_csv('tmp_grouped_annotation.txt', sep='\t', header=0)
-input_file.columns = ['chrom', 'start', 'end', 'function', 'gene_type',
-                      'gene_name', 'exon_number', 'exon_id', 'transcript_id']
+input_file.columns = ['chrom', 'start', 'end',
+                      'gene_name', 'exon_number', 'transcript_id']
 input_file['exon_number'] = pd.to_numeric(
-    input_file['exon_number'], errors='coerce').fillna(0)
-input_file['exon_number'] = input_file['exon_number'].astype(int)
-input_file = input_file[input_file['exon_number'] != 0]
+    input_file['exon_number'], errors='coerce').fillna(0).astype(int)
 input_file['exon_number'] = input_file['exon_number'].astype(str)
 
-
-grouped_input_file = input_file.groupby(['chrom', 'start', 'end']).agg({'function': lambda x: ', '.join(set((x.dropna()))), 'gene_type': lambda x: ', '.join(set((x.dropna()))), 'gene_name': lambda x: ', '.join(set((x.dropna()))), 'exon_number': lambda x: ', '.join(
-    set(x.dropna())), 'exon_id': lambda x: ', '.join(set(x.dropna())), 'transcript_id': lambda x: ', '.join(set(x.dropna()))}).reset_index()
-columns_to_clean = ['gene_type', 'exon_number', 'exon_id', 'transcript_id']
+grouped_input_file = input_file.groupby(['chrom', 'start', 'end']).agg({'gene_name': lambda x: ', '.join(set((x.dropna()))), 'exon_number': lambda x: ', '.join(
+    set(x.dropna())), 'transcript_id': lambda x: ', '.join(set(x.dropna()))}).reset_index()
+columns_to_clean = ['exon_number', 'transcript_id']
 
 for column in columns_to_clean:
     grouped_input_file[column] = grouped_input_file[column].str.split(',').apply(lambda x: [value.strip(
     ) for value in x if value.strip() not in ('nan', '<NA>', '0')]).str.join(',')
 
 # sort the value for these columns: ['exon_number', 'exon_id','transcript_id']
-grouped_input_file[['exon_number', 'exon_id', 'transcript_id']] = grouped_input_file[['exon_number',
-                                                                                     'exon_id', 'transcript_id']].apply(sort_internal_elements, axis=1)
+grouped_input_file[['exon_number', 'transcript_id']] = grouped_input_file[['exon_number',
+                                                                           'transcript_id']].apply(sort_internal_elements, axis=1)
 
+# code below is to generate exon base count
+
+
+def calculate_interval_size(start, end):
+    return end - start
+
+
+exome_bed_file = pybedtools.BedTool(args.exome_bed)
+non_exonic_bed_file = bed_file.intersect(exome_bed_file, v=True)
+non_exonic_bed_file.saveas('non_exonic.bed')
+count_exon_bases = []
+with open(args.exome_bed, 'r') as file:
+    for line in file:
+        fields = line.strip().split('\t')
+        chrom = fields[0]
+        start = int(fields[1])
+        end = int(fields[2])
+        name = fields[3]
+        gene_name = name.split(':')[0]
+        sub_interval_size = calculate_interval_size(start, end)
+        count_exon_bases.append(
+            (chrom, start, end, gene_name, sub_interval_size))
+
+
+# Calculate the exon size for each unique gene_name
+exon_sizes = {}
+for entry in count_exon_bases:
+    gene_name = entry[3]
+    sub_interval_size = entry[4]
+    if gene_name not in exon_sizes:
+        exon_sizes[gene_name] = sub_interval_size
+    else:
+        exon_sizes[gene_name] += sub_interval_size
+
+
+file1_data = []
+with open('non_exonic.bed', 'r') as file1:
+    for line in file1:
+        fields = line.strip().split('\t')
+        non_exonic_interval_size = calculate_interval_size(
+            int(fields[1]), int(fields[2]))
+        file1_data.append((fields[0], int(fields[1]),
+                          int(fields[2]), fields[3], fields[4], non_exonic_interval_size))
+
+
+grouped_input_file.insert(
+    3, 'interval_size', grouped_input_file['end'] - grouped_input_file['start'])
+for idx, row in grouped_input_file.iterrows():
+    matching_row = [field for field in file1_data if
+                    (field[0] == row['chrom']) and
+                    (int(field[1]) <= row['start']) and
+                    (int(field[2]) >= row['end'])]
+    if matching_row:
+        non_exonic_interval_size = int(matching_row[0][5])
+        grouped_input_file.at[idx,
+                              'non_exonic_interval_size'] = non_exonic_interval_size
+    else:
+        grouped_input_file.at[idx, 'non_exonic_interval_size'] = 0
+
+grouped_input_file['size_of_exon'] = grouped_input_file['interval_size'] - \
+    grouped_input_file['non_exonic_interval_size']
+grouped_input_file['total_exon_size'] = grouped_input_file['gene_name'].map(
+    exon_sizes)
+grouped_input_file['%_exon_impacted_for'] = grouped_input_file['size_of_exon'] / \
+    grouped_input_file['total_exon_size']
+grouped_input_file.drop(
+    columns=['non_exonic_interval_size', 'total_exon_size'], inplace=True)
 output_grouped_file = args.output_prefix + '.grouped_by_interval.annotated.txt'
 
 grouped_input_file.to_csv(output_grouped_file, sep='\t', index=False)
