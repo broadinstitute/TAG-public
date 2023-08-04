@@ -150,7 +150,7 @@ task samtools_coverage {
         Int disk_size
     }
     command <<<
-    for ((i = 0; i < length(bam_files); i++))
+    for ((i = 0; i < length(sample_ids); i++))
     do
         sample_id = sample_ids[i]
         bam_file = bam_files[i]
