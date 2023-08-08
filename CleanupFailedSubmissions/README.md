@@ -26,8 +26,9 @@ This workflow requires the input of the `namespace` and `workspace` where the fa
 
 ## Instructions
 
-1. Provide the `namespace` and `workspace` as inputs to the workflow.
-2. Execute the workflow, and it will clean up storage associated with failed submissions.
+1. Copy this workflow into your Terra workspace.
+2. Provide the `namespace` and `workspace` as inputs to the workflow.
+3. Execute the workflow, and it will clean up storage associated with failed submissions.
 
 Please use this workflow carefully, as it involves the deletion of data.
 
