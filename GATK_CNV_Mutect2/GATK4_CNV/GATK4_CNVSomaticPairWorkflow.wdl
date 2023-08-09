@@ -40,6 +40,7 @@ version 1.0
 import "https://raw.githubusercontent.com/broadinstitute/gatk/4.2.0.0/scripts/cnv_wdl/cnv_common_tasks.wdl" as CNVTasks
 import "https://raw.githubusercontent.com/broadinstitute/gatk/4.2.0.0/scripts/cnv_wdl/somatic/cnv_somatic_oncotator_workflow.wdl" as CNVOncotator
 import "https://raw.githubusercontent.com/broadinstitute/gatk/4.2.0.0/scripts/cnv_wdl/somatic/cnv_somatic_funcotate_seg_workflow.wdl" as CNVFuncotateSegments
+import "https://api.firecloud.org/ga4gh/v1/tools/GP-TAG:CalculateContamination/versions/13/plain-WDL/descriptor" as CalculateContamination
 
 workflow CNVSomaticPairWorkflow {
 
@@ -67,6 +68,8 @@ workflow CNVSomaticPairWorkflow {
       Boolean? is_run_oncotator
        # For running funcotator
       Boolean? is_run_funcotator
+       # For running CalculateContamination
+      Boolean? is_run_contam
 
       File? gatk4_jar_override
       Int? preemptible_attempts
@@ -511,6 +514,19 @@ workflow CNVSomaticPairWorkflow {
                  cpu = funcotator_cpu
         }
     }
+    if (select_first([is_run_contam, false])) {
+        call CalculateContamination.CheckContamination as CalculateContamination {
+            input: tumor_cram_or_bam = tumor_bam,
+                   tumor_crai_or_bai = tumor_bam_idx,
+                   normal_cram_or_bam = normal_bam,
+                   normal_crai_or_bai = normal_bam_idx,
+                   reference = ref_fasta,
+                   reference_index = ref_fasta_fai,
+                   reference_dict = ref_fasta_dict,
+                   gatk_docker = gatk_docker,
+                   gatk_override = gatk4_jar_override
+        }
+    }
 
     output {
         File preprocessed_intervals = PreprocessIntervals.preprocessed_intervals
@@ -579,6 +595,12 @@ workflow CNVSomaticPairWorkflow {
         File oncotated_called_gene_list_file_tumor = select_first([CNVOncotatorWorkflow.oncotated_called_gene_list_file, "null"])
         File funcotated_called_file_tumor = select_first([CNVFuncotateSegmentsWorkflow.funcotated_seg_simple_tsv, "null"])
         File funcotated_called_gene_list_file_tumor = select_first([CNVFuncotateSegmentsWorkflow.funcotated_gene_list_tsv, "null"])
+
+        File? pileups = CalculateContamination.pileups
+        File? normal_pileups = CalculateContamination.normal_pileups
+        File? contamination_table = CalculateContamination.contamination_table
+        File? maf_segments = CalculateContamination.maf_segments
+        Float? contamination = CalculateContamination.contamination
     }
 }
 
