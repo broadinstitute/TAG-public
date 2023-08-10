@@ -1,0 +1,12 @@
+{
+  "AlignmentBasedCNVEval.reference_fasta": "File",
+  "AlignmentBasedCNVEval.T2T_last_database": "File",
+  "AlignmentBasedCNVEval.extract_cnv.mem_size": "Int (optional, default = 4)",
+  "AlignmentBasedCNVEval.extract_cnv.cpu_num": "Int (optional, default = 1)",
+  "AlignmentBasedCNVEval.cnv_vcf": "File",
+  "AlignmentBasedCNVEval.analysis_docker": "String",
+  "AlignmentBasedCNVEval.reference_last_database": "File",
+  "AlignmentBasedCNVEval.last_docker": "String",
+  "AlignmentBasedCNVEval.extract_cnv.disk_size": "Int (optional, default = 10)"
+}
+

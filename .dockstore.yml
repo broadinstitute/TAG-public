@@ -119,3 +119,8 @@ workflows:
    primaryDescriptorPath: /CNV_BLAST/cnv_blast.wdl
    testParameterFiles:
     - /CNV_BLAST/cnv_blast.inputs.json
+ - name: AlignmentBasedCNVEvaluation
+   subclass: WDL
+   primaryDescriptorPath: /AlignmentBasedCNVEvaluation/AlignmentBasedCNVEvaluation.wdl
+   testParameterFiles:
+    - /CNV_BLAST/cnv_blast.inputs.json
