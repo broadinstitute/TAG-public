@@ -13,6 +13,23 @@ version 1.0
             input:
                 cnv_vcf = cnv_vcf
         }
+        scatter (cnv_event_chunk in extract_cnv.cnv_intervals_chucks) {
+            call get_sequence_from_interval{
+                input:
+                    cnv_event_chunk = cnv_event_chunk,
+                    reference_fasta = reference_fasta,
+                    analysis_docker = analysis_docker
+            }
+            scatter (interval_sequence_fasta in get_sequence_from_interval.interval_sequence_fasta) {
+                call last_align {
+                    input:
+                        interval_sequence_fasta = interval_sequence_fasta,
+                        reference_last_database = reference_last_database,
+                        T2T_last_database = T2T_last_database,
+                        last_docker = last_docker
+                }
+            }
+        }
     }
 
     task extract_cnv {
@@ -45,7 +62,7 @@ version 1.0
             output {
                 File uncompressed_cnv_vcf = "temp.vcf"
                 File cnv_events_file = "pass_cnv_event.txt"
-                Array[File] cnv_intervals_chucks = glob("pass_cnv_chunk_*")
+                Array[File] cnv_intervals_chunks = glob("pass_cnv_chunk_*")
 
             }
             runtime {
@@ -58,3 +75,64 @@ version 1.0
                 #maxRetries: 3
             }
         }
+    task get_sequence_from_interval {
+        input {
+            File cnv_event_chunk
+            File reference_fasta
+            String analysis_docker
+        }
+        command <<<
+            set -e
+
+            # Obtain sequence fasta file for each CNV interval
+            for i in `cat ~{cnv_event_chunk} | awk '{print $2}'`; do python3 getSeq.py -i ${i} -r test/last-1460/local_reference/Homo_sapiens_assembly38.fasta; done
+        >>>
+        output {
+            Array[File] interval_sequence_fasta = glob("*_seq.fasta")
+        }
+
+        runtime {
+                docker: analysis_docker
+                bootDiskSizeGb: 12
+                cpu: 1
+                memory: "4 GB"
+                disks: "local-disk 100 HDD"
+                preemptible: 2
+                maxRetries: 3
+        }
+    }
+    task last_align {
+        input {
+            File interval_sequence_fasta
+            File reference_last_database
+            File T2T_last_database
+            File last_docker
+        }
+        command <<<
+            set -e
+
+            # Extract blast database from tar files
+            mkdir -p /lastdb/reference_database
+            mkdir -p /lastdb/t2t_database
+            tar -xvf ~{reference_last_database} -C /lastdb/reference_database/
+            tar -xvf ~{T2T_last_database} -C /lastdb/t2t_database/
+            # Basename for the blast database
+            # If there are dot in the name, it will cause error in extracting the basename
+            reference_db_path=$(echo "`readlink -f /lastdb/reference_database/*`/`basename /lastdb/reference_database/*/*.prj | cut -d '.' -f 1`")
+            t2t_db_path=$(echo "`readlink -f /lastdb/t2t_database/*`/`basename /lastdb/t2t_database/*/*.prj | cut -d '.' -f 1`")
+
+            interval_name = basename ~{interval_sequence_fasta} ".fasta"
+
+            lastal5 $reference_db_path ~{interval_sequence_fasta} -v -P 0 -l 30 -f BlastTab > ${interval_name}_ref_lastal_alignment.txt
+            lastal5 $t2t_db_path ~{interval_sequence_fasta} -v -P 0 -l 30 -f BlastTab > ${interval_name}_t2t_lastal_alignment.txt
+    >>>
+        runtime {
+                docker: last_docker
+                bootDiskSizeGb: 12
+                cpu: 1
+                memory: "4 GB"
+                disks: "local-disk 100 HDD"
+                preemptible: 2
+                maxRetries: 3
+        }
+    }
