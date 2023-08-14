@@ -121,7 +121,7 @@ version 1.0
 #            reference_db_path=$(echo "`readlink -f /lastdb/reference_database/*`/`basename /lastdb/reference_database/*/*.prj | cut -d '.' -f 1`")
 #            t2t_db_path=$(echo "`readlink -f /lastdb/t2t_database/*`/`basename /lastdb/t2t_database/*/*.prj | cut -d '.' -f 1`")
 
-            for i in `ls ~{interval_sequence_fasta}`; do
+            for i in `ls ~{sep=" " interval_sequence_fasta}`; do
                 interval_name=$(basename ${i} ".fasta")
                 echo $interval_name
 #                /last-1460/bin/lastal5 $reference_db_path {interval_sequence_fasta} -v -P 0 -l 30 -f BlastTab > ${interval_name}_ref_lastal_alignment.txt
@@ -133,9 +133,9 @@ version 1.0
         runtime {
                 docker: last_docker
                 bootDiskSizeGb: 12
-                cpu: 8
-                memory: "32 GB"
-                disks: "local-disk 100 HDD"
+                cpu: 16
+                memory: "128 GB"
+                disks: "local-disk 500 HDD"
                 preemptible: 0
                 maxRetries: 0
         }
