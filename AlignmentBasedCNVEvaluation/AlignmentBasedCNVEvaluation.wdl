@@ -106,7 +106,7 @@ version 1.0
             File interval_sequence_fasta
             File reference_last_database
             File T2T_last_database
-            File last_docker
+            String last_docker
         }
         String interval_name = basename(interval_sequence_fasta, ".fasta")
         command <<<
