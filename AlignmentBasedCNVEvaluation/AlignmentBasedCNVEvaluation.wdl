@@ -132,10 +132,10 @@ version 1.0
         runtime {
                 docker: last_docker
                 bootDiskSizeGb: 12
-                cpu: 1
-                memory: "4 GB"
+                cpu: 8
+                memory: "32 GB"
                 disks: "local-disk 100 HDD"
-                preemptible: 2
-                maxRetries: 3
+                preemptible: 0
+                maxRetries: 0
         }
     }
