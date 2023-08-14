@@ -13,7 +13,7 @@ version 1.0
             input:
                 cnv_vcf = cnv_vcf
         }
-        scatter (cnv_event_chunk in extract_cnv.cnv_intervals_chucks) {
+        scatter (cnv_event_chunk in extract_cnv.cnv_intervals_chunks) {
             call get_sequence_from_interval{
                 input:
                     cnv_event_chunk = cnv_event_chunk,
