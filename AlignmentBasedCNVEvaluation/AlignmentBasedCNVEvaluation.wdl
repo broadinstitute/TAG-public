@@ -25,8 +25,8 @@ version 1.0
             call last_align {
                 input:
                     interval_sequence_fasta = interval_sequence_fasta,
-#                    reference_last_database = reference_last_database,
-#                    T2T_last_database = T2T_last_database,
+                    reference_last_database = reference_last_database,
+                    T2T_last_database = T2T_last_database,
                     last_docker = last_docker
             }
         }
@@ -104,28 +104,27 @@ version 1.0
     task last_align {
         input {
             Array [File] interval_sequence_fasta
-#            File reference_last_database
-#            File T2T_last_database
+            File reference_last_database
+            File T2T_last_database
             String last_docker
         }
         command <<<
             set -e
 
-#            # Extract blast database from tar files
-#            mkdir -p /lastdb/reference_database
-#            mkdir -p /lastdb/t2t_database
-#            tar -xvf {reference_last_database} -C /lastdb/reference_database/
-#            tar -xvf {T2T_last_database} -C /lastdb/t2t_database/
-#            # Basename for the blast database
-#            # If there are dot in the name, it will cause error in extracting the basename
-#            reference_db_path=$(echo "`readlink -f /lastdb/reference_database/*`/`basename /lastdb/reference_database/*/*.prj | cut -d '.' -f 1`")
-#            t2t_db_path=$(echo "`readlink -f /lastdb/t2t_database/*`/`basename /lastdb/t2t_database/*/*.prj | cut -d '.' -f 1`")
+            # Extract blast database from tar files
+            mkdir -p /lastdb/reference_database
+            mkdir -p /lastdb/t2t_database
+            tar -xvf ~{reference_last_database} -C /lastdb/reference_database/
+            tar -xvf ~{T2T_last_database} -C /lastdb/t2t_database/
+            # Basename for the blast database
+            # If there are dot in the name, it will cause error in extracting the basename
+            reference_db_path=$(echo "`readlink -f /lastdb/reference_database/*`/`basename /lastdb/reference_database/*/*.prj | cut -d '.' -f 1`")
+            t2t_db_path=$(echo "`readlink -f /lastdb/t2t_database/*`/`basename /lastdb/t2t_database/*/*.prj | cut -d '.' -f 1`")
 
             for i in `ls ~{sep=" " interval_sequence_fasta}`; do
-                interval_name=$(basename ${i} ".fasta")
-                echo $interval_name
-#                /last-1460/bin/lastal5 $reference_db_path {interval_sequence_fasta} -v -P 0 -l 30 -f BlastTab > ${interval_name}_ref_lastal_alignment.txt
-#                /last-1460/bin/lastal5 $t2t_db_path {interval_sequence_fasta} -v -P 0 -l 30 -f BlastTab > ${interval_name}_t2t_lastal_alignment.txt
+                interval_name=$(basename ${i} "_seq.fasta")
+                /last-1460/bin/lastal5 $reference_db_path ${i} -v -P 0 -l 30 -f BlastTab > ${interval_name}_ref_lastal_alignment.txt
+                /last-1460/bin/lastal5 $t2t_db_path ${i} -v -P 0 -l 30 -f BlastTab > ${interval_name}_t2t_lastal_alignment.txt
             done
 
     >>>
