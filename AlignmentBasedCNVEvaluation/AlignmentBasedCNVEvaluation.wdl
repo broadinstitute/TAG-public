@@ -108,6 +108,7 @@ version 1.0
             File T2T_last_database
             File last_docker
         }
+        String interval_name = basename(interval_sequence_fasta, ".fasta")
         command <<<
             set -e
 
@@ -121,11 +122,13 @@ version 1.0
             reference_db_path=$(echo "`readlink -f /lastdb/reference_database/*`/`basename /lastdb/reference_database/*/*.prj | cut -d '.' -f 1`")
             t2t_db_path=$(echo "`readlink -f /lastdb/t2t_database/*`/`basename /lastdb/t2t_database/*/*.prj | cut -d '.' -f 1`")
 
-            interval_name = basename ~{interval_sequence_fasta} ".fasta"
-
-            lastal5 $reference_db_path ~{interval_sequence_fasta} -v -P 0 -l 30 -f BlastTab > ${interval_name}_ref_lastal_alignment.txt
-            lastal5 $t2t_db_path ~{interval_sequence_fasta} -v -P 0 -l 30 -f BlastTab > ${interval_name}_t2t_lastal_alignment.txt
+            lastal5 $reference_db_path ~{interval_sequence_fasta} -v -P 0 -l 30 -f BlastTab > ~{interval_name}_ref_lastal_alignment.txt
+            lastal5 $t2t_db_path ~{interval_sequence_fasta} -v -P 0 -l 30 -f BlastTab > ~{interval_name}_t2t_lastal_alignment.txt
     >>>
+        output {
+            File ref_lastal_alignment = "~{interval_name}_ref_lastal_alignment.txt"
+            File t2t_lastal_alignment = "~{interval_name}_t2t_lastal_alignment.txt"
+        }
         runtime {
                 docker: last_docker
                 bootDiskSizeGb: 12
