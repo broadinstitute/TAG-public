@@ -85,7 +85,7 @@ version 1.0
             set -e
 
             # Obtain sequence fasta file for each CNV interval
-            for i in `cat ~{cnv_event_chunk} | awk '{print $2}'`; do python3 getSeq.py -i ${i} -r test/last-1460/local_reference/Homo_sapiens_assembly38.fasta; done
+            for i in `cat ~{cnv_event_chunk} | awk '{print $2}'`; do python3 /blastn/getSeq.py -i ${i} -r test/last-1460/local_reference/Homo_sapiens_assembly38.fasta; done
         >>>
         output {
             Array[File] interval_sequence_fasta = glob("*_seq.fasta")
@@ -122,8 +122,8 @@ version 1.0
             reference_db_path=$(echo "`readlink -f /lastdb/reference_database/*`/`basename /lastdb/reference_database/*/*.prj | cut -d '.' -f 1`")
             t2t_db_path=$(echo "`readlink -f /lastdb/t2t_database/*`/`basename /lastdb/t2t_database/*/*.prj | cut -d '.' -f 1`")
 
-            lastal5 $reference_db_path ~{interval_sequence_fasta} -v -P 0 -l 30 -f BlastTab > ~{interval_name}_ref_lastal_alignment.txt
-            lastal5 $t2t_db_path ~{interval_sequence_fasta} -v -P 0 -l 30 -f BlastTab > ~{interval_name}_t2t_lastal_alignment.txt
+            /last-1460/bin/lastal5 $reference_db_path ~{interval_sequence_fasta} -v -P 0 -l 30 -f BlastTab > ~{interval_name}_ref_lastal_alignment.txt
+            /last-1460/bin/lastal5 $t2t_db_path ~{interval_sequence_fasta} -v -P 0 -l 30 -f BlastTab > ~{interval_name}_t2t_lastal_alignment.txt
     >>>
         output {
             File ref_lastal_alignment = "~{interval_name}_ref_lastal_alignment.txt"
