@@ -85,7 +85,7 @@ version 1.0
             set -e
 
             # Obtain sequence fasta file for each CNV interval
-            for i in `cat ~{cnv_event_chunk} | awk '{print $2}'`; do python3 /blastn/getSeq.py -i ${i} -r test/last-1460/local_reference/Homo_sapiens_assembly38.fasta; done
+            for i in `cat ~{cnv_event_chunk} | awk '{print $2}'`; do python3 /blastn/getSeq.py -i ${i} -r ~{reference_fasta}; done
         >>>
         output {
             Array[File] interval_sequence_fasta = glob("*_seq.fasta")
