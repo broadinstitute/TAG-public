@@ -111,6 +111,12 @@ version 1.0
         command <<<
             set -e
 
+            # Import the resource monitor script
+            export TMPDIR=/tmp
+            wget -O monitor_script.sh https://raw.githubusercontent.com/klarman-cell-observatory/cumulus/master/docker/monitor_script.sh
+            chmod a+rx monitor_script.sh
+            ./monitor_script.sh > monitoring.log &
+
             # Extract blast database from tar files
             mkdir -p /lastdb/reference_database
             mkdir -p /lastdb/t2t_database
@@ -134,7 +140,7 @@ version 1.0
                 bootDiskSizeGb: 12
                 cpu: 16
                 memory: "128 GB"
-                disks: "local-disk 500 HDD"
+                disks: "local-disk 1000 HDD"
                 preemptible: 0
                 maxRetries: 0
         }
