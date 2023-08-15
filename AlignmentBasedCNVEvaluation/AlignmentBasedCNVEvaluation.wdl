@@ -118,15 +118,13 @@ version 1.0
             chmod a+rx monitor_script.sh
             ./monitor_script.sh > monitoring.log &
 
-            # Extract blast database from tar files
+            # Extract last database from tar files
             mkdir -p /cromwell_root/reference_database
             mkdir -p /cromwell_root/t2t_database
-            echo "Disk usage"
-            df -h
-            echo "Disk usage of /lastdb"
-            df -h /lastdb
+
             tar -xvf ~{reference_last_database} -C /cromwell_root/reference_database/
             tar -xvf ~{T2T_last_database} -C /cromwell_root/t2t_database/
+
             # Basename for the blast database
             # If there are dot in the name, it will cause error in extracting the basename
             reference_db_path=$(echo "`readlink -f /cromwell_root/reference_database/*`/`basename /cromwell_root/reference_database/*/*.prj | cut -d '.' -f 1`")
