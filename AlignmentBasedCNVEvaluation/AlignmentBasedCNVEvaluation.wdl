@@ -121,6 +121,7 @@ version 1.0
             # Extract blast database from tar files
             mkdir -p /lastdb/reference_database
             mkdir -p /lastdb/t2t_database
+            echo `df -h /lastdb`
             tar -xvf ~{reference_last_database} -C /lastdb/reference_database/
             tar -xvf ~{T2T_last_database} -C /lastdb/t2t_database/
             # Basename for the blast database
