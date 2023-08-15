@@ -121,7 +121,7 @@ version 1.0
             # Extract blast database from tar files
             mkdir -p /lastdb/reference_database
             mkdir -p /lastdb/t2t_database
-            echo `df -h /lastdb`
+            df -h /lastdb
             tar -xvf ~{reference_last_database} -C /lastdb/reference_database/
             tar -xvf ~{T2T_last_database} -C /lastdb/t2t_database/
             # Basename for the blast database
@@ -135,7 +135,7 @@ version 1.0
                 /last-1460/bin/lastal5 $t2t_db_path ${i} -v -P 0 -l 30 -f BlastTab > ${interval_name}_t2t_lastal_alignment.txt
             done
 
-    >>>
+        >>>
 
         runtime {
                 docker: last_docker
