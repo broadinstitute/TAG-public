@@ -107,6 +107,7 @@ version 1.0
             File reference_last_database
             File T2T_last_database
             String last_docker
+            Int diskSizeGB = 1000
         }
         command <<<
             set -e
@@ -140,7 +141,7 @@ version 1.0
                 bootDiskSizeGb: 12
                 cpu: 16
                 memory: "128 GB"
-                disks: "local-disk 1000 HDD"
+                disks: "local-disk ~{diskSizeGB} HDD"
                 preemptible: 0
                 maxRetries: 0
         }
