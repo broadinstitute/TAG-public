@@ -119,23 +119,25 @@ version 1.0
             ./monitor_script.sh > monitoring.log &
 
             # Extract blast database from tar files
-            mkdir -p /lastdb/reference_database
-            mkdir -p /lastdb/t2t_database
+            mkdir -p /cromwell_root/reference_database
+            mkdir -p /cromwell_root/t2t_database
             echo "Disk usage"
             df -h
             echo "Disk usage of /lastdb"
             df -h /lastdb
-            tar -xvf ~{reference_last_database} -C /lastdb/reference_database/
-            tar -xvf ~{T2T_last_database} -C /lastdb/t2t_database/
+            tar -xvf ~{reference_last_database} -C /cromwell_root/reference_database/
+            tar -xvf ~{T2T_last_database} -C /cromwell_root/t2t_database/
             # Basename for the blast database
             # If there are dot in the name, it will cause error in extracting the basename
-            reference_db_path=$(echo "`readlink -f /lastdb/reference_database/*`/`basename /lastdb/reference_database/*/*.prj | cut -d '.' -f 1`")
-            t2t_db_path=$(echo "`readlink -f /lastdb/t2t_database/*`/`basename /lastdb/t2t_database/*/*.prj | cut -d '.' -f 1`")
+            reference_db_path=$(echo "`readlink -f /cromwell_root/reference_database/*`/`basename /cromwell_root/reference_database/*/*.prj | cut -d '.' -f 1`")
+            t2t_db_path=$(echo "`readlink -f /cromwell_root/t2t_database/*`/`basename /cromwell_root/t2t_database/*/*.prj | cut -d '.' -f 1`")
 
+            # Run lastal
+            cd /cromwell_root
             for i in `ls ~{sep=" " interval_sequence_fasta}`; do
                 interval_name=$(basename ${i} "_seq.fasta")
-                /last-1460/bin/lastal5 $reference_db_path ${i} -v -P 0 -l 30 -f BlastTab > ${interval_name}_ref_lastal_alignment.txt
-                /last-1460/bin/lastal5 $t2t_db_path ${i} -v -P 0 -l 30 -f BlastTab > ${interval_name}_t2t_lastal_alignment.txt
+                /last-1460/bin/lastal5 $reference_db_path ${i} -v -P 0 -l 30 -f BlastTab > /cromwell_root/${interval_name}_ref_lastal_alignment.txt
+                /last-1460/bin/lastal5 $t2t_db_path ${i} -v -P 0 -l 30 -f BlastTab > /cromwell_root/${interval_name}_t2t_lastal_alignment.txt
             done
 
         >>>
