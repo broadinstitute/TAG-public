@@ -29,6 +29,15 @@ version 1.0
                     T2T_last_database = T2T_last_database,
                     last_docker = last_docker
             }
+            Array[File] ref_lastal_alignment = last_align.ref_lastal_alignment
+            Array[File] t2t_lastal_alignment = last_align.t2t_lastal_alignment
+
+            call evaluate_cnv {
+                input:
+                    ref_lastal_alignment = ref_lastal_alignment,
+                    t2t_lastal_alignment = t2t_lastal_alignment,
+                    analysis_docker = analysis_docker
+            }
         }
     }
 
@@ -75,6 +84,7 @@ version 1.0
                 #maxRetries: 3
             }
         }
+
     task get_sequence_from_interval {
         input {
             File cnv_event_chunk
@@ -101,6 +111,7 @@ version 1.0
                 maxRetries: 3
         }
     }
+
     task last_align {
         input {
             Array [File] interval_sequence_fasta
@@ -139,6 +150,10 @@ version 1.0
             done
 
         >>>
+        output {
+            Array[File] ref_lastal_alignment = glob("*_ref_lastal_alignment.txt")
+            Array[File] t2t_lastal_alignment = glob("*_t2t_lastal_alignment.txt")
+        }
 
         runtime {
                 docker: last_docker
@@ -149,4 +164,39 @@ version 1.0
                 preemptible: 0
                 maxRetries: 0
         }
+    }
+
+    task evaluate_cnv {
+        input {
+            Array[File] ref_lastal_alignment
+            Array[File] t2t_lastal_alignment
+            String analysis_docker
+        }
+        command <<<
+            set -e
+            # Using bash to process the file arrays and find matching filenames
+            for file1 in ~{sep=' ' ref_lastal_alignment}; do
+                for file2 in ~{sep=' ' t2t_lastal_alignment}; do
+                    # Extract the filename without path
+                    filename1=$(basename $file1 "_ref_lastal_alignment.txt")
+                    filename2=$(basename $file2 "_t2t_lastal_alignment.txt")
+
+                    # Check if the filenames match
+                    if [ "$filename1" == "$filename2" ]; then
+                        echo $file1
+                        echo $file2
+                    fi
+                done
+            done
+    >>>
+        runtime {
+                docker: analysis_docker
+                bootDiskSizeGb: 12
+                cpu: 1
+                memory: "4 GB"
+                disks: "local-disk 100 HDD"
+                preemptible: 2
+                maxRetries: 3
+        }
+
     }
