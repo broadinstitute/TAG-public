@@ -9,11 +9,32 @@ version 1.0
             String last_docker
             String analysis_docker
         }
-        call extract_cnv {
+        parameter_meta {
+            cnv_vcf: {
+                help: "cnv.vcf/cnv_sv.vcf/sv.vcf file from DRAGEN"
+            }
+            reference_fasta: {
+                help: "reference fasta file"
+            }
+            reference_last_database: {
+                help: "reference LAST database tar file"
+            }
+            T2T_last_database: {
+                help: "T2T LAST database tar file"
+            }
+            last_docker: "docker image for lastal"
+            analysis_docker: "docker image for analysis"
+        }
+        meta {
+            description: "Alignment Based CNV Evaluation Workflow"
+            author: "Yueyao Gao"
+            email: "tag@broadinstitute.org"
+        }
+        call split_pass_cnv {
             input:
                 cnv_vcf = cnv_vcf
         }
-        scatter (cnv_event_chunk in extract_cnv.cnv_intervals_chunks) {
+        scatter (cnv_event_chunk in split_pass_cnv.cnv_intervals_chunks) {
             call get_sequence_from_interval{
                 input:
                     cnv_event_chunk = cnv_event_chunk,
@@ -37,7 +58,7 @@ version 1.0
                     ref_lastal_alignment = ref_lastal_alignment,
                     t2t_lastal_alignment = t2t_lastal_alignment,
                     analysis_docker = analysis_docker,
-                    uncompressed_cnv_vcf = extract_cnv.uncompressed_cnv_vcf,
+                    uncompressed_cnv_vcf = split_pass_cnv.uncompressed_cnv_vcf,
 
             }
         }
@@ -53,7 +74,7 @@ version 1.0
         }
     }
 
-    task extract_cnv {
+    task split_pass_cnv {
             input {
                 File cnv_vcf
                 Int cpu_num = 1
