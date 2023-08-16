@@ -36,8 +36,20 @@ version 1.0
                 input:
                     ref_lastal_alignment = ref_lastal_alignment,
                     t2t_lastal_alignment = t2t_lastal_alignment,
-                    analysis_docker = analysis_docker
+                    analysis_docker = analysis_docker,
+                    uncompressed_cnv_vcf = extract_cnv.uncompressed_cnv_vcf,
+
             }
+        }
+        # Flatten the array of arrays
+        Array[File] cnv_copy_number = flatten(evaluate_cnv.cnv_copy_number)
+        call gather_results {
+            input:
+                analysis_docker = analysis_docker,
+                cnv_copy_number = cnv_copy_number
+        }
+        output {
+            File cnv_eval_alignment_output = gather_results.gathered_alignment_output
         }
     }
 
@@ -170,33 +182,61 @@ version 1.0
         input {
             Array[File] ref_lastal_alignment
             Array[File] t2t_lastal_alignment
+            File uncompressed_cnv_vcf
             String analysis_docker
         }
         command <<<
             set -e
             # Using bash to process the file arrays and find matching filenames
-            for file1 in ~{sep=' ' ref_lastal_alignment}; do
-                for file2 in ~{sep=' ' t2t_lastal_alignment}; do
+            for ref_lastal_output in ~{sep=' ' ref_lastal_alignment}; do
+                for t2t_lastal_output in ~{sep=' ' t2t_lastal_alignment}; do
                     # Extract the filename without path
-                    filename1=$(basename $file1 "_ref_lastal_alignment.txt")
-                    filename2=$(basename $file2 "_t2t_lastal_alignment.txt")
+                    filename1=$(basename $ref_lastal_output "_ref_lastal_alignment.txt")
+                    filename2=$(basename $t2t_lastal_output "_t2t_lastal_alignment.txt")
 
                     # Check if the filenames match
                     if [ "$filename1" == "$filename2" ]; then
-                        echo $file1
-                        echo $file2
+                        python3 /blastn/lastal_parser.py -r $ref_lastal_output -t $t2t_lastal_output
+                        cat ~{uncompressed_cnv_vcf} | grep "$filename1" | awk '{print $5}' > cnv_event_type.txt
+                        paste cnv_event_type.txt ${filename1}_copy_number.txt > ${filename1}_annoed_copy_number.txt
                     fi
                 done
             done
     >>>
+        output {
+            Array[File] cnv_copy_number = glob("*_annoed_copy_number.txt")
+        }
         runtime {
                 docker: analysis_docker
                 bootDiskSizeGb: 12
                 cpu: 1
-                memory: "4 GB"
-                disks: "local-disk 100 HDD"
+                memory: "32 GB"
+                disks: "local-disk 300 HDD"
+                preemptible: 0
+                maxRetries: 0
+        }
+    }
+
+    task gather_results {
+        input{
+            Array[File] cnv_copy_number
+            String analysis_docker
+         }
+        command <<<
+        set -e
+
+        cat ~{sep=" " cnv_copy_number} >> aggregated_cnv_alignment_output.txt
+            >>>
+        output {
+            File gathered_alignment_output = "aggregated_cnv_alignment_output.txt"
+        }
+        runtime {
+                docker: analysis_docker
+                bootDiskSizeGb: 12
+                cpu: 1
+                memory: "32 GB"
+                disks: "local-disk 100 SSD"
                 preemptible: 2
                 maxRetries: 3
         }
-
     }
