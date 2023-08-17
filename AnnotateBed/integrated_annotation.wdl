@@ -153,9 +153,10 @@ task samtools_coverage {
        Int disk_size
     }
     command <<<
+        sed 's/^/chr/' ~{bam_file} > rm_chr_tmp.bed
         for region in `awk '{print $1":"$2"-"$3}' ~{bed_to_annotate}`
         do
-           samtools coverage ~{bam_file} -r ${region} >> tmp
+           samtools coverage rm_chr_tmp.bed -r ${region} >> tmp
         done
         awk '/startpos/&&c++>0 {next} 1' tmp > ~{sample_id}.coverage.txt
 >>>
