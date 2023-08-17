@@ -183,7 +183,7 @@ task summarize_coverage {
     File samtools_coverage_summary = 'samtools_coverage_summary.txt'
     }
     runtime {
-    	docker: "us.gcr.io/tag-team-160914/integrate_annotation:test"
+    	docker: "us.gcr.io/tag-team-160914/integrate_annotation:hg19"
         memory: memory_gb + "GB"
         disks: "local-disk " + disk_size + " HDD"
     }
@@ -203,7 +203,7 @@ task generate_clinvar_results{
         File clinvar_annotation = "clinvar_annotation.txt"
     }
     runtime {
-        docker: "us.gcr.io/tag-team-160914/integrate_annotation:test"
+        docker: "us.gcr.io/tag-team-160914/integrate_annotation:hg19"
         memory: memory_gb + "GB"
         disks: "local-disk " + disk_size + " HDD"
     }
@@ -224,7 +224,7 @@ task concatenate_results {
         File integrated_annotation_file = "~{output_prefix}.integrated_annotation.txt"
     }
     runtime {
-        docker: "us.gcr.io/tag-team-160914/integrate_annotation:test"
+        docker: "us.gcr.io/tag-team-160914/integrate_annotation:hg19"
         memory: memory_gb + "GB"
         disks: "local-disk " + disk_size + " HDD"
 
