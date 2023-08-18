@@ -195,7 +195,7 @@ version 1.0
                 memory: "128 GB"
                 disks: "local-disk ~{diskSizeGB} HDD"
                 preemptible: 0
-                maxRetries: 0
+                maxRetries: 1
         }
     }
 
@@ -228,7 +228,7 @@ version 1.0
             Array[File] cnv_copy_number = glob("*_annoed_copy_number.txt")
         }
         runtime {
-                docker: analysis_docker
+                docker: "us.gcr.io/tag-team-160914/cnv_alignment_analysis:debug"
                 bootDiskSizeGb: 12
                 cpu: 1
                 memory: "32 GB"
