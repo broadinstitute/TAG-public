@@ -154,7 +154,7 @@ task samtools_coverage {
     }
     command <<<
         sed 's/^chr//' ~{bed_to_annotate} > rm_chr_tmp.bed
-        for region in `awk '{print $1":"$2"-"$3}' ${rm_chr_tmp.bed}`
+        for region in `awk '{print $1":"$2"-"$3}' rm_chr_tmp.bed`
         do
            samtools coverage ~{bam_file} -r ${region} >> tmp
         done
