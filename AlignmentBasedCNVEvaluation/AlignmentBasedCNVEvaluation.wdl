@@ -228,7 +228,7 @@ version 1.0
             Array[File] cnv_copy_number = glob("*_annoed_copy_number.txt")
         }
         runtime {
-                docker: "us.gcr.io/tag-team-160914/cnv_alignment_analysis:debug"
+                docker: analysis_docker
                 bootDiskSizeGb: 12
                 cpu: 1
                 memory: "32 GB"
