@@ -22,7 +22,7 @@ workflow AnnotateBed{
         gene_list = gene_list,
         gene_bed = gene_bed
     }
-    if ((generate_gene_base_count) && defined(gene_base_count_script) && defined(gene_bed)) {
+    if ((generate_gene_base_count) && defined(gene_bed)) {
         call CountGeneBases {
             input:
             bed_to_annotate = bed_to_annotate,
@@ -110,7 +110,6 @@ task GenerateAnnotation {
 
 task CountGeneBases {
     input{
-        File script
         File gene_bed
         File bed_to_annotate
         File? gene_list
