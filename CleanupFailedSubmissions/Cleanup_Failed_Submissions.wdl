@@ -17,12 +17,14 @@ workflow Cleanup_Failed_Submissions {
     input {
         String namespace
         String workspace
+        Boolean remove_partially_fail = false
     }
 
     call GetWorkspaceInfo {
         input:
             namespace = namespace,
-            workspace = workspace
+            workspace = workspace,
+            remove_partially_fail = remove_partially_fail
 
     }
 
@@ -39,6 +41,7 @@ task GetWorkspaceInfo {
     input {
         String namespace
         String workspace
+        Boolean remove_partially_fail
     }
     command <<<
         source activate NeoVax-Input-Parser
@@ -49,10 +52,17 @@ task GetWorkspaceInfo {
         namespace = "~{namespace}"
         workspace = "~{workspace}"
 
-        with open('failed_submissions.txt','w') as file:
-            for submission in fapi.list_submissions(namespace, workspace).json():
-                if 'Failed' in submission['workflowStatuses'].keys() or 'Aborted' in submission['workflowStatuses'].keys():
-                    file.write(submission['submissionId'] + '\n')
+        if '~{remove_partially_fail}' == 'true':
+            with open('failed_submissions.txt','w') as file:
+                for submission in fapi.list_submissions(namespace, workspace).json():
+                    if 'Failed' in submission['workflowStatuses'].keys() or 'Aborted' in submission['workflowStatuses'].keys():
+                        file.write(submission['submissionId'] + '\n')
+        else:
+            with open('failed_submissions.txt','w') as file:
+                    for submission in fapi.list_submissions(namespace, workspace).json():
+                        if 'Failed' in submission['workflowStatuses'].keys() or 'Aborted' in submission['workflowStatuses'].keys():
+                            if 'Failed' and 'Succeeded' not in submission['workflowStatuses'].keys():
+                                file.write(submission['submissionId'] + '\n')
 
         with open("workspace_bucket.txt", "w") as file:
             file.write(fapi.get_workspace(namespace, workspace).json()['workspace']['bucketName'])

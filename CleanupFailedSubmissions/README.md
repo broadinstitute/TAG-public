@@ -1,5 +1,6 @@
 # Cleanup Failed Submissions Workflow
 
+### UPDATE: Added remove_partially_fail option (Aug21 2023)
 ## Description
 
 This workflow is based on the `CleanupIntermediate.wdl` script from the long-read-pipeline team, with an additional step to retrieve the workspace bucket name and failed submissions. This workflow is designed to clean up storage associated with failed submissions. **Please use it cautiously and at your own risk**.
