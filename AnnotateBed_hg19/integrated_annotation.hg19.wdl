@@ -167,7 +167,7 @@ task summarize_coverage {
         Int disk_size
     }
     command {
-    python3 /scripts/summarize_coverage.py "${sep=' ' coverage_outputs}"
+    python3 /scripts/summarize_coverage.hg19.py "${sep=' ' coverage_outputs}"
     }
     output{
     File samtools_coverage_summary = 'samtools_coverage_summary.txt'
@@ -207,7 +207,7 @@ task concatenate_results {
         Int disk_size
     }
     command {
-        python3 /scripts/aggregation_script.py --clinvar_file ~{clinvar_annotation} --samtools_coverage_file ~{samtools_coverage_file} --annotation_file ~{annotation_file} --output_prefix ~{output_prefix}
+        python3 /scripts/aggregation_script.hg19.py --clinvar_file ~{clinvar_annotation} --samtools_coverage_file ~{samtools_coverage_file} --annotation_file ~{annotation_file} --output_prefix ~{output_prefix}
     }
     output {
         File integrated_annotation_file = "~{output_prefix}.integrated_annotation.txt"
