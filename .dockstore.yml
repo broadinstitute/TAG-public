@@ -123,5 +123,5 @@ workflows:
    subclass: WDL
    primaryDescriptorPath: /AnnotateBed/integrated_annotation.hg19.wdl
    testParameterFiles:
-    - /AnnotateBed/AnnotateBed.inputs.json
+    - /AnnotateBed/AnnotateBed.inputs.hg19.json
    
