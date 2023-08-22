@@ -114,11 +114,6 @@ workflows:
    primaryDescriptorPath: /DownsampleBam/DownsampleBam.wdl
    testParameterFiles:
     - /DownsampleBam/DownsampleBam.inputs.json
- - name: AnnotateBed_hg38
-   subclass: WDL
-   primaryDescriptorPath: /AnnotateBed/integrated_annotation.hg38.wdl
-   testParameterFiles:
-    - /AnnotateBed/AnnotateBed.inputs.hg38.json
 -  name: AnnotateBed_hg19
    subclass: WDL
    primaryDescriptorPath: /AnnotateBed/integrated_annotation.hg19.wdl
