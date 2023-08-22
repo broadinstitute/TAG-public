@@ -185,8 +185,8 @@ task generate_clinvar_results{
         Int disk_size
     }
     command <<<
-        bcftools query -f '%CHROM\t%POS\t%INFO/ALLELEID\t%INFO/CLNHGVS\t%INFO/CLNREVSTAT\t%INFO/CLNSIG\n' -i 'INFO/CLNSIG="Likely_pathogenic" || INFO/CLNSIG="Pathogenic" || INFO/CLNSIG="Pathogenic/Likely_pathogenic"' -R non_chr_bed.tmp /reference_files/clinvar.vcf.gz > clinvar_annotation.txt
-        rm non_chr_bed.tmp
+        bcftools query -f '%CHROM\t%POS\t%INFO/ALLELEID\t%INFO/CLNHGVS\t%INFO/CLNREVSTAT\t%INFO/CLNSIG\n' -i 'INFO/CLNSIG="Likely_pathogenic" || INFO/CLNSIG="Pathogenic" || INFO/CLNSIG="Pathogenic/Likely_pathogenic"' -R ~{bed_to_annotate} /reference_files/clinvar.vcf.gz > clinvar_annotation.txt
+
     >>>
     output {
         File clinvar_annotation = "clinvar_annotation.txt"
