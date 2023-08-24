@@ -114,3 +114,8 @@ workflows:
    primaryDescriptorPath: /DownsampleBam/DownsampleBam.wdl
    testParameterFiles:
     - /DownsampleBam/DownsampleBam.inputs.json 
+ - name: Cleanup_Failed_Submissions
+   subclass: WDL
+   primaryDescriptorPath: /CleanupFailedSubmissions/Cleanup_Failed_Submissions.wdl
+   testParameterFiles:
+    - /CleanupFailedSubmissions/Cleanup_Failed_Submissions.inputs.json
