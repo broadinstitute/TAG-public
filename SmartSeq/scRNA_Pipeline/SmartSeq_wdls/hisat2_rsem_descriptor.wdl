@@ -145,11 +145,7 @@ task HISAT2rsem {
   }
   runtime {
     docker:"quay.io/humancellatlas/secondary-analysis-hisat2:v0.2.2-2-2.1.0"
-<<<<<<< HEAD
     memory: "~{Rsem_memory} GB"
-=======
-    memory:"32 GB"
->>>>>>> d3b5feee8dc7102e23f47ebb8cb122cdffe4ba51
     disks: "local-disk " + disk_size + " HDD"
     cpu: "4"
     preemptible: 5
@@ -196,11 +192,7 @@ task RsemExpression {
   }
   runtime {
     docker: "quay.io/humancellatlas/secondary-analysis-rsem:v0.2.2-1.3.0"
-<<<<<<< HEAD
     memory: "~{Rsem_exp_memory} GB"
-=======
-    memory: "32 GB"
->>>>>>> d3b5feee8dc7102e23f47ebb8cb122cdffe4ba51
     disks: "local-disk " + disk_size + " HDD"
     cpu: "4"
     preemptible: 5
