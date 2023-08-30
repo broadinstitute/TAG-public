@@ -1,0 +1,7 @@
+{
+    "bed_to_annotate": "gs://gptag/AnnotateBed/example_bed_to_annotate.bed",
+    "output_prefix": "${this.samples.sample_id}",
+    "gene_bed": "gs://gptag/AnnotateBed/bed_for_all_gene.hg38.bed",
+    "generate_gene_base_count": true,
+    "gene_list": "gs: //gptag/AnnotateBed/example_gene_list.txt"
+}
