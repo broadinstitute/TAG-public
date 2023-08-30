@@ -119,3 +119,8 @@ workflows:
    primaryDescriptorPath: /CleanupFailedSubmissions/Cleanup_Failed_Submissions.wdl
    testParameterFiles:
     - /CleanupFailedSubmissions/Cleanup_Failed_Submissions.inputs.json
+ - name: AnnotateBed_hg38
+   subclass: WDL
+   primaryDescriptorPath: /AnnotateBed_hg38/integrated_annotation.hg38.wdl
+   testParameterFiles:
+    - /AnnotateBed_hg38/AnnotateBed.inputs.hg38.json
