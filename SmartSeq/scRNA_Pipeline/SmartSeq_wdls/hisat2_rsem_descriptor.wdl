@@ -20,8 +20,11 @@ workflow RunHisat2RsemPipeline {
   Float rsem_ref_size = size(rsem_genome, "GB")
   Float bam_disk_multiplier = 10.0
   Int? increase_disk_size
+  Int? Rsem_mem 
+  Int? Rsem_exp_mem
+  Int Rsem_memory = select_first([Rsem_mem, 5])
+  Int Rsem_exp_memory = select_first([Rsem_exp_mem, 4])
   Int additional_disk = select_first([increase_disk_size, 10])
-  
   Boolean zip_fq1 = if basename(fastq_read1,".gz") == basename(fastq_read1) then true else false
   Boolean zip_fq2 = if basename(fastq_read2,".gz") == basename(fastq_read2) then true else false
   
@@ -35,7 +38,9 @@ workflow RunHisat2RsemPipeline {
       ref_name = hisat2_ref_trans_name,
       sample_name = sample_name,
       output_name = output_prefix,
-      disk_size = ceil(fastq_size * bam_disk_multiplier + hisat2_ref_size + additional_disk * 5.0)      
+      disk_size = ceil(fastq_size * bam_disk_multiplier + hisat2_ref_size + additional_disk * 5.0),
+      Rsem_memory = Rsem_memory
+
     }
   #Boolean reads_aligned = Hisat2Trans.reads_aligned  
   Float bam_size = size(Hisat2Trans.output_bam, "GB")
@@ -45,7 +50,8 @@ workflow RunHisat2RsemPipeline {
       trans_aligned_bam = Hisat2Trans.output_bam,
       rsem_genome = rsem_genome,
       rsem_out = output_prefix,
-      disk_size = ceil(fastq_size * bam_disk_multiplier+rsem_ref_size+additional_disk * 2.0)
+      disk_size = ceil(fastq_size * bam_disk_multiplier+rsem_ref_size+additional_disk * 2.0),
+      Rsem_exp_memory = Rsem_exp_memory
     }
   #}
   output {
@@ -79,6 +85,8 @@ task HISAT2rsem {
   String output_name
   String sample_name
   Int disk_size
+  Int Rsem_memory
+
   command {
     set -e
 
@@ -137,7 +145,7 @@ task HISAT2rsem {
   }
   runtime {
     docker:"quay.io/humancellatlas/secondary-analysis-hisat2:v0.2.2-2-2.1.0"
-    memory:"5 GB"
+    memory: "~{Rsem_memory} GB"
     disks: "local-disk " + disk_size + " HDD"
     cpu: "4"
     preemptible: 5
@@ -166,6 +174,7 @@ task RsemExpression {
   File rsem_genome
   String rsem_out
   Int disk_size
+  Int Rsem_exp_memory
   command {
     set -e
   
@@ -183,7 +192,7 @@ task RsemExpression {
   }
   runtime {
     docker: "quay.io/humancellatlas/secondary-analysis-rsem:v0.2.2-1.3.0"
-    memory: "3.75 GB"
+    memory: "~{Rsem_exp_memory} GB"
     disks: "local-disk " + disk_size + " HDD"
     cpu: "4"
     preemptible: 5
