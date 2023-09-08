@@ -44,11 +44,12 @@ task CollectSamErrorMetricsTask {
         Int disk_gb = 400
         Int memory_gb = 16
         Int minMQ = 60
+        Float probability = 1.0
 
     }
     command {
         java -Xms2000m -jar /usr/gitc/picard.jar CollectSamErrorMetrics I=~{input_bam} \
-        O=~{output_name} R=~{ref_fasta} V=~{vcf_file} L=~{intervals} MQ=~{minMQ} \
+        O=~{output_name} R=~{ref_fasta} V=~{vcf_file} L=~{intervals} MQ=~{minMQ} P=~{probability} \
         ERROR_METRICS=null \
         ERROR_METRICS="ERROR:INSERT_LENGTH" \
         ERROR_METRICS="ERROR:CYCLE" \
@@ -56,7 +57,9 @@ task CollectSamErrorMetricsTask {
         ERROR_METRICS="ERROR:BASE_QUALITY" \
         ERROR_METRICS="ERROR:ONE_BASE_PADDED_CONTEXT" \
         ERROR_METRICS="ERROR:HOMOPOLYMER" \
+        ERROR_METRICS="OVERLAPPING_ERROR:INSERT_LENGTH" \
         ERROR_METRICS="OVERLAPPING_ERROR:CYCLE" \
+        ERROR_METRICS="OVERLAPPING_ERROR:GC_CONTENT" \
         ERROR_METRICS="OVERLAPPING_ERROR:BASE_QUALITY" \
         ERROR_METRICS="OVERLAPPING_ERROR:ONE_BASE_PADDED_CONTEXT" \
         ERROR_METRICS="OVERLAPPING_ERROR:HOMOPOLYMER"
