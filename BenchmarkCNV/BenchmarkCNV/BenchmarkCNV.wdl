@@ -83,6 +83,10 @@ workflow Benchmark_CNV_Caller {
             ~{'--includeBed '+ bedfile} \
             -o ~{truth_sample_name}_wittyer_output
 
+            # Move wittyer output to the output directory
+            mv ~{truth_sample_name}_wittyer_output/Wittyer.*.Vs.*.vcf.gz ~{truth_sample_name}_wittyer_output/Wittyer.~{truth_sample_name}.Vs.~{query_sample_name}.vcf.gz
+            mv ~{truth_sample_name}_wittyer_output/Wittyer.*.Vs.*.vcf.gz.tbi ~{truth_sample_name}_wittyer_output/Wittyer.~{truth_sample_name}.Vs.~{query_sample_name}.vcf.gz.tbi
+
         >>>
         runtime {
             docker: wittyer_docker
