@@ -14,7 +14,7 @@ workflow calculate_mutational_burden {
     File? intervals
     File mutburden_python_script
     File context_script_override
-    String tag_docker
+    String tag_tools_docker = "us.gcr.io/tag-team-160914/tag-tools:0.0.4"
     String output_basename
 
     Int disk_pad
@@ -72,7 +72,7 @@ workflow calculate_mutational_burden {
             normal_bam = normal_bam,
             normal_bai = normal_bai,
             intervals = intervals,
-            tag_docker = tag_docker,
+            tag_tools_docker = tag_tools_docker,
             context_script_override = context_script_override,
             preemptible_attempts = preemptible_attempts,
             disk_space = tumor_size + normal_size + ref_size + disk_pad
@@ -83,7 +83,7 @@ workflow calculate_mutational_burden {
             output_basename = output_basename,
             input_maf = input_maf,
             mutburden_python_script=mutburden_python_script,
-            tag_docker = tag_docker,
+            tag_tools_docker = tag_tools_docker,
             callable_bases = CallableLoci.callable_bases,
             preemptible_attempts = preemptible_attempts,
             disk_space = ceil(size(input_maf, "GB") + disk_pad)
@@ -115,7 +115,7 @@ task CallableLoci {
     File? normal_bai
     File? intervals
 
-    String tag_docker
+    String tag_tools_docker
     File? gatk_override
     File? context_script_override
 
@@ -182,7 +182,7 @@ task CallableLoci {
     >>>
 
     runtime {
-        docker: tag_docker
+        docker: tag_tools_docker
         memory: machine_mem + " MB"
         disks: "local-disk " + select_first([disk_space, 12]) + " HDD"
         preemptible: select_first([preemptible_attempts, 10])
@@ -204,7 +204,7 @@ task MutationalBurden {
     File mutburden_python_script
 
     # runtime
-    String tag_docker
+    String tag_tools_docker
     Int? preemptible_attempts
     Int? disk_space
     Int? mem
@@ -238,10 +238,10 @@ task MutationalBurden {
     }
 
     runtime {
-        docker: tag_docker
+        docker: tag_tools_docker
         memory: machine_mem + " MB"
         disks: "local-disk " + select_first([disk_space, 10]) + " HDD"
-        preemptible: select_first([preemptible_attempts, 10])
+        preemptible: select_first([preemptible_attempts, 3])
     }
 }
 

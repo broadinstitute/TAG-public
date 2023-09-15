@@ -95,7 +95,6 @@ workflow HaplotypeCaller_vcf_gatk4 {
             gatk_docker = gatk_docker,
             preemptible_attempts = preemptible_attempts,
             gatk_path = gatk_path,
-            gatk_docker = gatk_docker,
             machine_mem = machine_mem,
             disk = disk,
             max_retries = max_retries_or_default,
@@ -287,6 +286,7 @@ task HaplotypeCaller {
     Int? disk_space_gb
     Boolean use_ssd = false
     Int? preemptible_attempts
+    Int disk_buffer = 20
   }
 
   String java_opt = select_first([java_options, "-XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10"])
@@ -295,7 +295,7 @@ task HaplotypeCaller {
   Int command_mem_gb = machine_mem_gb - 1
 
   Float ref_size = size(ref_fasta, "GB") + size(ref_fasta_index, "GB") + size(ref_dict, "GB")
-  Int disk_size = ceil(((size(input_bam, "GB") + 30) / hc_scatter) + ref_size) + 20
+  Int disk_size = ceil(((size(input_bam, "GB") + 30) / hc_scatter) + ref_size) + disk_buffer
 
   String vcf_basename = if make_vcf then basename(output_filename, ".vcf") else basename(output_filename, ".gvcf")
   String bamout_arg = if make_bamout then "-bamout ~{vcf_basename}.bamout.bam" else ""
@@ -303,11 +303,11 @@ task HaplotypeCaller {
   parameter_meta {
     input_bam: {
       description: "a bam file",
-      localization_optional: true
+      localization_optional: false
     }
     input_bam_index: {
       description: "an index file for the bam input",
-      localization_optional: true
+      localization_optional: false
     }
   }
   command {
@@ -323,7 +323,6 @@ task HaplotypeCaller {
       ~{false="-G AS_StandardAnnotation" true="-G StandardAnnotation -G StandardHCAnnotation" make_vcf} \
       ~{true="-GQB 10 -GQB 20 -GQB 30 -GQB 40 -GQB 50 -GQB 60 -GQB 70 -GQB 80 -GQB 90" false= "" make_vcf} \
       ~{false="-ERC GVCF" true="" make_vcf} \
-      ~{if defined(gcs_project_for_requester_pays) then "--gcs-project-for-requester-pays ~{gcs_project_for_requester_pays}" else ""} \
       ~{bamout_arg}
 
     # Cromwell doesn't like optional task outputs, so we have to touch this file.
@@ -357,8 +356,8 @@ task MergeVCFs {
     Int? mem_gb
     Int? disk_space_gb
     Int? preemptible_attempts
-  }
     Boolean use_ssd = false
+  }
     Int machine_mem_gb = select_first([mem_gb, 3])
     Int command_mem_gb = machine_mem_gb - 1
 

@@ -32,7 +32,7 @@ import "m2_subworkflows/SplitVCFs.wdl" as SplitVCFs
 ##
 ## ** Primary inputs **
 ## ref_fasta, ref_fai, ref_dict: reference genome, index, and dictionary
-## tumor_reas, tumor_reads_index: BAM and index for the tumor sample
+## tumor_reads, tumor_reads_index: BAM and index for the tumor sample
 ## normal_reads, normal_reads_index: BAM and index for the normal sample
 ##
 ## ** Primary resources ** (optional but strongly recommended)
@@ -112,7 +112,6 @@ workflow Mutect2 {
       Boolean? compress_vcfs
       File? gga_vcf
       File? gga_vcf_idx
-      String? gcs_project_for_requester_pays
 
       # Funcotator inputs
       Boolean? run_funcotator
@@ -250,8 +249,7 @@ workflow Mutect2 {
                 gga_vcf_idx = gga_vcf_idx,
                 gatk_override = gatk_override,
                 gatk_docker = gatk_docker,
-                disk_space = m2_per_scatter_size,
-                gcs_project_for_requester_pays = gcs_project_for_requester_pays
+                disk_space = m2_per_scatter_size
         }
 
         if (defined(normal_reads)) {
@@ -411,8 +409,7 @@ workflow Mutect2 {
                 input_vcf_idx = Filter.filtered_vcf_idx,
                 runtime_params = standard_runtime,
                 gatk_override = gatk_override,
-                mem = filter_alignment_artifacts_mem,
-                gcs_project_for_requester_pays = gcs_project_for_requester_pays
+                mem = filter_alignment_artifacts_mem
         }
     }
 
@@ -607,7 +604,6 @@ task M2 {
 
       File? gatk_override
 
-      String? gcs_project_for_requester_pays
 
       # runtime
       String gatk_docker
@@ -657,13 +653,11 @@ task M2 {
         touch f1r2.tar.gz
         echo "" > normal_name.txt
 
-        gatk --java-options "-Xmx~{command_mem}m" GetSampleName -R ~{ref_fasta} -I ~{tumor_reads} -O tumor_name.txt -encode \
-        ~{"--gcs-project-for-requester-pays " + gcs_project_for_requester_pays}
+        gatk --java-options "-Xmx~{command_mem}m" GetSampleName -R ~{ref_fasta} -I ~{tumor_reads} -O tumor_name.txt -encode
         tumor_command_line="-I ~{tumor_reads} -tumor `cat tumor_name.txt`"
 
         if [[ ! -z "~{normal_reads}" ]]; then
-            gatk --java-options "-Xmx~{command_mem}m" GetSampleName -R ~{ref_fasta} -I ~{normal_reads} -O normal_name.txt -encode \
-            ~{"--gcs-project-for-requester-pays " + gcs_project_for_requester_pays}
+            gatk --java-options "-Xmx~{command_mem}m" GetSampleName -R ~{ref_fasta} -I ~{normal_reads} -O normal_name.txt -encode
             normal_command_line="-I ~{normal_reads} -normal `cat normal_name.txt`"
         fi
 
@@ -678,8 +672,7 @@ task M2 {
             -O "~{output_vcf}" \
             ~{true='--bam-output bamout.bam' false='' make_bamout} \
             ~{true='--f1r2-tar-gz f1r2.tar.gz' false='' run_ob_filter} \
-            ~{m2_extra_args} \
-            ~{"--gcs-project-for-requester-pays " + gcs_project_for_requester_pays}
+            ~{m2_extra_args}
 
         m2_exit_code=$?
 
@@ -693,14 +686,12 @@ task M2 {
 
         if [[ ! -z "~{variants_for_contamination}" ]]; then
             gatk --java-options "-Xmx~{command_mem}m" GetPileupSummaries -R ~{ref_fasta} -I ~{tumor_reads} ~{"--interval-set-rule INTERSECTION -L " + intervals} \
-                -V ~{variants_for_contamination} -L ~{variants_for_contamination} -O tumor-pileups.table ~{getpileupsummaries_extra_args} \
-                ~{"--gcs-project-for-requester-pays " + gcs_project_for_requester_pays}
+                -V ~{variants_for_contamination} -L ~{variants_for_contamination} -O tumor-pileups.table ~{getpileupsummaries_extra_args}
 
 
             if [[ ! -z "~{normal_reads}" ]]; then
                 gatk --java-options "-Xmx~{command_mem}m" GetPileupSummaries -R ~{ref_fasta} -I ~{normal_reads} ~{"--interval-set-rule INTERSECTION -L " + intervals} \
-                    -V ~{variants_for_contamination} -L ~{variants_for_contamination} -O normal-pileups.table ~{getpileupsummaries_extra_args} \
-                    ~{"--gcs-project-for-requester-pays " + gcs_project_for_requester_pays}
+                    -V ~{variants_for_contamination} -L ~{variants_for_contamination} -O normal-pileups.table ~{getpileupsummaries_extra_args}
             fi
         fi
 
@@ -1037,7 +1028,6 @@ task FilterAlignmentArtifacts {
       Boolean compress
       File realignment_index_bundle
       String? realignment_extra_args
-      String? gcs_project_for_requester_pays
       Runtime runtime_params
       File? gatk_override
       Int mem
@@ -1070,8 +1060,7 @@ task FilterAlignmentArtifacts {
             -I ~{reads} \
             --bwa-mem-index-image ~{realignment_index_bundle} \
             ~{realignment_extra_args} \
-            -O ~{output_vcf} \
-            ~{"--gcs-project-for-requester-pays " + gcs_project_for_requester_pays}
+            -O ~{output_vcf}
     }
 
     runtime {
@@ -1118,7 +1107,6 @@ task Funcotate {
        File? interval_list
 
        String? extra_args
-       String? gcs_project_for_requester_pays
 
        # ==============
        Runtime runtime_params
@@ -1203,8 +1191,7 @@ task Funcotate {
              ~{annotation_over_arg}~{default="" sep=" --annotation-override " annotation_overrides} \
              ~{excluded_fields_args}~{default="" sep=" --exclude-field " funcotator_excluded_fields} \
              ~{filter_funcotations_args} \
-             ~{extra_args_arg} \
-             ~{"--gcs-project-for-requester-pays " + gcs_project_for_requester_pays}
+             ~{extra_args_arg}
          # Make sure we have a placeholder index for MAF files so this workflow doesn't fail:
          if [[ "~{output_format}" == "MAF" ]] ; then
             touch ~{output_maf_index}
