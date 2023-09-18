@@ -231,7 +231,7 @@ version 1.0
                 docker: analysis_docker
                 bootDiskSizeGb: 12
                 cpu: 1
-                memory: "32 GB"
+                memory: "64 GB"
                 disks: "local-disk 300 HDD"
                 preemptible: 0
                 maxRetries: 0
