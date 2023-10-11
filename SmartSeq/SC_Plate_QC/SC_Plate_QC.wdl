@@ -21,7 +21,7 @@ workflow SC_plate{
     Array[File]+ rsem_list
 	Array[File]? adapt_list
     Array[String]+ names
-	Boolean? run_gsutil_cp = true
+	Boolean run_gsutil_cp = true
 
         call graphPlate {
          input:
