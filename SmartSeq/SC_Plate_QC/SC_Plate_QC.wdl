@@ -21,6 +21,7 @@ workflow SC_plate{
     Array[File]+ rsem_list
 	Array[File]? adapt_list
     Array[String]+ names
+	Boolean? run_gsutil_cp = true
 
         call graphPlate {
          input:
@@ -43,9 +44,11 @@ workflow SC_plate{
            names = names
         }
 
-		call gsutil_cp{
-			input:
-			plate_qc_metrics = graphPlate.plate_qc_metrics
+		if(run_gsutil_cp){
+			call gsutil_cp{
+				input:
+				plate_qc_metrics = graphPlate.plate_qc_metrics
+				}
 		}
 }
 
