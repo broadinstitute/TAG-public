@@ -147,7 +147,7 @@ workflow Benchmark_CNV_Caller {
         }
         command <<<
         set -e
-        pip install dictor
+        conda activate wittyer-parser
         python <<CODE
             import json
             import dictor
@@ -156,8 +156,8 @@ workflow Benchmark_CNV_Caller {
 
             queryFP = dictor(data, f"PerSampleStats.0.OverallStats.0.QueryFpCount")
             with open("queryFP.txt", "w") as f:
-                f.write(str(queryFP))
-      CODE
+                f.write(queryFP)
+        CODE
     >>>
         runtime {
             docker: wittyer4mat_docker
