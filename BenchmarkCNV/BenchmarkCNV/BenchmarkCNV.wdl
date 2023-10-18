@@ -10,8 +10,9 @@ workflow Benchmark_CNV_Caller {
         File? bedfile
         String wittyer_evaluation_mode
         String wittyer_docker = "yg96/wittyer:v2"
-        String wittyer4mat_docker
+        String wittyer4mat_docker = "us.gcr.io/tag-team-160914/wittyer4mat:v12-prestat-broom"
         Boolean run_wittyer4mat
+        Boolean get_queryfp
     }
 
     # benchmark cnv.vcf and sv.vcf using witty.er tool
@@ -37,12 +38,22 @@ workflow Benchmark_CNV_Caller {
         }
     }
 
+    # Grab Query FP to the datatable
+        if (get_queryfp) {
+        call queryFP {
+            input:
+                wittyer4mat_docker = wittyer4mat_docker,
+                wittyer_stats = BenchmarkCNV.wittyer_stats
+        }
+    }
+
     # Outputs that will be retained when execution is complete
     output {
         File wittyer_stats = BenchmarkCNV.wittyer_stats
         File wittyer_annotated_vcf = BenchmarkCNV.wittyer_annotated_vcf
         File wittyer_annotated_vcf_index = BenchmarkCNV.wittyer_annotated_vcf_index
         Array[File]? Wittyer4Mat_event_stats = Wittyer4Mat.event_level_wittyer_stats
+        Int? queryFP = queryFP.queryFP
     }
     meta {
         author: "Yueyao Gao"
@@ -125,5 +136,34 @@ workflow Benchmark_CNV_Caller {
         }
         output {
             Array[File] event_level_wittyer_stats = glob("~{truth_sample_name}_event_level_wittyer4mat/*.csv")
+        }
+    }
+
+    #Task3: Grab Query FP to the datatable
+    task queryFP{
+        input{
+            String wittyer4mat_docker
+            File wittyer_stats
+        }
+        command <<<
+        set -e
+        pip install dictor
+        python <<CODE
+            import json
+            import dictor
+            with open("~{wittyer_stats}") as data:
+                data = json.load(data)
+
+            queryFP = dictor(data, f"PerSampleStats.0.OverallStats.0.QueryFpCount")
+            with open("queryFP.txt", "w") as f:
+                f.write(str(queryFP))
+      CODE
+    >>>
+        runtime {
+            docker: wittyer4mat_docker
+            preemptible: 2
+        }
+        output {
+            Int queryFP = read_int("queryFP.txt")
         }
     }
