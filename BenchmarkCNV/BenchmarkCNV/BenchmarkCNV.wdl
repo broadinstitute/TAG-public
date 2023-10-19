@@ -144,18 +144,19 @@ workflow Benchmark_CNV_Caller {
             File wittyer_stats
         }
         command <<<
-        set -e
-        conda activate wittyer-parser
-        python <<CODE
-            import json
-            import dictor
-            with open("~{wittyer_stats}") as data:
-                data = json.load(data)
+            set -e
+            conda init bash
+            conda activate wittyer-parser
+            python <<CODE
+                import json
+                import dictor
+                with open("~{wittyer_stats}") as data:
+                    data = json.load(data)
 
-            queryFP = dictor(data, f"PerSampleStats.0.OverallStats.0.QueryFpCount")
-            with open("queryFP.txt", "w") as f:
-                f.write(queryFP)
-        CODE
+                queryFP = dictor(data, f"PerSampleStats.0.OverallStats.0.QueryFpCount")
+                with open("queryFP.txt", "w") as f:
+                    f.write(queryFP)
+            CODE
     >>>
         runtime {
             docker: "us.gcr.io/tag-team-160914/wittyer4mat:v13-pure-env"
