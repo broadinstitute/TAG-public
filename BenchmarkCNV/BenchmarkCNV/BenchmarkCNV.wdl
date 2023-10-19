@@ -144,19 +144,19 @@ workflow Benchmark_CNV_Caller {
             File wittyer_stats
         }
         command <<<
-            python <<CODE
-                import json
+python <<CODE
+import json
 
-                with open("~{wittyer_stats}") as data:
-                    data = json.load(data)
+with open("~{wittyer_stats}") as data:
+    data = json.load(data)
 
-                try:
-                    queryFP = data["PerSampleStats"][0]["OverallStats"][0]["QueryFpCount"]
-                    with open("queryFP.txt", "w") as f:
-                        f.write(str(queryFP))
-                except KeyError:
-                    print("The desired key path does not exist in the data.")
-            CODE
+try:
+    queryFP = data["PerSampleStats"][0]["OverallStats"][0]["QueryFpCount"]
+    with open("queryFP.txt", "w") as f:
+        f.write(str(queryFP))
+except KeyError:
+    print("The desired key path does not exist in the data.")
+CODE
     >>>
         runtime {
             docker: "us.gcr.io/tag-team-160914/wittyer4mat:v13-pure-env"
