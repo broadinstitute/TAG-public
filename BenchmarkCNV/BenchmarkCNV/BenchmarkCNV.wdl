@@ -145,17 +145,18 @@ workflow Benchmark_CNV_Caller {
         }
         command <<<
             set -e
-            conda init bash
-            conda activate wittyer-parser
             python <<CODE
                 import json
-                import dictor
+
                 with open("~{wittyer_stats}") as data:
                     data = json.load(data)
 
-                queryFP = dictor(data, f"PerSampleStats.0.OverallStats.0.QueryFpCount")
-                with open("queryFP.txt", "w") as f:
-                    f.write(queryFP)
+                try:
+                    queryFP = data["PerSampleStats"][0]["OverallStats"][0]["QueryFpCount"]
+                    with open("queryFP.txt", "w") as f:
+                        f.write(str(queryFP))
+                except KeyError:
+                    print("The desired key path does not exist in the data.")
             CODE
     >>>
         runtime {
