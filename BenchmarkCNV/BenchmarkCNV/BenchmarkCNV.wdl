@@ -42,7 +42,6 @@ workflow Benchmark_CNV_Caller {
         if (get_queryfp) {
         call queryFP {
             input:
-                wittyer4mat_docker = wittyer4mat_docker,
                 wittyer_stats = BenchmarkCNV.wittyer_stats
         }
     }
@@ -142,7 +141,6 @@ workflow Benchmark_CNV_Caller {
     #Task3: Grab Query FP to the datatable
     task queryFP{
         input{
-            String wittyer4mat_docker
             File wittyer_stats
         }
         command <<<
@@ -160,7 +158,7 @@ workflow Benchmark_CNV_Caller {
         CODE
     >>>
         runtime {
-            docker: wittyer4mat_docker
+            docker: "us.gcr.io/tag-team-160914/wittyer4mat:v13-pure-env"
             preemptible: 2
         }
         output {
