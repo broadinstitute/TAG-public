@@ -144,7 +144,6 @@ workflow Benchmark_CNV_Caller {
             File wittyer_stats
         }
         command <<<
-            set -e
             python <<CODE
                 import json
 
