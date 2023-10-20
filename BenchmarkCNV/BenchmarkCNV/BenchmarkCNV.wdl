@@ -151,9 +151,12 @@ with open("~{wittyer_stats}") as data:
     data = json.load(data)
 
 try:
-    queryFP = data["PerSampleStats"][0]["OverallStats"][0]["QueryFpCount"]
-    with open("queryFP.txt", "w") as f:
-        f.write(str(queryFP))
+    DEL_queryFP = data["PerSampleStats"][0]["DetailedStats"][0]["OverallStats"][0]["QueryFpCount"]
+    DUP_queryFP = data["PerSampleStats"][0]["DetailedStats"][1]["OverallStats"][0]["QueryFpCount"]
+    with open("DEL_queryFP.txt", "w") as f:
+        f.write(str(DEL_queryFP))
+    with open("DUP_queryFP.txt", "w") as f:
+        f.write(str(DUP_queryFP))
 except KeyError:
     print("The desired key path does not exist in the data.")
 CODE
@@ -163,6 +166,7 @@ CODE
             preemptible: 2
         }
         output {
-            Int queryFP = read_int("queryFP.txt")
+            Int DEL_queryFP = read_int("DEL_queryFP.txt")
+            Int DUP_queryFP = read_int("DUP_queryFP.txt")
         }
     }
