@@ -52,7 +52,8 @@ workflow Benchmark_CNV_Caller {
         File wittyer_annotated_vcf = BenchmarkCNV.wittyer_annotated_vcf
         File wittyer_annotated_vcf_index = BenchmarkCNV.wittyer_annotated_vcf_index
         Array[File]? Wittyer4Mat_event_stats = Wittyer4Mat.event_level_wittyer_stats
-        Int? queryFP = queryFP.queryFP
+        Int? DEL_queryFP = queryFP.DEL_queryFP
+        Int? DUP_queryFP = queryFP.DUP_queryFP
     }
     meta {
         author: "Yueyao Gao"
