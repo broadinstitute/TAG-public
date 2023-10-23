@@ -63,7 +63,7 @@ with open('truth.vcf','w') as vcf_file, open("~{Truth_VCF_Header}",'r') as vcf_h
     pos = "~{Truth_Coordinates}".split(':')[1].split('-')[0]
     end = "~{Truth_Coordinates}".split(':')[1].split('-')[1]
     svlen = abs(int(pos)-int(end))+1
-    cnv_type = cnvtype_dict[~{Truth_Type}]
+    cnv_type = cnvtype_dict["~{Truth_Type}"]
 
     vcf_file.write(f"{chrom}\t{pos}\t~{Truth_Coordinates}\tN\t<{cnv_type}>\t.\tPASS\tEND={end};SVTYPE={cnv_type};SVLEN={svlen}\t.\t.\n")
 CODE
@@ -84,10 +84,8 @@ CODE
         }
         command <<<
     set -e
-    # Install jq
-    # sudo apt-get update && sudo apt-get install -y jq
     # Set wittyer config with input parameters
-    cat ~{Pre_Wittyer_Config} | jq '.[] | .bpDistance = '200000' | .percentDistance = '0.2'' > wittyer_config.json
+    cat ~{Pre_Wittyer_Config} | jq '.[] | .bpDistance = '~{Wittyer_BPD}' | .percentDistance = '~{Wittyer_PD}'' > wittyer_config.json
 
     >>>
         runtime {
