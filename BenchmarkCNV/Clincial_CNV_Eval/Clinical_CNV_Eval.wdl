@@ -38,7 +38,7 @@ workflow Clinical_CNV_Eval {
         File Truth_VCF = GenerateTruthVCF.truth_vcf
         File Comparison_VCF = CompareVCF.comparison_vcf
         Int Called = CheckTPVariant.tp_called
-        String Called_coordinates = CheckTPVariant.called_coordinates
+        String Called_coordinates = CheckTPVariant.eval_coordinates
         Int Called_length = CheckTPVariant.eval_length
         String Called_svclaim = CheckTPVariant.eval_svclaim
     }

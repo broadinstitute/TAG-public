@@ -1,0 +1,11 @@
+{
+  "Clinical_CNV_Eval.Truth_VCF_Header": "File",
+  "Clinical_CNV_Eval.Wittyer_BPD": "Int",
+  "Clinical_CNV_Eval.Truth_Coordinates": "String",
+  "Clinical_CNV_Eval.Truth_Type": "String",
+  "Clinical_CNV_Eval.Wittyer_Docker": "String (optional, default = \"yg96/wittyer:v2\")",
+  "Clinical_CNV_Eval.Sample_VCF": "File",
+  "Clinical_CNV_Eval.Pre_Wittyer_Config": "File",
+  "Clinical_CNV_Eval.Wittyer_PD": "Float"
+}
+
