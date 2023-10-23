@@ -121,8 +121,8 @@ CODE
             preemptible: 2
         }
         output {
-            File comparison_vcf = "compare.vcf.gz"
-            File comparison_vcf_tbi = "compare.vcf.gz.tbi"
+            File comparison_vcf = "comparison.vcf.gz"
+            File comparison_vcf_tbi = "comparison.vcf.gz.tbi"
             File wittyer_stats = "wittyer_output/Wittyer.Stats.json"
         }
     }
