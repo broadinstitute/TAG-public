@@ -85,7 +85,7 @@ CODE
         command <<<
     set -e
     # Set wittyer config with input parameters
-    cat ~{Pre_Wittyer_Config} | jq '.[] | .bpDistance = '~{Wittyer_BPD}' | .percentDistance = '~{Wittyer_PD}' | ' jq -s '.'> wittyer_config.json
+    cat ~{Pre_Wittyer_Config} | jq '.[] | .bpDistance = '~{Wittyer_BPD}' | .percentDistance = '~{Wittyer_PD}' | jq -s '.'> wittyer_config.json
 
     >>>
         runtime {
