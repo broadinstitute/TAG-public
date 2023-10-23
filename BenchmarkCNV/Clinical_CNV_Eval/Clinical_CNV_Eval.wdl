@@ -54,7 +54,7 @@ python <<CODE
 
 cnvtype_dict = {"Gain":"DUP","Loss":"DEL"}
 
-with open('truth.vcf','w') as vcf_file, open(~{Truth_VCF_Header},'r') as vcf_header:
+with open('truth.vcf','w') as vcf_file, open("~{Truth_VCF_Header}",'r') as vcf_header:
     # write header
     for line in vcf_header:
         vcf_file.write(line)
@@ -84,11 +84,8 @@ CODE
         }
         command <<<
     set -e
-    sudo apt-get update
-    sudo apt-get install jq
-
     # Install jq
-    apt-get update && apt-get install -y jq
+    sudo apt-get update && sudo apt-get install -y jq
     # Set wittyer config with input parameters
     cat ~{Pre_Wittyer_Config} | jq '.[] | .bpDistance = '200000' | .percentDistance = '0.2'' > wittyer_config.json
 
