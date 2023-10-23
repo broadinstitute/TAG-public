@@ -119,3 +119,8 @@ workflows:
    primaryDescriptorPath: /CleanupFailedSubmissions/Cleanup_Failed_Submissions.wdl
    testParameterFiles:
     - /CleanupFailedSubmissions/Cleanup_Failed_Submissions.inputs.json
+ - name: Clinical_CNV_Eval
+   subclass: WDL
+   primaryDescriptorPath: /Clinical_CNV_Eval/Clinical_CNV_Eval.wdl
+   testParameterFiles:
+    - /Clinical_CNV_Eval/Clinical_CNV_Eval.inputs.json
