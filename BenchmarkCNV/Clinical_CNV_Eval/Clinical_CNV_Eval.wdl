@@ -59,9 +59,9 @@ with open('truth.vcf','w') as vcf_file, open("~{Truth_VCF_Header}",'r') as vcf_h
     for line in vcf_header:
         vcf_file.write(line)
     # write truth variant
-    chrom = ~{Truth_Coordinates}.split(':')[0].split('chr')[1]
-    pos = ~{Truth_Coordinates}.split(':')[1].split('-')[0]
-    end = ~{Truth_Coordinates}.split(':')[1].split('-')[1]
+    chrom = "~{Truth_Coordinates}".split(':')[0].split('chr')[1]
+    pos = "~{Truth_Coordinates}".split(':')[1].split('-')[0]
+    end = "~{Truth_Coordinates}".split(':')[1].split('-')[1]
     svlen = abs(int(pos)-int(end))+1
     cnv_type = cnvtype_dict[~{Truth_Type}]
 
@@ -85,13 +85,13 @@ CODE
         command <<<
     set -e
     # Install jq
-    sudo apt-get update && sudo apt-get install -y jq
+    # sudo apt-get update && sudo apt-get install -y jq
     # Set wittyer config with input parameters
     cat ~{Pre_Wittyer_Config} | jq '.[] | .bpDistance = '200000' | .percentDistance = '0.2'' > wittyer_config.json
 
     >>>
         runtime {
-            docker: "ubuntu:latest"
+            docker: "stedolan/jq:latest"
             preemptible: 2
         }
         output {
