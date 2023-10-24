@@ -172,7 +172,7 @@ CODE
             Int tp_called = read_int("called.txt")
             String eval_coordinates = read_string("eval_coordinates.txt")
             Int eval_length = read_int("eval_svlength.txt")
-            Int eval_svclaim = read_string("eval_svclaim.txt")
+            String eval_svclaim = read_string("eval_svclaim.txt")
         }
     }
     
