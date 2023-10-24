@@ -135,15 +135,34 @@ CODE
     # Check if TP variant is called
     # If TP variant is called, return 1, else return 0
     # I hardcoded DRAGEN here. But it can be changed to any other caller
+
+    # Check if TP variant is called (grep -q means quiet mode, no output)
     if zcat ~{Comparison_VCF} | grep TP | grep DRAGEN | awk '{print $3}' | grep -q .; then
         echo "1" > called.txt
     else
         echo "0" > called.txt
     fi
 
-    zcat ~{Comparison_VCF} | grep TP | grep DRAGEN | awk '{print $3}' > eval_coordinates.txt
-    zcat ~{Comparison_VCF} | grep TP | grep DRAGEN  | awk '{print $8}' | grep -o 'SVLEN=[^;]*' | awk -F'=' '{print $2}' > eval_svlength.txt
-    zcat ~{Comparison_VCF} | grep TP | grep DRAGEN  | awk '{print $8}' | grep -o 'SVCLAIM=[^;]*' | awk -F'=' '{print $2}' > eval_svclaim.txt
+    # If TP variant is called, return coordinates, else return NA.
+    if zcat ~{Comparison_VCF} | grep TP | grep DRAGEN | awk '{print $3}' | grep -q .; then
+        zcat ~{Comparison_VCF} | grep TP | grep DRAGEN | awk '{print $3}' > eval_coordinates.txt
+    else
+        echo "NA" > eval_coordinates.txt
+    fi
+
+    # If TP variant is called, return SV length, else return NA.
+    if zcat ~{Comparison_VCF} | grep TP | grep DRAGEN  | awk '{print $8}' | grep -o 'SVLEN=[^;]*' | awk -F'=' '{print $2}' | grep -q .; then
+        zcat ~{Comparison_VCF} | grep TP | grep DRAGEN  | awk '{print $8}' | grep -o 'SVLEN=[^;]*' | awk -F'=' '{print $2}' > eval_svlength.txt
+    else
+        echo 0 > eval_svlength.txt
+    fi
+
+    # If TP variant is called, return SV claim, else return NA.
+    if zcat ~{Comparison_VCF} | grep TP | grep DRAGEN  | awk '{print $8}' | grep -o 'SVCLAIM=[^;]*' | awk -F'=' '{print $2}' | grep -q .; then
+        zcat ~{Comparison_VCF} | grep TP | grep DRAGEN  | awk '{print $8}' | grep -o 'SVCLAIM=[^;]*' | awk -F'=' '{print $2}' > eval_svclaim.txt
+    else
+        echo "NA" > eval_svclaim.txt
+    fi
     >>>
         runtime {
             docker: "ubuntu:latest"
