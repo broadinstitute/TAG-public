@@ -1,12 +1,9 @@
 {
-  "AlignmentBasedCNVEval.reference_fasta": "File",
-  "AlignmentBasedCNVEval.T2T_last_database": "File",
-  "AlignmentBasedCNVEval.extract_cnv.mem_size": "Int (optional, default = 4)",
-  "AlignmentBasedCNVEval.extract_cnv.cpu_num": "Int (optional, default = 1)",
-  "AlignmentBasedCNVEval.cnv_vcf": "File",
-  "AlignmentBasedCNVEval.analysis_docker": "String",
-  "AlignmentBasedCNVEval.reference_last_database": "File",
-  "AlignmentBasedCNVEval.last_docker": "String",
-  "AlignmentBasedCNVEval.extract_cnv.disk_size": "Int (optional, default = 10)"
+    "AlignmentBasedCNVEval.T2T_last_database": "gs://gptag/gaoyy/CNV_alignment_eval/hg002_v09_last_db.tar",
+    "AlignmentBasedCNVEval.analysis_docker": "us.gcr.io/tag-team-160914/cnv_alignment_analysis:v0.0.0",
+    "AlignmentBasedCNVEval.cnv_vcf": "gs://dragenv4_2_validation/dragen_4_2_4/hg38/NA24385/NA24385.cnv_sv.vcf.gz",
+    "AlignmentBasedCNVEval.last_align.diskSizeGB": "${500}",
+    "AlignmentBasedCNVEval.last_docker": "us.gcr.io/tag-team-160914/cnv-last-1460:v0.0.0",
+    "AlignmentBasedCNVEval.reference_fasta": "${workspace.referenceData_hg38_ref_fasta}",
+    "AlignmentBasedCNVEval.reference_last_database": "gs://gptag/gaoyy/CNV_alignment_eval/hg38_last_db.tar"
 }
-
