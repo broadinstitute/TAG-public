@@ -135,7 +135,8 @@ workflow Mutect2 {
 
       # runtime
       String gatk_docker
-      String tag_docker
+      String splitvcf_docker = "us.gcr.io/broad-dsde-methods/liquidbiopsy:0.0.4.3"
+      String tag_tools_docker = "us.gcr.io/tag-team-160914/tag-tools:0.0.4"
       File? gatk_override
       String gatk_path = "/gatk/gatk"
       String basic_bash_docker = "ubuntu:16.04"
@@ -422,7 +423,7 @@ workflow Mutect2 {
             vcf_idx = select_first([FilterAlignmentArtifacts.filtered_vcf_idx, Filter.filtered_vcf_idx]),
             gatk_override = gatk_override,
             basename = filtered_name,
-            gatk_docker = gatk_docker
+            splitvcf_docker = splitvcf_docker
     }
 
     if (run_funcotator_or_default) {
@@ -476,7 +477,7 @@ workflow Mutect2 {
                     intervals = intervals,
                     input_maf = Funcotate.funcotated_output_file,
                     disk_pad = disk_pad,
-                    tag_docker = tag_docker,
+                    tag_tools_docker = tag_tools_docker,
                     output_basename = output_basename,
                     tumor_size = tumor_reads_size,
                     normal_size = normal_reads_size,
