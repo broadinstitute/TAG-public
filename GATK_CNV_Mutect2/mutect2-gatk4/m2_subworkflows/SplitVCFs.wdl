@@ -7,7 +7,7 @@ workflow SplitVcfWorkflow {
 task SplitVCFs {
 
    input {
-      String gatk_docker
+      String splitvcf_docker = "us.gcr.io/broad-dsde-methods/liquidbiopsy:0.0.4.3"
       String basename
       File? gatk_override
       File vcf_file
@@ -99,19 +99,15 @@ task SplitVCFs {
       echo "$passing_INDEL" > passing_indel.txt
 
       #filtered only INDELs
-      gatk --java-options "-Xmx15G" SelectVariants \
-         -V "~{basename}.indel.vcf.gz" \
-         -XL "~{basename}.indel.passing.vcf.gz" \
-         -O "~{basename}.indel.filtered.vcf.gz" \
-         -R ~{reference_fasta}
+      bcftools isec -C -O v -o ${basename}.indel.filtered.vcf -w1 ${basename}.indel.vcf.gz ${basename}.indel.passing.vcf.gz
 
-      filtered_INDEL="$(gatk CountVariants -V ~{basename}.indel.filtered.vcf.gz | tail -1)"
+      filtered_INDEL="$(gatk CountVariants -V ~{basename}.indel.filtered.vcf | tail -1)"
       echo "$filtered_INDEL" > filtered_indel.txt
 
    >>>
 
    runtime {
-      docker: gatk_docker
+      docker: splitvcf_docker
       disks: "local-disk " + disk_size + " HDD"
       memory: mem + " GB"
       preemptible: select_first([preemptible, 3])
