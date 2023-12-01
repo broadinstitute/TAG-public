@@ -300,16 +300,7 @@ task HaplotypeCaller {
   String vcf_basename = if make_vcf then basename(output_filename, ".vcf") else basename(output_filename, ".gvcf")
   String bamout_arg = if make_bamout then "-bamout ~{vcf_basename}.bamout.bam" else ""
 
-  parameter_meta {
-    input_bam: {
-      description: "a bam file",
-      localization_optional: false
-    }
-    input_bam_index: {
-      description: "an index file for the bam input",
-      localization_optional: false
-    }
-  }
+
   command {
     set -e
 
