@@ -10,8 +10,9 @@ workflow Benchmark_CNV_Caller {
         File? bedfile
         String wittyer_evaluation_mode
         String wittyer_docker = "yg96/wittyer:v2"
-        String wittyer4mat_docker
+        String wittyer4mat_docker = "us.gcr.io/tag-team-160914/wittyer4mat:v12-prestat-broom"
         Boolean run_wittyer4mat
+        Boolean get_queryfp
     }
 
     # benchmark cnv.vcf and sv.vcf using witty.er tool
@@ -37,12 +38,22 @@ workflow Benchmark_CNV_Caller {
         }
     }
 
+    # Grab Query FP to the datatable
+        if (get_queryfp) {
+        call queryFP {
+            input:
+                wittyer_stats = BenchmarkCNV.wittyer_stats
+        }
+    }
+
     # Outputs that will be retained when execution is complete
     output {
         File wittyer_stats = BenchmarkCNV.wittyer_stats
         File wittyer_annotated_vcf = BenchmarkCNV.wittyer_annotated_vcf
         File wittyer_annotated_vcf_index = BenchmarkCNV.wittyer_annotated_vcf_index
         Array[File]? Wittyer4Mat_event_stats = Wittyer4Mat.event_level_wittyer_stats
+        Int? DEL_queryFP = queryFP.DEL_queryFP
+        Int? DUP_queryFP = queryFP.DUP_queryFP
     }
     meta {
         author: "Yueyao Gao"
@@ -125,5 +136,38 @@ workflow Benchmark_CNV_Caller {
         }
         output {
             Array[File] event_level_wittyer_stats = glob("~{truth_sample_name}_event_level_wittyer4mat/*.csv")
+        }
+    }
+
+    #Task3: Grab Query FP to the datatable
+    task queryFP{
+        input{
+            File wittyer_stats
+        }
+        command <<<
+python <<CODE
+import json
+
+with open("~{wittyer_stats}") as data:
+    data = json.load(data)
+
+try:
+    DEL_queryFP = data["PerSampleStats"][0]["DetailedStats"][0]["OverallStats"][0]["QueryFpCount"]
+    DUP_queryFP = data["PerSampleStats"][0]["DetailedStats"][1]["OverallStats"][0]["QueryFpCount"]
+    with open("DEL_queryFP.txt", "w") as f:
+        f.write(str(DEL_queryFP))
+    with open("DUP_queryFP.txt", "w") as f:
+        f.write(str(DUP_queryFP))
+except KeyError:
+    print("The desired key path does not exist in the data.")
+CODE
+    >>>
+        runtime {
+            docker: "us.gcr.io/tag-team-160914/wittyer4mat:v13-pure-env"
+            preemptible: 2
+        }
+        output {
+            Int DEL_queryFP = read_int("DEL_queryFP.txt")
+            Int DUP_queryFP = read_int("DUP_queryFP.txt")
         }
     }
