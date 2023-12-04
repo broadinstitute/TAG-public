@@ -13,7 +13,7 @@ workflow calculate_mutational_burden {
     File input_maf
     File? intervals
     File mutburden_python_script
-    File context_script_override
+    File? context_script_override
     String tag_tools_docker = "us.gcr.io/tag-team-160914/tag-tools:0.0.4"
     String output_basename
 

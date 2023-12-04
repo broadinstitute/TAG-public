@@ -114,7 +114,7 @@ workflow Mutect2 {
       File? gga_vcf_idx
 
       # Funcotator inputs
-      Boolean? run_funcotator
+      Boolean run_funcotator = true
       String? sequencing_center
       String? sequence_source
       String? funco_reference_version
