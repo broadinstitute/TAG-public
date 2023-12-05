@@ -21,7 +21,7 @@ task SplitVCFs {
    }
 
    Int ref_size = ceil(size(reference_fasta, "GB") + size(reference_fasta_idx, "GB") + size(reference_dict, "GB"))
-   Int disk_size = ceil(size(vcf_file, "GB") * 2) + ceil(size(vcf_idx)) + ref_size + select_first([disk_pad, 0])
+   Int disk_size = ceil(size(vcf_file, "GB") * 2) + ceil(size(vcf_idx, "GB")) + ref_size + select_first([disk_pad, 0])
    Int mem = select_first([memory, 16])
 
    command <<<
