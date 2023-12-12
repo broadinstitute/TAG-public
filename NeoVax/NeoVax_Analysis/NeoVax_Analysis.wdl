@@ -348,6 +348,7 @@ workflow NeoVax_Analysis {
     File neoorf_neoantigens = neoantigen.neoorf_neoantigens
     File neoorfFile = neoantigen.neoorfFile
     File snp_indel_neoantigens = neoantigen.snp_indel_neoantigens
+	File nonsense_vars_file = neoantigen.nonsense_vars_file
     File hlathena_all_binders = HLAthena.all_binders
     File hlathena_allele_assignment_counts = HLAthena.allele_assignment_counts
     File hlathena_plots = HLAthena.allele_assignment_plots
