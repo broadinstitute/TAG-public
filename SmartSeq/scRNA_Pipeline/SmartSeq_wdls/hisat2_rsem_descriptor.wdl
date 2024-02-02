@@ -145,7 +145,7 @@ task HISAT2rsem {
   }
   runtime {
     docker:"quay.io/humancellatlas/secondary-analysis-hisat2:v0.2.2-2-2.1.0"
-    memory: Rsem_memory + "GB"
+    memory: Rsem_memory + " GB"
     disks: "local-disk " + disk_size + " HDD"
     cpu: "4"
     preemptible: 5
@@ -192,7 +192,7 @@ task RsemExpression {
   }
   runtime {
     docker: "quay.io/humancellatlas/secondary-analysis-rsem:v0.2.2-1.3.0"
-    memory: Rsem_exp_memory + "GB"
+    memory: Rsem_exp_memory + " GB"
     disks: "local-disk " + disk_size + " HDD"
     cpu: "4"
     preemptible: 5
