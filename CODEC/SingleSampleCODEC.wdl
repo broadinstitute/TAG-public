@@ -390,7 +390,7 @@ task ZipperBamAlignment {
     String baiOutput = "${sample_id}_split.${split}.trim.aligned.bam.bai"
 
     command {
-        java -jar /dependencies/fgbio-2.1.0.jar --compression 0 --async-io ZipperBams \
+        java -jar /dependencies/fgbio-2.0.2.jar --compression 0 --async-io ZipperBams \
             -i ~{mapped_bam} \
             --unmapped ~{unmapped_bam} \
             --ref ~{reference_fasta} \
@@ -611,7 +611,7 @@ task GroupReadByUMI {
     }
 
     command {
-        java -jar /dependencies/fgbio-2.1.0.jar --compression 1 --async-io \
+        java -jar /dependencies/fgbio-2.0.2.jar --compression 1 --async-io \
             GroupReadsByUmi \
             -i ~{input_bam} \
             -o ~{sample_id}.GroupedByUmi.bam \
@@ -641,7 +641,7 @@ task FgbioCollapseReadFamilies {
     }
 
     command {
-        java -jar /dependencies/fgbio-2.1.0.jar --compression 1 CallMolecularConsensusReads \
+        java -jar /dependencies/fgbio-2.0.2.jar --compression 1 CallMolecularConsensusReads \
             -i ~{grouped_umi_bam} \
             -o ~{sample_id}.mol_consensus.bam \
             -p ~{sample_id} \
@@ -712,7 +712,7 @@ task MergeAndSortMoleculeConsensusReads {
     }
 
     command {
-        java -jar /dependencies/fgbio-2.1.0.jar --compression 0 --async-io ZipperBams \
+        java -jar /dependencies/fgbio-2.0.2.jar --compression 0 --async-io ZipperBams \
             -i ~{mapped_sam} \
             --unmapped ~{unmapped_bam} \
             --ref ~{reference_fasta} \
