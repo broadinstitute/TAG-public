@@ -17,7 +17,8 @@ workflow SingleSampleCODEC {
         File germline_bam_index
         Int num_parallel
         String sort_memory
-        File eval_genome_interval
+        File eval_genome_interval = "gs://gptag/CODEC/GRCh38_notinalldifficultregions.interval_list"
+        File eval_genome_bed = "gs://gptag/CODEC/GRCh38_notinalldifficultregions.bed"
     }
         call SplitFastq1 {
             input: 
@@ -142,7 +143,8 @@ workflow SingleSampleCODEC {
                 sample_id = sample_id,
                 reference_fasta = reference_fasta,
                 reference_fasta_index = reference_fasta_index,
-                reference_dict = reference_dict
+                reference_dict = reference_dict,
+                eval_genome_interval = eval_genome_interval
         }
         call CollectConsensusWgsMetrics {
             input:
@@ -151,7 +153,8 @@ workflow SingleSampleCODEC {
                 sample_id = sample_id,
                 reference_fasta = reference_fasta,
                 reference_fasta_index = reference_fasta_index,
-                reference_dict = reference_dict
+                reference_dict = reference_dict,
+                eval_genome_interval = eval_genome_interval
         }
         call CSS_SFC_ErrorMetrics {
             input:
@@ -167,7 +170,8 @@ workflow SingleSampleCODEC {
                 reference_bwt = reference_bwt,
                 reference_sa = reference_sa,
                 germline_bam = germline_bam,
-                germline_bam_index = germline_bam_index
+                germline_bam_index = germline_bam_index,
+                eval_genome_bed = eval_genome_bed
         }
         call RAW_SFC_ErrorMetrics {
             input:
@@ -183,7 +187,8 @@ workflow SingleSampleCODEC {
                 reference_bwt = reference_bwt,
                 reference_sa = reference_sa,
                 germline_bam = germline_bam,
-                germline_bam_index = germline_bam_index
+                germline_bam_index = germline_bam_index,
+                eval_genome_bed = eval_genome_bed
         }
         call QC_metrics {
             input:
@@ -741,6 +746,7 @@ task CollectRawWgsMetrics {
         File reference_fasta
         File reference_fasta_index
         File reference_dict
+        File eval_genome_interval
         Int memory = 64
         Int disk_size = 200
     }
@@ -748,7 +754,7 @@ task CollectRawWgsMetrics {
 
     command {
         java -jar /dependencies/picard.jar CollectWgsMetrics \
-        I=~{ReplaceRGBam} O=~{sample_id}.raw.wgs_metrics.txt R=~{reference_fasta} INTERVALS=/reference_files/GRCh38_notinalldifficultregions.interval_list \
+        I=~{ReplaceRGBam} O=~{sample_id}.raw.wgs_metrics.txt R=~{reference_fasta} INTERVALS=~{eval_genome_interval} \
         COUNT_UNPAIRED=true MINIMUM_BASE_QUALITY=0 MINIMUM_MAPPING_QUALITY=0
     }
 
@@ -772,13 +778,14 @@ task CollectConsensusWgsMetrics {
         File reference_fasta
         File reference_fasta_index
         File reference_dict
+        File eval_genome_interval
         Int memory = 64
         Int disk_size = 200
     }
 
     command {
         java -jar /dependencies/picard.jar CollectWgsMetrics \
-        I=~{ConsensusAlignedBam} O=~{sample_id}.mol_consensus.wgs_metrics.txt R=~{reference_fasta} INTERVALS=/reference_files/GRCh38_notinalldifficultregions.interval_list \
+        I=~{ConsensusAlignedBam} O=~{sample_id}.mol_consensus.wgs_metrics.txt R=~{reference_fasta} INTERVALS=~{eval_genome_interval} \
         INCLUDE_BQ_HISTOGRAM=true MINIMUM_BASE_QUALITY=30
     }
 
@@ -810,19 +817,22 @@ task CSS_SFC_ErrorMetrics {
         File reference_sa
         File germline_bam
         File germline_bam_index
+        File eval_genome_bed
+        File population_based_vcf = "gs://gptag/CODEC/alfa_all.freq.breakmulti.hg38.af0001.vcf.gz"
+        File population_based_vcf_index = "gs://gptag/CODEC/alfa_all.freq.breakmulti.hg38.af0001.vcf.gz.tbi"
         Int memory = 64
         Int disk_size = 200
     }
 
     command {
         /CODECsuite/build/codec call -b ~{ConsensusAlignedBam} \
-            -L /reference_files/GRCh38_notinalldifficultregions.bed \
+            -L ~{eval_genome_bed} \
             -r ~{reference_fasta} \
             -m 60 \
             -q 30 \
             -d 12 \
             -n ~{germline_bam} \
-            -V /reference_files/alfa_all.freq.breakmulti.hg38.af0001.vcf.gz \
+            -V ~{population_based_vcf} \
             -x 6 \
             -c 4 \
             -5 \
@@ -867,18 +877,21 @@ task RAW_SFC_ErrorMetrics {
         File reference_sa
         File germline_bam
         File germline_bam_index
+        File eval_genome_bed
+        File population_based_vcf = "gs://gptag/CODEC/alfa_all.freq.breakmulti.hg38.af0001.vcf.gz"
+        File population_based_vcf_index = "gs://gptag/CODEC/alfa_all.freq.breakmulti.hg38.af0001.vcf.gz.tbi"
         Int memory = 32
         Int disk_size = 200
     }
     command {
         /CODECsuite/build/codec call -b ~{ReplaceRGBam} \
-            -L /reference_files/GRCh38_notinalldifficultregions.bed \
+            -L ~{eval_genome_bed} \
             -r ~{reference_fasta} \
             -m 60 \
             -n ~{germline_bam} \
             -q 30 \
             -d 12 \
-            -V /reference_files/alfa_all.freq.breakmulti.hg38.af0001.vcf.gz \
+            -V ~{population_based_vcf} \
             -x 6 \
             -c 4 \
             -5 \
