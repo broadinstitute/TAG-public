@@ -137,16 +137,7 @@ workflow SingleSampleCODEC {
                 sample_id = sample_id,
                 sort_memory = sort_memory
         }
-        call CollectRawWgsMetrics {
-            input:
-                ReplaceRGBam = MarkRawDuplicates.dup_marked_bam,
-                sample_id = sample_id,
-                reference_fasta = reference_fasta,
-                reference_fasta_index = reference_fasta_index,
-                reference_dict = reference_dict,
-                eval_genome_interval = eval_genome_interval
-        }
-        call CollectConsensusWgsMetrics {
+        call CollectWgsMetrics {
             input:
                 ConsensusAlignedBam = MergeAndSortMoleculeConsensusReads.bam,
                 ConsensusAlignedBai = MergeAndSortMoleculeConsensusReads.bai,
@@ -173,30 +164,12 @@ workflow SingleSampleCODEC {
                 germline_bam_index = germline_bam_index,
                 eval_genome_bed = eval_genome_bed
         }
-        call RAW_SFC_ErrorMetrics {
-            input:
-                ReplaceRGBam = MarkRawDuplicates.dup_marked_bam,
-                ReplaceRGBai = MarkRawDuplicates.dup_marked_bai,
-                sample_id = sample_id,
-                reference_fasta = reference_fasta,
-                reference_fasta_index = reference_fasta_index,
-                reference_dict = reference_dict,
-                reference_pac = reference_pac,
-                reference_amb = reference_amb,
-                reference_ann = reference_ann,
-                reference_bwt = reference_bwt,
-                reference_sa = reference_sa,
-                germline_bam = germline_bam,
-                germline_bam_index = germline_bam_index,
-                eval_genome_bed = eval_genome_bed
-        }
         call QC_metrics {
             input:
                 byproduct_metrics = CDSByProduct.byproduct_metrics,
-                RawWgsMetrics = CollectRawWgsMetrics.RawWgsMetrics,
-                DuplicationMetrics = MarkRawDuplicates.dup_metrics,
+                WgsMetrics = CollectWgsMetrics.WgsMetrics,
+                umiHistogram = GroupReadByUMI.umi_histogram,
                 InsertSizeMetrics = CollectInsertSizeMetrics.insert_size_metrics,
-                ConsensusWgsMetrics = CollectConsensusWgsMetrics.ConsensusWgsMetrics,
                 mutant_metrics = CSS_SFC_ErrorMetrics.mutant_metrics,
         }
         call EvalGenomeBases {
@@ -206,7 +179,9 @@ workflow SingleSampleCODEC {
         call CalculateDuplexDepth {
              input: 
               eval_genome_bases = EvalGenomeBases.eval_genome_bases,
-              n_bases_eval = QC_metrics.n_bases_eval
+              n_bases_eval = QC_metrics.n_bases_eval,
+              mean_insert_size = QC_metrics.mean_insert_size,
+              n_total_fastq = QC_metrics.n_total_fastq
         }
 
     output {
@@ -218,11 +193,8 @@ workflow SingleSampleCODEC {
         File InsertSizeMetrics = CollectInsertSizeMetrics.insert_size_metrics
         File InsertSizeHistogram = CollectInsertSizeMetrics.insert_size_histogram
         File DuplicationMetrics = MarkRawDuplicates.dup_metrics
-        File RawWgsMetrics = CollectRawWgsMetrics.RawWgsMetrics
-        File ConsensusWgsMetrics = CollectConsensusWgsMetrics.ConsensusWgsMetrics
-        File raw_mutant_metrics = RAW_SFC_ErrorMetrics.raw_mutant_metrics
-        File raw_context_count = RAW_SFC_ErrorMetrics.raw_context_count
-        File raw_variants_called = RAW_SFC_ErrorMetrics.raw_variants_called
+        File umiHistogram = GroupReadByUMI.umi_histogram
+        File WgsMetrics = CollectWgsMetrics.WgsMetrics
         File mutant_metrics = CSS_SFC_ErrorMetrics.mutant_metrics
         File context_count = CSS_SFC_ErrorMetrics.context_count
         File variants_called = CSS_SFC_ErrorMetrics.variants_called
@@ -238,11 +210,9 @@ workflow SingleSampleCODEC {
         Float pct_adp_dimer = QC_metrics.pct_adp_dimer 
         Float raw_dedupped_mean_cov = QC_metrics.raw_dedupped_mean_cov
         Int raw_dedupped_median_cov = QC_metrics.raw_dedupped_median_cov
-        Float raw_duplication_rate = QC_metrics.raw_duplication_rate
+        Float duplication_rate = QC_metrics.duplication_rate
         Float mean_insert_size = QC_metrics.mean_insert_size
         Int median_insert_size = QC_metrics.median_insert_size
-        Float mol_consensus_mean_cov = QC_metrics.mol_consensus_mean_cov
-        Int mol_consensus_median_cov = QC_metrics.mol_consensus_median_cov
         Int n_snv = QC_metrics.n_snv
         Int n_indel = QC_metrics.n_indel
         String n_bases_eval = QC_metrics.n_bases_eval   
@@ -250,6 +220,8 @@ workflow SingleSampleCODEC {
         Float indel_rate = QC_metrics.indel_rate
         String eval_genome_bases = EvalGenomeBases.eval_genome_bases
         Float duplex_depth = CalculateDuplexDepth.duplex_depth
+        Float duplex_efficiency = CalculateDuplexDepth.duplex_efficiency
+
     }
 }
 
@@ -739,38 +711,7 @@ task MergeAndSortMoleculeConsensusReads {
     }
 }
 
-task CollectRawWgsMetrics {
-    input {
-        File ReplaceRGBam
-        String sample_id
-        File reference_fasta
-        File reference_fasta_index
-        File reference_dict
-        File eval_genome_interval
-        Int memory = 64
-        Int disk_size = 200
-    }
-
-
-    command {
-        java -jar /dependencies/picard.jar CollectWgsMetrics \
-        I=~{ReplaceRGBam} O=~{sample_id}.raw.wgs_metrics.txt R=~{reference_fasta} INTERVALS=~{eval_genome_interval} \
-        COUNT_UNPAIRED=true MINIMUM_BASE_QUALITY=0 MINIMUM_MAPPING_QUALITY=0
-    }
-
-    output {
-        File RawWgsMetrics = "~{sample_id}.raw.wgs_metrics.txt"
-    }
-
-    runtime {
-        memory: memory + " GB"
-        docker: "us.gcr.io/tag-team-160914/codec:v1" 
-        disks: "local-disk " + disk_size + " HDD"
-        preemptible: 3
-    }
-}
-
-task CollectConsensusWgsMetrics {
+task CollectWgsMetrics {
     input {
         File ConsensusAlignedBam
         File ConsensusAlignedBai
@@ -785,12 +726,12 @@ task CollectConsensusWgsMetrics {
 
     command {
         java -jar /dependencies/picard.jar CollectWgsMetrics \
-        I=~{ConsensusAlignedBam} O=~{sample_id}.mol_consensus.wgs_metrics.txt R=~{reference_fasta} INTERVALS=~{eval_genome_interval} \
-        INCLUDE_BQ_HISTOGRAM=true MINIMUM_BASE_QUALITY=30
+        I=~{ConsensusAlignedBam} O=~{sample_id}.wgs_metrics.txt R=~{reference_fasta} INTERVALS=~{eval_genome_interval} \
+        COUNT_UNPAIRED=true MINIMUM_BASE_QUALITY=0 MINIMUM_MAPPING_QUALITY=0
     }
 
     output {
-        File ConsensusWgsMetrics = "~{sample_id}.mol_consensus.wgs_metrics.txt"
+        File WgsMetrics = "~{sample_id}.wgs_metrics.txt"
     }
 
     runtime {
@@ -862,72 +803,13 @@ task CSS_SFC_ErrorMetrics {
     }
 }
 
-task RAW_SFC_ErrorMetrics {
-    input {
-        File ReplaceRGBam
-        File ReplaceRGBai
-        String sample_id
-        File reference_fasta
-        File reference_fasta_index
-        File reference_dict
-        File reference_pac
-        File reference_amb
-        File reference_ann
-        File reference_bwt
-        File reference_sa
-        File germline_bam
-        File germline_bam_index
-        File eval_genome_bed
-        File population_based_vcf = "gs://gptag/CODEC/alfa_all.freq.breakmulti.hg38.af0001.vcf.gz"
-        File population_based_vcf_index = "gs://gptag/CODEC/alfa_all.freq.breakmulti.hg38.af0001.vcf.gz.tbi"
-        Int memory = 32
-        Int disk_size = 200
-    }
-    command {
-        /CODECsuite/build/codec call -b ~{ReplaceRGBam} \
-            -L ~{eval_genome_bed} \
-            -r ~{reference_fasta} \
-            -m 60 \
-            -n ~{germline_bam} \
-            -q 30 \
-            -d 12 \
-            -V ~{population_based_vcf} \
-            -x 6 \
-            -c 4 \
-            -5 \
-            -g 30 \
-            -G 250 \
-            -Q 0.6 \
-            -B 0.6 \
-            -N 0.1 \
-            -Y 5 \
-            -W 1 \
-            -a ~{sample_id}.raw.mutant_metrics.txt \
-            -e ~{sample_id}.raw.variants_called.txt \
-            -C ~{sample_id}.raw.context_count.txt
-    }
-
-    output {
-        File raw_mutant_metrics = "~{sample_id}.raw.mutant_metrics.txt"
-        File raw_variants_called = "~{sample_id}.raw.variants_called.txt"
-        File raw_context_count = "~{sample_id}.raw.context_count.txt"
-    }
-
-    runtime {
-        memory: memory + " GB"
-        docker: "us.gcr.io/tag-team-160914/codec:v1" 
-        disks: "local-disk " + disk_size + " HDD"
-        preemptible: 3
-    }
-}
 
 task QC_metrics {
     input {
         File byproduct_metrics
-        File RawWgsMetrics
-        File DuplicationMetrics
+        File WgsMetrics
+        File umiHistogram
         File InsertSizeMetrics
-        File ConsensusWgsMetrics
         File mutant_metrics
         Int memory = 16
         Int disk_size = 16
@@ -935,6 +817,16 @@ task QC_metrics {
     }
     command <<<
         set -e
+
+        # Use umi histogram to calculate duplication rate
+        cat ~{umiHistogram} | awk -F'\t' 'NR > 1 {
+            numerator += ($1 - 1) * $2;
+            denominator += $1 * $2;
+        } END {
+            if (denominator > 0) print numerator / denominator;
+            else print "NA";
+        }' > duplication_rate.txt
+
         cat ~{byproduct_metrics} | awk 'NR==2 {print $NF}' > n_total_fastq.txt
         cat ~{byproduct_metrics} | awk 'NR==2 {print $9}' > n_correct.txt
         cat ~{byproduct_metrics} | awk 'NR==2 {print $2}' > pct_correct.txt
@@ -944,13 +836,10 @@ task QC_metrics {
         cat ~{byproduct_metrics} | awk 'NR==2 {print $5}' > pct_intermol.txt
         cat ~{byproduct_metrics} | awk 'NR==2 {print $11}' > n_adp_dimer.txt
         cat ~{byproduct_metrics} | awk 'NR==2 {print $4}' > pct_adp_dimer.txt
-        cat ~{RawWgsMetrics} | grep -v "#" | awk 'NR==3 {print $2}' > raw_dedupped_mean_cov.txt
-        cat ~{RawWgsMetrics} | grep -v "#" | awk 'NR==3 {print $4}' > raw_dedupped_median_cov.txt
-        cat ~{DuplicationMetrics} | grep -v "#" | awk 'NR==3 {print $9}' > raw_duplication_rate.txt
+        cat ~{WgsMetrics} | grep -v "#" | awk 'NR==3 {print $2}' > raw_dedupped_mean_cov.txt
+        cat ~{WgsMetrics} | grep -v "#" | awk 'NR==3 {print $4}' > raw_dedupped_median_cov.txt
         cat ~{InsertSizeMetrics} | grep -v "#" | awk 'NR==3 {print $1}' > median_insert_size.txt
         cat ~{InsertSizeMetrics} | grep -v "#" | awk 'NR==3 {print $6}' > mean_insert_size.txt
-        cat ~{ConsensusWgsMetrics} | grep -v "#" | awk 'NR==3 {print $2}' > mol_consensus_mean_cov.txt
-        cat ~{ConsensusWgsMetrics} | grep -v "#" | awk 'NR==3 {print $4}' > mol_consensus_median_cov.txt
         cat ~{mutant_metrics} | awk 'NR==2 {print $8}' > n_snv.txt
         cat ~{mutant_metrics} | awk 'NR==2 {print $10}' > n_indel.txt
         cat ~{mutant_metrics} | awk 'NR==2 {print $3}' > n_bases_eval.txt
@@ -960,6 +849,7 @@ task QC_metrics {
 
     >>>
     output {
+      Float duplication_rate = read_float("duplication_rate.txt")
       Int n_total_fastq = read_int("n_total_fastq.txt")
       Int n_correct_products = read_int("n_correct.txt")
       Float pct_correct_products = read_float("pct_correct.txt")
@@ -971,11 +861,8 @@ task QC_metrics {
       Float pct_adp_dimer = read_float("pct_adp_dimer.txt")
       Float raw_dedupped_mean_cov = read_float("raw_dedupped_mean_cov.txt")
       Int raw_dedupped_median_cov = read_int("raw_dedupped_median_cov.txt")
-      Float raw_duplication_rate = read_float("raw_duplication_rate.txt")
       Float mean_insert_size = read_float("mean_insert_size.txt")
       Int median_insert_size = read_int("median_insert_size.txt")
-      Float mol_consensus_mean_cov = read_float("mol_consensus_mean_cov.txt")
-      Int mol_consensus_median_cov = read_int("mol_consensus_median_cov.txt")
       Int n_snv = read_int("n_snv.txt")
       Int n_indel = read_int("n_indel.txt")
       String n_bases_eval = read_string("n_bases_eval.txt")     
@@ -1020,27 +907,35 @@ task CalculateDuplexDepth {
     input {
         String eval_genome_bases
         String n_bases_eval
+        Float mean_insert_size
+        Int n_total_fastq
         Int memory = 16
         Int disk_size = 8
     }
 
-    command <<<
-    
+    command <<<  
         python3 <<CODE
         
-        eval_genome_bases = "~{eval_genome_bases}"
-        n_bases_eval = "~{n_bases_eval}"
+        eval_genome_bases = int("~{eval_genome_bases}")
+        n_bases_eval = int("~{n_bases_eval}")
+        mean_insert_size = float("~{mean_insert_size}")
+        n_total_fastq = int("~{n_total_fastq}")
 
-        eval_genome_bases = int(eval_genome_bases)
-        n_bases_eval = int(n_bases_eval)
-
+        raw_read_depth = round (n_total_fastq * mean_insert_size / eval_genome_bases, 2)
         duplex_depth = round (n_bases_eval / eval_genome_bases, 2)
-        print(duplex_depth)
+        duplex_efficiency = round (duplex_depth / raw_read_depth , 4)
+
+        with open('duplex_depth.txt', 'w') as f:
+            f.write(str(duplex_depth))
+        with open('duplex_efficiency.txt', 'w') as f:
+            f.write(str(duplex_efficiency))
+
         CODE
     >>>
 
     output {
-        Float duplex_depth = read_float(stdout())
+        Float duplex_depth = read_float('duplex_depth.txt')
+        Float duplex_efficiency = read_float('duplex_efficiency.txt')
     }
     runtime {
         memory: memory + " GB"
