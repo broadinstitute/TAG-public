@@ -1,11 +1,17 @@
-import pandas as pd
+# Running this script is a prerequisite for demux_CODEC wdl.
+# This script is taking an Excel file provided by collaborator
+# with Barcode assigned to each sample and a default Index reference file,
+# to generate a sample_sheet_L00{lane}.csv file for each lane.
+
+
 import sys
+import pandas as pd
+
 
 if len(sys.argv) != 3:
-    print("Usage: python3 script.py <Metadata Excel file> <Index CSV file>")
+    print("Usage: python3 prep_codec_metadata.py <Metadata Excel file> <Index CSV file>")
     sys.exit(1)
 
-# Assigning command-line arguments to variables
 metadata_excel_file = sys.argv[1]
 index_csv_file = sys.argv[2]
 

@@ -7,9 +7,13 @@ workflow codec_bcl2fastq {
         Int read_threads 
         Int write_threads
         String memory = "128G"
-        Int disk_space = 2000
         Int preemptible = 3
         Boolean delete_input_bcl_directory
+    }
+    call GetBclBucketSize {
+        input:
+            input_bcl_directory = input_bcl_directory,
+            memory = 16
     }
 
     call run_bcl2fastq {
@@ -19,7 +23,7 @@ workflow codec_bcl2fastq {
             read_threads = read_threads,
             write_threads = write_threads,
             memory = memory,
-            disk_space = disk_space,
+            input_bcl_size = GetBclBucketSize.input_bcl_size,
             preemptible = preemptible,  
             delete_input_bcl_directory = delete_input_bcl_directory
     }
@@ -29,18 +33,41 @@ workflow codec_bcl2fastq {
     }
 }
 
+task GetBclBucketSize {
+  input {
+    String input_bcl_directory
+    Int memory = 16
+  }
+
+  command <<< 
+    gsutil du -s ${input_bcl_directory} | awk '{print $1/1024/1024/1024}' > input_bcl_size.txt
+  >>>
+
+  output {
+    Float input_bcl_size = read_float("input_bcl_size.txt")
+  }
+
+  runtime {
+    docker: "us.gcr.io/tag-team-160914/bcl2fastq_codec:v1"
+    memory: memory + " GB"
+	disks: "local-disk 16 HDD"
+  }
+}
+
 task run_bcl2fastq {
     input {
         String input_bcl_directory
         String output_directory
         String memory
-        Int disk_space
-        Int preemptible
+        Float input_bcl_size 
+        Int disk_space = ceil(input_bcl_size * 1.5) + select_first([extra_disk, 0])
+        Int? extra_disk
         Int read_threads = 4
         Int write_threads = 4
         String run_id = basename(input_bcl_directory)
         Boolean delete_input_bcl_directory
         Int num_cpu = 2
+        Int preemptible
     }
 
     command {

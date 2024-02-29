@@ -3,8 +3,8 @@ version 1.0
 
 workflow demux_CODEC {
     input {
-        Array[File] fastq1
-        Array[File] fastq2
+        Array[File] multisample_fastq1
+        Array[File] multisample_fastq2
         Array[String] batch_ids
         Int num_parallel
         Array[File] sample_sheet
@@ -14,13 +14,13 @@ workflow demux_CODEC {
         call SplitFastq1 {
             input:
                 batch_id =batch_ids[batch_index],
-                fastq_read1 = fastq1[batch_index],
+                fastq_read1 = multisample_fastq1[batch_index],
                 nsplit = num_parallel
         }
         call SplitFastq2 {
             input:
                 batch_id =batch_ids[batch_index],
-                fastq_read2 = fastq2[batch_index],
+                fastq_read2 = multisample_fastq2[batch_index],
                 nsplit = num_parallel
         }
         scatter (split_index in range(num_parallel)) {

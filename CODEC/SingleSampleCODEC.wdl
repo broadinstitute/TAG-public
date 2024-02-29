@@ -231,7 +231,8 @@ task SplitFastq1 {
         String sample_id
         Int nsplit
         Int memory = 64
-        Int disk_size = 200
+        Int? extra_disk
+        Int disk_size = ceil(size(fastq_read1, "GB") * 15) + select_first([extra_disk, 0])
     }
 
     command <<<
@@ -258,7 +259,8 @@ task SplitFastq2 {
         Int nsplit
         String sample_id
         Int memory = 64
-        Int disk_size = 200
+        Int? extra_disk
+        Int disk_size = ceil(size(fastq_read2, "GB") * 15) + select_first([extra_disk, 0])
     }
 
     command <<<
@@ -286,7 +288,8 @@ task Trim {
         String output_prefix
         Int split
         Int mem = 16
-        Int disk_size = 32
+        Int? extra_disk
+        Int disk_size = ceil(size(read1, "GB") * 8) + select_first([extra_disk, 0])
     }
         
     command {
@@ -317,10 +320,9 @@ task AlignRawTrimmed {
         File reference_ann
         File reference_bwt
         File reference_sa
-        Int? memory
-        Int? disk
-        Int mem = select_first([memory, 16]) 
-        Int disk_size = select_first([disk, 32]) 
+        Int mem = 16
+        Int? extra_disk
+        Int disk_size = ceil(size(bam_input, "GB") * 8) + select_first([extra_disk, 0])
         String sample_id
         Int split
     }
@@ -584,7 +586,8 @@ task GroupReadByUMI {
         File input_bam
         String sample_id
         Int memory = 64
-        Int disk_size = 200
+        Int? extra_disk
+        Int disk_size = ceil(size(input_bam, "GB") * 15) + select_first([extra_disk, 0])
     }
 
     command {
@@ -614,7 +617,8 @@ task FgbioCollapseReadFamilies {
         File grouped_umi_bam
         String sample_id
         Int memory = 64
-        Int disk_size = 200
+        Int? extra_disk
+        Int disk_size = ceil(size(grouped_umi_bam, "GB") * 10) + select_first([extra_disk, 0])
     }
 
     command {
