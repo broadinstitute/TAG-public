@@ -322,7 +322,7 @@ task AlignRawTrimmed {
         File reference_sa
         Int mem = 16
         Int? extra_disk
-        Int disk_size = ceil(size(bam_input, "GB") * 8) + select_first([extra_disk, 0])
+        Int disk_size = ceil(size(bam_input, "GB") * 20) + select_first([extra_disk, 0])
         String sample_id
         Int split
     }
