@@ -83,7 +83,7 @@ workflow SingleSampleCODEC {
                 bam_file = MergeSplit.merged_bam,
                 sample_id = sample_id                  
         }      
-        call CDSByProduct {
+        call ByProductMetrics {
             input:
                 trim_log = MergeLogSplit.merged_log,
                 highconf_bam = SortBam.sorted_bam,
@@ -166,7 +166,7 @@ workflow SingleSampleCODEC {
         }
         call QC_metrics {
             input:
-                byproduct_metrics = CDSByProduct.byproduct_metrics,
+                byproduct_metrics = ByProductMetrics.byproduct_metrics,
                 WgsMetrics = CollectWgsMetrics.WgsMetrics,
                 umiHistogram = GroupReadByUMI.umi_histogram,
                 InsertSizeMetrics = CollectInsertSizeMetrics.insert_size_metrics,
@@ -185,7 +185,7 @@ workflow SingleSampleCODEC {
         }
 
     output {
-        File byproduct_metrics = CDSByProduct.byproduct_metrics
+        File byproduct_metrics = ByProductMetrics.byproduct_metrics
         File RAW_BAM = MergeSplit.merged_bam
         File RAW_BAM_index = MergeSplit.merged_bai
         File MolConsensusBAM = MergeAndSortMoleculeConsensusReads.bam
@@ -463,7 +463,7 @@ task SortBam {
     }
 }
 
-task CDSByProduct {
+task ByProductMetrics {
     input {
         File trim_log
         File highconf_bam
@@ -831,24 +831,27 @@ task QC_metrics {
             else print "NA";
         }' > duplication_rate.txt
 
-        cat ~{byproduct_metrics} | awk 'NR==2 {print $NF}' > n_total_fastq.txt
-        cat ~{byproduct_metrics} | awk 'NR==2 {print $9}' > n_correct.txt
-        cat ~{byproduct_metrics} | awk 'NR==2 {print $2}' > pct_correct.txt
-        cat ~{byproduct_metrics} | awk 'NR==2 {print $10}' > n_double_ligation.txt
-        cat ~{byproduct_metrics} | awk 'NR==2 {print $3}' > pct_double_ligation.txt
-        cat ~{byproduct_metrics} | awk 'NR==2 {print $12}' > n_intermol.txt
-        cat ~{byproduct_metrics} | awk 'NR==2 {print $5}' > pct_intermol.txt
-        cat ~{byproduct_metrics} | awk 'NR==2 {print $11}' > n_adp_dimer.txt
-        cat ~{byproduct_metrics} | awk 'NR==2 {print $4}' > pct_adp_dimer.txt
+        awk 'NR==1 {for (i=1; i<=NF; i++) if ($i=="n_total") col=i} NR==2 {print $col}' ~{byproduct_metrics} > n_total_fastq.txt
+        awk 'NR==1 {for (i=1; i<=NF; i++) if ($i=="n_correct") col=i} NR==2 {print $col}' ~{byproduct_metrics} > n_correct.txt
+        awk 'NR==1 {for (i=1; i<=NF; i++) if ($i=="pct_correct") col=i} NR==2 {print $col}' ~{byproduct_metrics} > pct_correct.txt
+        awk 'NR==1 {for (i=1; i<=NF; i++) if ($i=="n_double_ligation") col=i} NR==2 {print $col}' ~{byproduct_metrics} > n_double_ligation.txt
+        awk 'NR==1 {for (i=1; i<=NF; i++) if ($i=="pct_double_ligation") col=i} NR==2 {print $col}' ~{byproduct_metrics} > pct_double_ligation.txt
+        awk 'NR==1 {for (i=1; i<=NF; i++) if ($i=="n_intermol") col=i} NR==2 {print $col}' ~{byproduct_metrics} > n_intermol.txt
+        awk 'NR==1 {for (i=1; i<=NF; i++) if ($i=="pct_intermol") col=i} NR==2 {print $col}' ~{byproduct_metrics} > pct_intermol.txt
+        awk 'NR==1 {for (i=1; i<=NF; i++) if ($i=="n_adp_dimer") col=i} NR==2 {print $col}' ~{byproduct_metrics} > n_adp_dimer.txt
+        awk 'NR==1 {for (i=1; i<=NF; i++) if ($i=="pct_adp_dimer") col=i} NR==2 {print $col}' ~{byproduct_metrics} > pct_adp_dimer.txt
+
         cat ~{WgsMetrics} | grep -v "#" | awk 'NR==3 {print $2}' > raw_dedupped_mean_cov.txt
         cat ~{WgsMetrics} | grep -v "#" | awk 'NR==3 {print $4}' > raw_dedupped_median_cov.txt
         cat ~{InsertSizeMetrics} | grep -v "#" | awk 'NR==3 {print $1}' > median_insert_size.txt
         cat ~{InsertSizeMetrics} | grep -v "#" | awk 'NR==3 {print $6}' > mean_insert_size.txt
-        cat ~{mutant_metrics} | awk 'NR==2 {print $8}' > n_snv.txt
-        cat ~{mutant_metrics} | awk 'NR==2 {print $10}' > n_indel.txt
-        cat ~{mutant_metrics} | awk 'NR==2 {print $3}' > n_bases_eval.txt
-        cat ~{mutant_metrics} | awk 'NR==2 {print $9}' > snv_rate.txt
-        cat ~{mutant_metrics} | awk 'NR==2 {print $11}' > indel_rate.txt
+
+        awk 'NR==1 {for (i=1; i<=NF; i++) if ($i=="n_snv") col=i} NR==2 {print $col}' ~{mutant_metrics} > n_snv.txt
+        awk 'NR==1 {for (i=1; i<=NF; i++) if ($i=="n_indel") col=i} NR==2 {print $col}' ~{mutant_metrics} > n_indel.txt
+        awk 'NR==1 {for (i=1; i<=NF; i++) if ($i=="n_bases_eval") col=i} NR==2 {print $col}' ~{mutant_metrics} > n_bases_eval.txt
+        awk 'NR==1 {for (i=1; i<=NF; i++) if ($i=="snv_rate") col=i} NR==2 {print $col}' ~{mutant_metrics} > snv_rate.txt
+        awk 'NR==1 {for (i=1; i<=NF; i++) if ($i=="indel_rate") col=i} NR==2 {print $col}' ~{mutant_metrics} > indel_rate.txt
+
 
 
     >>>
