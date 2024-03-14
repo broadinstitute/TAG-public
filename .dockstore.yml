@@ -119,3 +119,13 @@ workflows:
    primaryDescriptorPath: /CleanupFailedSubmissions/Cleanup_Failed_Submissions.wdl
    testParameterFiles:
     - /CleanupFailedSubmissions/Cleanup_Failed_Submissions.inputs.json
+ - name: NeoVax_Analysis
+   subclass: WDL
+   primaryDescriptorPath: /NeoVax/NeoVax_Analysis/NeoVax_Analysis.wdl
+   testParameterFiles:
+    - /NeoVax/NeoVax_Analysis/NeoVax_Analysis.inputs.json
+ - name: NeoVax_PackageData
+   subclass: WDL
+   primaryDescriptorPath: /NeoVax/NeoVax_PackageData/NeoVax_PackageData.wdl
+   testParameterFiles:
+    - /NeoVax/NeoVax_PackageData/NeoVax_PackageData.inputs.json
