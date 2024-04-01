@@ -44,7 +44,7 @@ workflow Clinical_CNV_Eval {
         File constructed_dragen_call = PostProcessWittyer.constructed_dragen_call
         String merged_eval_decision = PostProcessWittyer.merged_eval_decision
         Float merged_overlap_ratio = PostProcessWittyer.merged_overlap_ratio
-        File comparison_plot = PostProcessWittyer.comparison_plot
+        File? comparison_plot = PostProcessWittyer.comparison_plot
     }
 }
     task GenerateTruthVCF{
