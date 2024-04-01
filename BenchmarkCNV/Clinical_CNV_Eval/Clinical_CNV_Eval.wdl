@@ -44,7 +44,7 @@ workflow Clinical_CNV_Eval {
         File overlapping_dragen_calls = PostProcessWittyer.overlapping_dragen_calls
         File constructed_dragen_call = PostProcessWittyer.constructed_dragen_call
         String merged_eval_decision = PostProcessWittyer.merged_eval_decision
-        Float merged_overlap_ratio = PostProcessWittyer.merged_overlap_ratio
+        String merged_overlap_ratio = PostProcessWittyer.merged_overlap_ratio
         File? comparison_plot = PostProcessWittyer.comparison_plot
     }
 }
@@ -160,7 +160,7 @@ CODE
             File overlapping_dragen_calls = "dragen_calls.txt"
             File constructed_dragen_call = "constructed_interval.txt"
             String merged_eval_decision = read_string("merged_eval_decision.txt")
-            Float merged_overlap_ratio = read_float("merged_overlap_ratio.txt")
+            String merged_overlap_ratio = read_string("merged_overlap_ratio.txt")
             File comparison_plot = glob("*_compare_sv.png")
         }
     }
