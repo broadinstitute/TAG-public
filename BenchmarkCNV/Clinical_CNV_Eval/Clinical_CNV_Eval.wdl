@@ -159,7 +159,7 @@ CODE
             File constructed_dragen_call = "constructed_interval.txt"
             String merged_eval_decision = read_string("merged_eval_decision.txt")
             Float merged_overlap_ratio = read_float("merged_overlap_ratio.txt")
-            File comparison_plot = glob("*_compare_sv.png.png")
+            File comparison_plot = glob("*_compare_sv.png")
         }
     }
     
