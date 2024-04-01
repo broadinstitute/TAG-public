@@ -20,7 +20,7 @@ workflow Clinical_CNV_Eval {
     call SetWittyerConfig {
         input:
             Pre_Wittyer_Config = Pre_Wittyer_Config,
-            Wittyer_BPD = 250000,
+            Wittyer_BPD = 750000,
             Wittyer_PD = 0.25
     }
     call CompareVCF {
@@ -30,17 +30,21 @@ workflow Clinical_CNV_Eval {
             wittyer_config = SetWittyerConfig.wittyer_config,
             Wittyer_Docker = Wittyer_Docker
     }
-    call CheckTPVariant {
+    call PostProcessWittyer {
         input:
-            Comparison_VCF = CompareVCF.comparison_vcf
+            Comparison_VCF = CompareVCF.comparison_vcf,
+            Wittyer_BPD = Wittyer_BPD,
+            Wittyer_PD = Wittyer_PD
     }
     output {
         File Truth_VCF = GenerateTruthVCF.truth_vcf
         File Comparison_VCF = CompareVCF.comparison_vcf
-        Int Called = CheckTPVariant.tp_called
-        String Called_coordinates = CheckTPVariant.eval_coordinates
-        Int Called_length = CheckTPVariant.eval_length
-        String Called_svclaim = CheckTPVariant.eval_svclaim
+        String wittyer_decision = PostProcessWittyer.wittyer_decision
+        File overlapping_dragen_calls = PostProcessWittyer.overlapping_dragen_calls
+        File constructed_dragen_call = PostProcessWittyer.constructed_dragen_call
+        String merged_eval_decision = PostProcessWittyer.merged_eval_decision
+        Float merged_overlap_ratio = PostProcessWittyer.merged_overlap_ratio
+        File comparison_plot = PostProcessWittyer.comparison_plot
     }
 }
     task GenerateTruthVCF{
@@ -126,53 +130,36 @@ CODE
             File wittyer_stats = "wittyer_output/Wittyer.Stats.json"
         }
     }
-    task CheckTPVariant{
+    task PostProcessWittyer{
         input {
             File Comparison_VCF
+            Int Wittyer_BPD
+            Float Wittyer_PD
+            String Wittyer_Postprocess_Docker = "us.gcr.io/tag-team-160914/cnv-clinical-eval:0.1.0-alpha"
         }
         command <<<
     set -e
-    # Check if TP variant is called
-    # If TP variant is called, return 1, else return 0
-    # I hardcoded DRAGEN here. But it can be changed to any other caller
+            # post process wittyer output
+            # Check TP, FN and see if merge is needed
+            conda run --no-capture-output \
+            -n Clinical-CNV-Env \
+            python3 /BaseImage/CNV_Clinical_Eval/scripts/cnv_clinical_eval.py \
+            --vcf ~{Comparison_VCF} \
+            --bpd ~{Wittyer_BPD} \
+            --pd ~{Wittyer_PD}
 
-    # Check if TP variant is called (grep -q means quiet mode, no output)
-    if zcat ~{Comparison_VCF} | grep TP | grep DRAGEN | awk '{print $3}' | grep -q .; then
-        echo "1" > called.txt
-    else
-        echo "0" > called.txt
-    fi
-
-    # If TP variant is called, return coordinates, else return NA.
-    if zcat ~{Comparison_VCF} | grep TP | grep DRAGEN | awk '{print $3}' | grep -q .; then
-        zcat ~{Comparison_VCF} | grep TP | grep DRAGEN | awk '{print $3}' > eval_coordinates.txt
-    else
-        echo "NA" > eval_coordinates.txt
-    fi
-
-    # If TP variant is called, return SV length, else return NA.
-    if zcat ~{Comparison_VCF} | grep TP | grep DRAGEN  | awk '{print $8}' | grep -o 'SVLEN=[^;]*' | awk -F'=' '{print $2}' | grep -q .; then
-        zcat ~{Comparison_VCF} | grep TP | grep DRAGEN  | awk '{print $8}' | grep -o 'SVLEN=[^;]*' | awk -F'=' '{print $2}' > eval_svlength.txt
-    else
-        echo 0 > eval_svlength.txt
-    fi
-
-    # If TP variant is called, return SV claim, else return NA.
-    if zcat ~{Comparison_VCF} | grep TP | grep DRAGEN  | awk '{print $8}' | grep -o 'SVCLAIM=[^;]*' | awk -F'=' '{print $2}' | grep -q .; then
-        zcat ~{Comparison_VCF} | grep TP | grep DRAGEN  | awk '{print $8}' | grep -o 'SVCLAIM=[^;]*' | awk -F'=' '{print $2}' > eval_svclaim.txt
-    else
-        echo "NA" > eval_svclaim.txt
-    fi
     >>>
         runtime {
-            docker: "ubuntu:latest"
+            docker: Wittyer_Postprocess_Docker
             preemptible: 2
         }
         output {
-            Int tp_called = read_int("called.txt")
-            String eval_coordinates = read_string("eval_coordinates.txt")
-            Int eval_length = read_int("eval_svlength.txt")
-            String eval_svclaim = read_string("eval_svclaim.txt")
+            String wittyer_decision = read_string("wittyer_decision.txt")
+            File overlapping_dragen_calls = "dragen_calls.txt"
+            File constructed_dragen_call = "constructed_interval.txt"
+            String merged_eval_decision = read_string("merged_eval_decision.txt")
+            Float merged_overlap_ratio = read_float("merged_overlap_ratio.txt")
+            File comparison_plot = glob("*_compare_sv.png.png")
         }
     }
     
