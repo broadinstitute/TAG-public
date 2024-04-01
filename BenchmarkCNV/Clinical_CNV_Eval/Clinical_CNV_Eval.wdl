@@ -149,6 +149,11 @@ CODE
             --bpd ~{Wittyer_BPD} \
             --pd ~{Wittyer_PD}
 
+            # rename the output figure if it exists
+            if [ -f *_compare_sv.png ]; then
+                mv *_compare_sv.png wittyer_comparison_plot.png
+            fi
+
     >>>
         runtime {
             docker: Wittyer_Postprocess_Docker
@@ -161,7 +166,7 @@ CODE
             File constructed_dragen_call = "constructed_interval.txt"
             String merged_eval_decision = read_string("merged_eval_decision.txt")
             String merged_overlap_ratio = read_string("merged_overlap_ratio.txt")
-            File? comparison_plot = glob("*_compare_sv.png")
+            File? comparison_plot = "wittyer_comparison_plot.png"
         }
     }
     
