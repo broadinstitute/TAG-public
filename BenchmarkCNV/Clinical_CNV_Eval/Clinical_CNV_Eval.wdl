@@ -39,6 +39,7 @@ workflow Clinical_CNV_Eval {
     output {
         File Truth_VCF = GenerateTruthVCF.truth_vcf
         File Comparison_VCF = CompareVCF.comparison_vcf
+        Int truth_length = PostProcessWittyer.truth_length
         String wittyer_decision = PostProcessWittyer.wittyer_decision
         File overlapping_dragen_calls = PostProcessWittyer.overlapping_dragen_calls
         File constructed_dragen_call = PostProcessWittyer.constructed_dragen_call
@@ -154,6 +155,7 @@ CODE
             preemptible: 2
         }
         output {
+            Int truth_length = read_int("truth_length.txt")
             String wittyer_decision = read_string("wittyer_decision.txt")
             File overlapping_dragen_calls = "dragen_calls.txt"
             File constructed_dragen_call = "constructed_interval.txt"
