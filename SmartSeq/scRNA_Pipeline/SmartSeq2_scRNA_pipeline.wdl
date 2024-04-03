@@ -172,7 +172,7 @@ task AdapterQC {
     runtime {
       docker: ss2_adapter_qc_docker
       disks: "local-disk " + disk_size + " HDD"
-      memory: mem + "GB"
+      memory: mem + " GB"
       cpu: "1"
     }
     output {
@@ -209,7 +209,7 @@ task ExtractQC_metrics {
     runtime {
       docker: ss2_docker
       disks: "local-disk 25 HDD"
-      memory: mem + "GB"
+      memory: mem + " GB"
       cpu: "1"
     }
 
