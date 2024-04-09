@@ -157,12 +157,11 @@ CODE
             conda run --no-capture-output \
             -n Clinical-CNV-Env \
             python3 /BaseImage/CNV_Clinical_Eval/scripts/cnv_clinical_eval.py \
-            -wv ~{Comparison_VCF} \
-            -bpd ~{Wittyer_BPD} \
-            -pd ~{Wittyer_PD} \
-            -pv ~{Proband_ShortVariant_VCF} \
-            -nv ~{Normal_ShortVariant_VCF}
-
+            --vcf ~{Comparison_VCF} \
+            --bpd ~{Wittyer_BPD} \
+            --pd ~{Wittyer_PD} \
+            --proband_vcf ~{Proband_ShortVariant_VCF} \
+            --normal_vcf ~{Normal_ShortVariant_VCF}
 
             # rename the DRAGEN-vs-Truth output figure if it exists
             if [ -f *_compare_sv.png ]; then
