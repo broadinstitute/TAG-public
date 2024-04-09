@@ -10,6 +10,8 @@ workflow Clinical_CNV_Eval {
         Float Wittyer_PD
         File Sample_VCF
         String Wittyer_Docker = "yg96/wittyer:v2"
+        File Proband_ShortVariant_VCF
+        File Normal_ShortVariant_VCF
     }
     call GenerateTruthVCF {
         input:
@@ -34,7 +36,9 @@ workflow Clinical_CNV_Eval {
         input:
             Comparison_VCF = CompareVCF.comparison_vcf,
             Wittyer_BPD = Wittyer_BPD,
-            Wittyer_PD = Wittyer_PD
+            Wittyer_PD = Wittyer_PD,
+            Proband_ShortVariant_VCF = Proband_ShortVariant_VCF,
+            Normal_ShortVariant_VCF = Normal_ShortVariant_VCF
     }
     output {
         File Truth_VCF = GenerateTruthVCF.truth_vcf
@@ -46,6 +50,12 @@ workflow Clinical_CNV_Eval {
         String merged_eval_decision = PostProcessWittyer.merged_eval_decision
         String merged_overlap_ratio = PostProcessWittyer.merged_overlap_ratio
         File? comparison_plot = PostProcessWittyer.comparison_plot
+        File short_variants_within_truth_interval_stats = PostProcessWittyer.short_variants_within_truth_interval_stats
+        File heterozyogisty_within_truth_interval_plot = PostProcessWittyer.heterozyogisty_within_truth_interval_plot
+        Float proband_hom_percentage = PostProcessWittyer.proband_hom_percentage
+        Float proband_het_percentage = PostProcessWittyer.proband_het_percentage
+        Float normal_hom_percentage = PostProcessWittyer.normal_hom_percentage
+        Float normal_het_percentage = PostProcessWittyer.normal_het_percentage
     }
 }
     task GenerateTruthVCF{
@@ -136,7 +146,9 @@ CODE
             File Comparison_VCF
             Int Wittyer_BPD
             Float Wittyer_PD
-            String Wittyer_Postprocess_Docker = "us.gcr.io/tag-team-160914/cnv-clinical-eval:0.1.0-alpha"
+            String Wittyer_Postprocess_Docker = "us.gcr.io/tag-team-160914/cnv-clinical-eval:0.1.1-alpha"
+            File Proband_ShortVariant_VCF
+            File Normal_ShortVariant_VCF
         }
         command <<<
     set -e
@@ -145,14 +157,22 @@ CODE
             conda run --no-capture-output \
             -n Clinical-CNV-Env \
             python3 /BaseImage/CNV_Clinical_Eval/scripts/cnv_clinical_eval.py \
-            --vcf ~{Comparison_VCF} \
-            --bpd ~{Wittyer_BPD} \
-            --pd ~{Wittyer_PD}
+            -wv ~{Comparison_VCF} \
+            -bpd ~{Wittyer_BPD} \
+            -pd ~{Wittyer_PD} \
+            -pv ~{Proband_ShortVariant_VCF} \
+            -nv ~{Normal_ShortVariant_VCF}
 
-            # rename the output figure if it exists
+
+            # rename the DRAGEN-vs-Truth output figure if it exists
             if [ -f *_compare_sv.png ]; then
                 mv *_compare_sv.png wittyer_comparison_plot.png
             fi
+
+            # Rename the truth LOH status file
+            mv truth_*_LOH.png truth_heterozyogisty_status.png
+            mv *_short_variants_stats.csv short_variants_within_truth_interval_stats.csv
+
 
     >>>
         runtime {
@@ -167,6 +187,12 @@ CODE
             String merged_eval_decision = read_string("merged_eval_decision.txt")
             String merged_overlap_ratio = read_string("merged_overlap_ratio.txt")
             File? comparison_plot = "wittyer_comparison_plot.png"
+            File short_variants_within_truth_interval_stats = "short_variants_within_truth_interval_stats.csv"
+            File heterozyogisty_within_truth_interval_plot = "truth_heterozyogisty_status.png"
+            Float proband_hom_percentage = read_float("proband_hom_percentage.txt")
+            Float proband_het_percentage = read_float("proband_het_percentage.txt")
+            Float normal_hom_percentage = read_float("normal_hom_percentage.txt")
+            Float normal_het_percentage = read_float("normal_het_percentage.txt")
         }
     }
     
