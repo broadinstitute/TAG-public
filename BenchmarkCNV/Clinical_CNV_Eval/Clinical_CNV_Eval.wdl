@@ -177,6 +177,8 @@ CODE
         runtime {
             docker: Wittyer_Postprocess_Docker
             preemptible: 2
+            memory: "32 GB"
+            cpu: "4"
         }
         output {
             Int truth_length = read_int("truth_length.txt")
