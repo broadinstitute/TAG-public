@@ -71,11 +71,12 @@ workflow TAG_Mop{
             with open('num_of_sys_files_to_delete.txt', 'w') as f:
                 f.write(str(len(sys_files_to_delete)))
             print(f"System Files to Delete in {namespace}/{workspaceName}: ", len(sys_files_to_delete))
+            print(sys_files_to_delete)
 
             if len(sys_files_to_delete) == 0:
                 print("No system files to delete")
             else:
-                for pattern in set([i.split('/')[-1] for i in sys_files_to_delete], desc="Deleting System Files", unit="pattern"):
+                for pattern in set([i.split('/')[-1] for i in sys_files_to_delete]):
                     subprocess.run(['gsutil', '-m', 'rm', f'gs://{bucket_name}/**/{pattern}'])
 
             CODE
