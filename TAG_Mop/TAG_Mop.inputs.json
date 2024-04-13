@@ -1,0 +1,9 @@
+{
+  "TAG_Mop.runMop": "Boolean",
+  "TAG_Mop.workspaceName": "String",
+  "TAG_Mop.removeFailedSubmissions": "Boolean",
+  "TAG_Mop.namespace": "String (optional, default = \"broadtagteam\")",
+  "TAG_Mop.mopDocker": "String (optional, default = \"us.gcr.io/tag-team-160914/neovax-parsley:2.2.1.0\")",
+  "TAG_Mop.remove_partially_fail": "Boolean (optional, default = false)"
+}
+
