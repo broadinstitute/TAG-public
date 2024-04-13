@@ -36,7 +36,7 @@ workflow TAG_Mop{
         meta {
             author: "Yueyao Gao"
             email: "gaoyueya@broadinstitute.org"
-            description: "TAG Mop contains three sub-workflows: rmSysfiles, removeFailedSubmission, and mop. rmSysfiles removes system files that were generated from submissions from a Terra workspace. mop runs the Mop pipeline."
+            description: "TAG Mop contains three sub-workflows: rmSysfiles and mop. rmSysfiles removes system files that were generated from submissions from a Terra workspace. mop runs the FISS Mop function. Suggest to run after cleanupFailedSubmission.wdl"
         }
 
     }
