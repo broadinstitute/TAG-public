@@ -38,6 +38,7 @@ workflow TAG_Mop {
         if (runMop && task_index == 2) {
             call mop {
                 input:
+                    namespace = namespace,
                     workspaceName = workspaceName,
                     mopDocker = mopDocker
             }
@@ -45,7 +46,7 @@ workflow TAG_Mop {
     }
 
     output {
-        Int deleted_sys_files = rmSysfiles.deleted_sys_files
+        Array[Int?] deleted_sys_files = rmSysfiles.deleted_sys_files
     }
 
     meta {
