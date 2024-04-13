@@ -30,6 +30,7 @@ workflow TAG_Mop{
         output{
             Int deleted_sys_files = rmSysfiles.deleted_sys_files
             Int? mopped_files = mop.num_of_files_to_mop
+            File? mop_dry_run = mop.mopped_files
         }
 
         meta {
@@ -115,6 +116,7 @@ workflow TAG_Mop{
         >>>
         output{
             Int num_of_files_to_mop = read_int("num_of_files_to_mop.txt")
+            File mopped_files = "mop_dry_run.txt"
         }
         runtime {
             docker: mopDocker
