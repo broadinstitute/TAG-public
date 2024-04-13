@@ -1,22 +1,25 @@
 version 1.0
 
-    workflow TAG_Mop{
-        input{
-            String namespace = "broadtagteam"
-            String workspaceName
-            String mopDocker = "us.gcr.io/tag-team-160914/neovax-parsley:2.2.1.0"
-            Boolean removeFailedSubmissions
-            Boolean runMop
-            Boolean remove_partially_fail = false
-        }
-        call rmSysfiles {
-            input:
-                namespace = namespace,
-                workspaceName = workspaceName,
-                mopDocker = mopDocker
-        }
+workflow TAG_Mop {
+    input {
+        String namespace = "broadtagteam"
+        String workspaceName
+        String mopDocker = "us.gcr.io/tag-team-160914/neovax-parsley:2.2.1.0"
+        Boolean removeFailedSubmissions
+        Boolean runMop
+        Boolean remove_partially_fail = false
+    }
 
-        if (removeFailedSubmissions){
+    scatter (task_index in range(3)) {
+        if (task_index == 0) {
+            call rmSysfiles {
+                input:
+                    namespace = namespace,
+                    workspaceName = workspaceName,
+                    mopDocker = mopDocker
+            }
+        }
+        if (removeFailedSubmissions && task_index == 1) {
             call GetFailedSubmissions {
                 input:
                     namespace = namespace,
@@ -30,29 +33,27 @@ version 1.0
                         bucket_name = GetFailedSubmissions.workspace_bucket,
                         submission_id = sid
                 }
-    }
+            }
         }
-
-        if (runMop){
+        if (runMop && task_index == 2) {
             call mop {
                 input:
                     workspaceName = workspaceName,
                     mopDocker = mopDocker
             }
         }
-
-
-        output{
-            Int deleted_sys_files = rmSysfiles.deleted_sys_files
-        }
-
-        meta {
-            author: "Yueyao Gao"
-            email: "gaoyueya@broadinstitute.org"
-            description: "TAG Mop contains three sub-workflows: rmSysfiles, removeFailedSubmission, and mop. rmSysfiles removes system files that were generated from submissions from a Terra workspace. mop runs the Mop pipeline."
-        }
-
     }
+
+    output {
+        Int deleted_sys_files = rmSysfiles.deleted_sys_files
+    }
+
+    meta {
+        author: "Yueyao Gao"
+        email: "gaoyueya@broadinstitute.org"
+        description: "TAG Mop contains three sub-workflows: rmSysfiles, removeFailedSubmission, and mop. rmSysfiles removes system files that were generated from submissions from a Terra workspace. mop runs the Mop pipeline."
+    }
+}
 
     task rmSysfiles {
         input{
@@ -82,7 +83,7 @@ version 1.0
 
             # Output the number of system files to delete
             with open('num_of_sys_files_to_delete.txt', 'w') as f:
-                f.write(len(sys_files_to_delete))
+                f.write(str(len(sys_files_to_delete)))
             print(f"System Files to Delete in {namespace}/{workspaceName}: ", len(sys_files_to_delete))
 
             for pattern in set([i.split('/')[-1] for i in sys_files_to_delete], desc="Deleting System Files", unit="pattern"):
@@ -96,6 +97,8 @@ version 1.0
         }
         runtime {
             docker: mopDocker
+            memory: "32 GiB"
+            cpu: 8
         }
     }
 
@@ -183,5 +186,7 @@ task CleanupAFolder {
         >>>
         runtime {
             docker: mopDocker
+            memory: "32 GiB"
+            cpu: 8
         }
     }
