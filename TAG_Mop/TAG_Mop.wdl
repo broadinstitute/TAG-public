@@ -29,8 +29,8 @@ workflow TAG_Mop{
 
         output{
             Int deleted_sys_files = rmSysfiles.deleted_sys_files
-            Int? mopped_files = mop.num_of_files_to_mop
-            File? mop_dry_run = mop.mopped_files
+            Int? num_mopped_files = mop.num_of_files_to_mop
+            File? mopped_files = mop.mopped_files
         }
 
         meta {
