@@ -41,6 +41,11 @@ version 1.0
             }
         }
 
+
+        output{
+            Int deleted_sys_files = rmSysfiles.deleted_sys_files
+        }
+
         meta {
             author: "Yueyao Gao"
             email: "gaoyueya@broadinstitute.org"
