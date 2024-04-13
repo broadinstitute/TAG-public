@@ -29,6 +29,7 @@ workflow TAG_Mop{
 
         output{
             Int deleted_sys_files = rmSysfiles.deleted_sys_files
+            Int mopped_files = mop.num_of_files_to_mop
         }
 
         meta {
@@ -98,22 +99,21 @@ workflow TAG_Mop{
         }
         command <<<
             source activate NeoVax-Input-Parser
-            python <<CODE
-            import firecloud.api as fapi
-            import subprocess
+            # Dry run Mop
+            fissfc mop -w ~{workspaceName} -p ~{namespace} --dry-run > mop_dry_run.txt
+            echo Files to mop:" $(cat mop_dry_run.txt | wc -l)"
+            cat mop_dry_run.txt | wc -l > num_of_files_to_mop.txt
 
-            print("System Files Deleted: ", ~{sysfiles})
-
-            namespace = "~{namespace}"
-            workspaceName = "~{workspaceName}"
-            print(f"Running Mop in {namespace}/{workspaceName}")
-
-            # Run fissfc Mop to remove data that not presented in the data model
-            subprocess.run(['fissfc', 'mop', '-w', workspaceName, '-p', namespace])
-
-            CODE
-
+            # Mop
+            if [ $(cat mop_dry_run.txt | wc -l) -eq 0 ]; then
+                echo "No files to mop"
+            else
+                fissfc mop -w ~{workspaceName} -p ~{namespace}
+            fi
         >>>
+        output{
+            Int num_of_files_to_mop = read_int("num_of_files_to_mop.txt")
+        }
         runtime {
             docker: mopDocker
             memory: "32 GiB"
