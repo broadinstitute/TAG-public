@@ -168,6 +168,7 @@ task CleanupAFolder {
 
     task mop {
         input{
+            String namespace
             String workspaceName
             String mopDocker
         }
@@ -175,11 +176,13 @@ task CleanupAFolder {
             source activate NeoVax-Input-Parser
             python <<CODE
             import firecloud.api as fapi
+            import subprocess
 
+            namespace = "~{namespace}"
             workspaceName = "~{workspaceName}"
 
             # Run fissfc Mop to remove data that not presented in the data model
-            subprocess.run(['fissfc', 'mop', '-w', workspaceName, '-p', 'broadtagteam'])
+            subprocess.run(['fissfc', 'mop', '-w', workspaceName, '-p', namespace])
 
             CODE
 
