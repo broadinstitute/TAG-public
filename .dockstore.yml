@@ -119,3 +119,8 @@ workflows:
    primaryDescriptorPath: /CleanupFailedSubmissions/Cleanup_Failed_Submissions.wdl
    testParameterFiles:
     - /CleanupFailedSubmissions/Cleanup_Failed_Submissions.inputs.json
+ - name: TAG_Mop
+   subclass: WDL
+   primaryDescriptorPath: /TAG_Mop/TAG_Mop.wdl
+   testParameterFiles:
+    - /TAG_Mop/TAG_Mop.inputs.json
