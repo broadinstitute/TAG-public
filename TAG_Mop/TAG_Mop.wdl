@@ -29,7 +29,7 @@ workflow TAG_Mop{
 
         output{
             Int deleted_sys_files = rmSysfiles.deleted_sys_files
-            Int mopped_files = mop.num_of_files_to_mop
+            Int? mopped_files = mop.num_of_files_to_mop
         }
 
         meta {
@@ -99,6 +99,8 @@ workflow TAG_Mop{
         }
         command <<<
             source activate NeoVax-Input-Parser
+            # The number of system files that were deleted
+            echo "System Files Deleted: ~{sysfiles}"
             # Dry run Mop
             fissfc mop -w ~{workspaceName} -p ~{namespace} --dry-run > mop_dry_run.txt
             echo Files to mop:" $(cat mop_dry_run.txt | wc -l)"
