@@ -29,6 +29,7 @@ workflow TAG_Mop{
 
         output{
             Int deleted_sys_files = rmSysfiles.deleted_sys_files
+            File sys_files_to_delete = rmSysfiles.sys_files_to_delete
             Int? num_mopped_files = mop.num_of_files_to_mop
             File? mopped_files = mop.mopped_files
         }
@@ -52,6 +53,7 @@ workflow TAG_Mop{
             python <<CODE
             from google.cloud import storage
             import firecloud.api as fapi
+            import subprocess
 
             namespace = "~{namespace}"
             workspaceName = "~{workspaceName}"
@@ -71,7 +73,9 @@ workflow TAG_Mop{
             with open('num_of_sys_files_to_delete.txt', 'w') as f:
                 f.write(str(len(sys_files_to_delete)))
             print(f"System Files to Delete in {namespace}/{workspaceName}: ", len(sys_files_to_delete))
-            print(sys_files_to_delete)
+            with open('sys_files_to_delete.txt', 'w') as f:
+                for file in sys_files_to_delete:
+                    f.write(file + '\n')
 
             if len(sys_files_to_delete) == 0:
                 print("No system files to delete")
@@ -84,6 +88,7 @@ workflow TAG_Mop{
         >>>
         output{
             Int deleted_sys_files = read_int("num_of_sys_files_to_delete.txt")
+            File sys_files_to_delete = "sys_files_to_delete.txt"
         }
         runtime {
             docker: mopDocker
