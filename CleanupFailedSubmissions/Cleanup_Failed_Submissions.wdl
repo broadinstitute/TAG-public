@@ -97,7 +97,7 @@ task CleanupAFolder {
         elif gsutil -q ls gs://~{bucket_name}/~{submission_id} >/dev/null 2>&1; then
             timeout 23h gsutil -q rm -rf gs://~{bucket_name}/~{submission_id} || echo "Timed out. Please try again."
         else
-            echo "File path does not exist."
+            echo "Failed submission folder not found. This workspace has been cleaned up already."
         fi
     >>>
 
