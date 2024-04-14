@@ -35,6 +35,10 @@ workflow Cleanup_Failed_Submissions {
                 submission_id = sid
         }
     }
+
+output {
+        Int num_failed_submissions = length(GetWorkspaceInfo.failed_submissions)
+    }
 }
 
 task GetWorkspaceInfo {
