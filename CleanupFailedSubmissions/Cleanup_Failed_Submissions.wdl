@@ -91,7 +91,14 @@ task CleanupAFolder {
     }
 
     command <<<
-        timeout 23h gsutil -q rm -rf gs://~{bucket_name}/submissions/~{submission_id} || echo "Timed out. Please try again."
+        # Older version of Terra does not have the submission folder
+        if gsutil -q ls gs://~{bucket_name}/submissions/~{submission_id} >/dev/null 2>&1; then
+            timeout 23h gsutil -q rm -rf gs://~{bucket_name}/submissions/~{submission_id} || echo "Timed out. Please try again."
+        elif gsutil -q ls gs://~{bucket_name}/~{submission_id} >/dev/null 2>&1; then
+            timeout 23h gsutil -q rm -rf gs://~{bucket_name}/~{submission_id} || echo "Timed out. Please try again."
+        else
+            echo "File path does not exist."
+        fi
     >>>
 
     runtime {
