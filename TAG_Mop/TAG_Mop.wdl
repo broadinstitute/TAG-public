@@ -28,8 +28,8 @@ workflow TAG_Mop{
 
 
         output{
-            Int deleted_sys_files = rmSysfiles.deleted_sys_files
-            File sys_files_to_delete = rmSysfiles.sys_files_to_delete
+            Int num_deleted_sys_files = rmSysfiles.deleted_sys_files
+            File deleted_sys_files = rmSysfiles.sys_files_to_delete
             Int? num_mopped_files = mop.num_of_files_to_mop
             File? mopped_files = mop.mopped_files
         }
