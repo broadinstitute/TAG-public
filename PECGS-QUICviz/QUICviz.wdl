@@ -53,7 +53,7 @@ task QUICviz {
         File oncotatedCalledTumor
     }
     command <<<
-        Rscript /BaseImage/CMI_QUICviz/scripts/QUICviz_v0.3.R \
+        /usr/local/bin/Rscript /BaseImage/CMI_QUICviz/scripts/QUICviz_v0.3.R \
             --sample ~{sampleID} \
             --tumor_type ~{tumorType} \
             --normal_acf ~{allelicCountsNormal} \
