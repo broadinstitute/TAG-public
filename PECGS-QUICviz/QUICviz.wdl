@@ -53,16 +53,20 @@ task QUICviz {
         File oncotatedCalledTumor
     }
     command <<<
-        /usr/local/bin/Rscript /BaseImage/CMI_QUICviz/scripts/QUICviz_v0.3.R \
-            --sample ~{sampleID} \
-            --tumor_type ~{tumorType} \
-            --normal_acf ~{allelicCountsNormal} \
-            --normal_cr ~{denoisedCopyRatiosNormal} \
-            --tumor_acf ~{allelicCountsTumor} \
-            --tumor_cr ~{denoisedCopyRatiosTumor} \
-            --tumor_cr_seg ~{calledCopyRatioSegTumor} \
-            --tumor_seg_oncotated ~{oncotatedCalledTumor} \
-            --output_dir /BaseImage/CMI_QUICviz/outputs/
+        set -e
+        Sys.which("Rscript")
+
+        /usr/local/bin/Rscript /BaseImage/CMI_QUICviz/scripts/QUICviz_v0.3.R -h
+#        \
+#            --sample ~{sampleID} \
+#            --tumor_type ~{tumorType} \
+#            --normal_acf ~{allelicCountsNormal} \
+#            --normal_cr ~{denoisedCopyRatiosNormal} \
+#            --tumor_acf ~{allelicCountsTumor} \
+#            --tumor_cr ~{denoisedCopyRatiosTumor} \
+#            --tumor_cr_seg ~{calledCopyRatioSegTumor} \
+#            --tumor_seg_oncotated ~{oncotatedCalledTumor} \
+#            --output_dir /BaseImage/CMI_QUICviz/outputs/
 
     >>>
     output {
