@@ -55,7 +55,7 @@ task QUICviz {
     command <<<
         set -e
 
-        Rscript /BaseImage/CMI_QUICviz/scripts/QUICviz_v0.3.R \
+        Rscript /BaseImage/CMI_QUICviz/scripts/CMI_QUICviz_v0.3.R \
             --sample ~{sampleID} \
             --tumor_type ~{tumorType} \
             --normal_acf ~{allelicCountsNormal} \
