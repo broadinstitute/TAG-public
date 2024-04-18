@@ -63,7 +63,7 @@ task QUICviz {
 
     >>>
     output {
-        Array[File] plot = glob("/BaseImage/CMI_QUICviz/outputs/*.png")
+        Array[File] plot = glob("outputs/*.png")
     }
     runtime {
         docker: "us-central1-docker.pkg.dev/tag-team-160914/gptag-dockers/cmi_quicviz:0.3.0"
