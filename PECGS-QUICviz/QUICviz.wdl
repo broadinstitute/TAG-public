@@ -4,6 +4,7 @@ workflow QUICviz {
     input {
         String sampleID
         String tumorType
+        String quicvizDocker = "us-central1-docker.pkg.dev/tag-team-160914/gptag-dockers/cmi_quicviz:0.3.0"
         File allelicCountsNormal
         File allelicCountsTumor
         File denoisedCopyRatiosNormal
@@ -15,6 +16,7 @@ workflow QUICviz {
         input:
             sampleID = sampleID,
             tumorType = tumorType,
+            quicvizDocker = quicvizDocker,
             allelicCountsNormal = allelicCountsNormal,
             allelicCountsTumor = allelicCountsTumor,
             denoisedCopyRatiosNormal = denoisedCopyRatiosNormal,
@@ -42,6 +44,7 @@ task QUICviz {
     input {
         String sampleID
         String tumorType
+        String quicvizDocker
         File allelicCountsNormal
         File allelicCountsTumor
         File denoisedCopyRatiosNormal
@@ -66,7 +69,7 @@ task QUICviz {
         Array[File] plot = glob("outputs/*.png")
     }
     runtime {
-        docker: "us-central1-docker.pkg.dev/tag-team-160914/gptag-dockers/cmi_quicviz:0.3.0"
+        docker: quicvizDocker
         memory: "16 GB"
         cpu: "4"
         disks: "local-disk 100 HDD"
