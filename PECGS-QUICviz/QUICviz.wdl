@@ -54,6 +54,7 @@ task QUICviz {
     }
     command <<<
         set -e
+        mkdir -p /BaseImage/CMI_QUICviz/outputs/
 
         Rscript /BaseImage/CMI_QUICviz/scripts/CMI_QUICviz_v0.3.R \
             --sample ~{sampleID} \
