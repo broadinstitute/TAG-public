@@ -54,7 +54,7 @@ task QUICviz {
     }
     command <<<
         set -e
-        mkdir -p /BaseImage/CMI_QUICviz/outputs/
+        mkdir outputs
 
         Rscript /BaseImage/CMI_QUICviz/scripts/CMI_QUICviz_v0.3.R \
             --sample ~{sampleID} \
@@ -65,13 +65,13 @@ task QUICviz {
             --tumor_cr ~{denoisedCopyRatiosTumor} \
             --tumor_cr_seg ~{calledCopyRatioSegTumor} \
             --tumor_seg_oncotated ~{oncotatedCalledTumor} \
-            --output_dir /BaseImage/CMI_QUICviz/outputs/
+            --output_dir outputs/
 
-        ls /BaseImage/CMI_QUICviz/outputs/
-        readlink -f /BaseImage/CMI_QUICviz/outputs/*png
+        ls outputs/
+        readlink -f outputs/*png
     >>>
     output {
-        Array[File] plot = glob("/BaseImage/CMI_QUICviz/outputs/*.png")
+        Array[File] plot = glob("outputs/*.png")
     }
     runtime {
         docker: quicvizDocker
