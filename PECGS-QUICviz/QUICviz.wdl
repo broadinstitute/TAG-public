@@ -67,9 +67,11 @@ task QUICviz {
             --tumor_seg_oncotated ~{oncotatedCalledTumor} \
             --output_dir /BaseImage/CMI_QUICviz/outputs/
 
+        ls /BaseImage/CMI_QUICviz/outputs/
+        readlink -f /BaseImage/CMI_QUICviz/outputs/*png
     >>>
     output {
-        Array[File] plot = glob("outputs/*.png")
+        Array[File] plot = glob("/BaseImage/CMI_QUICviz/outputs/*.png")
     }
     runtime {
         docker: quicvizDocker
