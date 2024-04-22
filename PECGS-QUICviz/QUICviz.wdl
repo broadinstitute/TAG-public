@@ -92,23 +92,19 @@ task mergeImages {
         mkdir -p output/images
         for i in `ls ~{sep=" " plot}`; do mv $i output/images/; done
         ls output/images/
-
         source activate NeoVax-Input-Parser
         pip3 install img2pdf
+
         python <<CODE
         import img2pdf
         import glob
         import os
-
-#        with open(f"output/~{SampleID}_~{TumorType}_QUICviz.pdf","wb") as f:
-#            f.write(img2pdf.convert(glob.glob("output/images/*.png")))
 
         # Get list of PNG files sorted
         png_files = sorted(glob.glob("output/images/*.png"), key=lambda x: int(os.path.basename(x).split('.')[0]))
 
         with open(f"output/~{SampleID}_~{TumorType}_QUICviz.pdf","wb") as f:
             f.write(img2pdf.convert(png_files))
-
         CODE
     >>>
     output {
