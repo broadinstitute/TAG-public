@@ -92,6 +92,7 @@ task mergeImages {
         mkdir -p output/images
         for i in `ls ~{sep=" " plot}`; do mv $i output/images/; done
 
+        source activate NeoVax-Input-Parser
         python <<CODE
         pip3 install img2pdf
         import img2pdf
