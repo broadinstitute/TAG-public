@@ -119,3 +119,9 @@ workflows:
    primaryDescriptorPath: /CleanupFailedSubmissions/Cleanup_Failed_Submissions.wdl
    testParameterFiles:
     - /CleanupFailedSubmissions/Cleanup_Failed_Submissions.inputs.json
+ - name: HiFi-human-WGS-WDL-Single-Sample
+   subclass: WDL
+   primaryDescriptorPath: /HiFi-human-WGS-WDL/sample_analysis/sample_analysis.wdl
+   testParameterFiles:
+    - /HiFi-human-WGS-WDL/sample_analysis/inputs.json
+
