@@ -112,7 +112,7 @@ task mergeImages {
     >>>
     output {
         File chr_pdf = "output/~{SampleID}_~{TumorType}_QUICviz.pdf"
-        File allchr_plot = "output/All_chr.png"
+        File allchr_plot = "output/images/All_chr.png"
     }
     runtime {
         docker: "us.gcr.io/tag-team-160914/neovax-parsley:2.2.1.0"
