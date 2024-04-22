@@ -24,11 +24,13 @@ workflow QUICviz {
             calledCopyRatioSegTumor = calledCopyRatioSegTumor,
             oncotatedCalledTumor = oncotatedCalledTumor
     }
+
+    Array[File] QUICvizPlots = QUICviz.plot
     call mergeImages {
         input:
             SampleID = sampleID,
             TumorType = tumorType,
-            plot = QUICviz.plot
+            plot = QUICvizPlots
     }
     output {
         File QUICvizPDF = mergeImages.compiled_pdf
@@ -87,7 +89,7 @@ task mergeImages {
         Array[File] plot
     }
     command <<<
-        for i in ~{plot}; do mv $i /output/images/; done
+        for i in `ls ~{sep=" " plot}`; do mv $i /output/images/; done
 
         python <<CODE
         pip3 install img2pdf
