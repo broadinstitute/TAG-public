@@ -33,7 +33,8 @@ workflow QUICviz {
             plot = QUICvizPlots
     }
     output {
-        File QUICvizPDF = mergeImages.compiled_pdf
+        File QUICvizPDF = mergeImages.chr_pdf
+        File AllChrPlot = mergeImages.allchr_plot
     }
     meta {
         author: "Yueyao Gao"
@@ -101,14 +102,17 @@ task mergeImages {
         import os
 
         # Get list of PNG files sorted
-        png_files = sorted(glob.glob("output/images/*.png"), key=lambda x: int(os.path.basename(x).split('.')[0]))
+        png_files = sorted(glob.glob("output/images/*.png"))
+        numeric_png_files = [file for file in png_files if os.path.basename(file).split('.')[0].isdigit()]
+        png_files = sorted(numeric_png_files, key=lambda x: int(os.path.basename(x).split('.')[0]))
 
         with open(f"output/~{SampleID}_~{TumorType}_QUICviz.pdf","wb") as f:
             f.write(img2pdf.convert(png_files))
         CODE
     >>>
     output {
-        File compiled_pdf = "output/~{SampleID}_~{TumorType}_QUICviz.pdf"
+        File chr_pdf = "output/~{SampleID}_~{TumorType}_QUICviz.pdf"
+        File allchr_plot = "output/All_chr.png"
     }
     runtime {
         docker: "us.gcr.io/tag-team-160914/neovax-parsley:2.2.1.0"
