@@ -89,7 +89,8 @@ task mergeImages {
         Array[File] plot
     }
     command <<<
-        for i in `ls ~{sep=" " plot}`; do mv $i /output/images/; done
+        mkdir -p output/images
+        for i in `ls ~{sep=" " plot}`; do mv $i output/images/; done
 
         python <<CODE
         pip3 install img2pdf
@@ -97,13 +98,13 @@ task mergeImages {
         import glob
         import os
 
-        with open(f"/output/~{SampleID}_~{TumorType}_QUICviz.pdf","wb") as f:
-            f.write(img2pdf.convert(glob.glob("/output/images/*.jpg")))
+        with open(f"output/~{SampleID}_~{TumorType}_QUICviz.pdf","wb") as f:
+            f.write(img2pdf.convert(glob.glob("output/images/*.jpg")))
 
         CODE
     >>>
     output {
-        File compiled_pdf = "/output/~{SampleID}_~{TumorType}_QUICviz.pdf"
+        File compiled_pdf = "output/~{SampleID}_~{TumorType}_QUICviz.pdf"
     }
     runtime {
         docker: "us.gcr.io/tag-team-160914/neovax-parsley:2.2.1.0"
