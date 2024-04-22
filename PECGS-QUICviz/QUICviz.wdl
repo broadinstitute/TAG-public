@@ -93,8 +93,8 @@ task mergeImages {
         for i in `ls ~{sep=" " plot}`; do mv $i output/images/; done
 
         source activate NeoVax-Input-Parser
-        python <<CODE
         pip3 install img2pdf
+        python <<CODE
         import img2pdf
         import glob
         import os
