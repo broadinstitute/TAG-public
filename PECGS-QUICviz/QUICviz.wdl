@@ -97,7 +97,7 @@ task mergeImages {
         mkdir -p output/images
         for i in `ls ~{sep=" " plot}`; do mv $i output/images/; done
 
-        python <<CODE
+        python3 <<CODE
         import img2pdf
         import glob
         import os
