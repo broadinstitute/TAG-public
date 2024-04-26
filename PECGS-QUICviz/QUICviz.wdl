@@ -30,7 +30,8 @@ workflow QUICviz {
         input:
             SampleID = sampleID,
             TumorType = tumorType,
-            plot = QUICvizPlots
+            plot = QUICvizPlots,
+            quicvizDocker = quicvizDocker
     }
     output {
         File QUICvizPDF = mergeImages.chr_pdf
@@ -54,6 +55,8 @@ task QUICviz {
         File denoisedCopyRatiosTumor
         File calledCopyRatioSegTumor
         File oncotatedCalledTumor
+        Int memory = 16
+        Int cpu = 4
     }
     command <<<
         set -e
@@ -70,16 +73,14 @@ task QUICviz {
             --tumor_seg_oncotated ~{oncotatedCalledTumor} \
             --output_dir outputs/
 
-        ls outputs/
-        readlink -f outputs/*png
     >>>
     output {
         Array[File] plot = glob("outputs/*.png")
     }
     runtime {
         docker: quicvizDocker
-        memory: "16 GB"
-        cpu: "4"
+        memory: memory
+        cpu: cpu
         disks: "local-disk 100 HDD"
     }
 }
@@ -88,13 +89,13 @@ task mergeImages {
         String SampleID
         String TumorType
         Array[File] plot
+        String quicvizDocker
+        Int memory = 16
+        Int cpu = 4
     }
     command <<<
         mkdir -p output/images
         for i in `ls ~{sep=" " plot}`; do mv $i output/images/; done
-        ls output/images/
-        source activate NeoVax-Input-Parser
-        pip3 install img2pdf
 
         python <<CODE
         import img2pdf
@@ -115,9 +116,9 @@ task mergeImages {
         File allchr_plot = "output/images/All_chr.png"
     }
     runtime {
-        docker: "us.gcr.io/tag-team-160914/neovax-parsley:2.2.1.0"
-        memory: "16 GB"
-        cpu: "4"
+        docker: quicvizDocker
+        memory: memory
+        cpu: cpu
         disks: "local-disk 100 HDD"
     }
 }
