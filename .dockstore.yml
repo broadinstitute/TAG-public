@@ -119,3 +119,8 @@ workflows:
    primaryDescriptorPath: /CleanupFailedSubmissions/Cleanup_Failed_Submissions.wdl
    testParameterFiles:
     - /CleanupFailedSubmissions/Cleanup_Failed_Submissions.inputs.json
+ - name: QUICviz
+   subclass: WDL
+   primaryDescriptorPath: /PECGS-QUICviz/QUICviz.wdl
+   testParameterFiles:
+    - /PECGS-QUICviz/QUICviz.inputs.json
