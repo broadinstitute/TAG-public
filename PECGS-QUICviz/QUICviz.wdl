@@ -4,7 +4,7 @@ workflow QUICviz {
     input {
         String sampleID
         String tumorType
-        String quicvizDocker = "us-central1-docker.pkg.dev/tag-team-160914/gptag-dockers/cmi_quicviz:0.3.0"
+        String quicvizDocker = "us-central1-docker.pkg.dev/tag-team-160914/gptag-dockers/cmi_quicviz:0.3.1"
         File allelicCountsNormal
         File allelicCountsTumor
         File denoisedCopyRatiosNormal
