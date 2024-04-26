@@ -79,7 +79,7 @@ task QUICviz {
     }
     runtime {
         docker: quicvizDocker
-        memory: memory
+        memory: memory + " GB"
         cpu: cpu
         disks: "local-disk 100 HDD"
     }
@@ -117,7 +117,7 @@ task mergeImages {
     }
     runtime {
         docker: quicvizDocker
-        memory: memory
+        memory: memory + " GB"
         cpu: cpu
         disks: "local-disk 100 HDD"
     }
