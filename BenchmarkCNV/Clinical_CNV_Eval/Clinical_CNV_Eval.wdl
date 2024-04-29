@@ -50,12 +50,9 @@ workflow Clinical_CNV_Eval {
         String merged_eval_decision = PostProcessWittyer.merged_eval_decision
         String merged_overlap_ratio = PostProcessWittyer.merged_overlap_ratio
         File? comparison_plot = PostProcessWittyer.comparison_plot
-        File short_variants_within_truth_interval_stats = PostProcessWittyer.short_variants_within_truth_interval_stats
+        File proband_snp_af_within_truth_interval_stats = PostProcessWittyer.proband_snp_af_within_truth_interval_stats
+        File normal_snp_af_within_truth_interval_stats = PostProcessWittyer.normal_snp_af_within_truth_interval_stats
         File heterozyogisty_within_truth_interval_plot = PostProcessWittyer.heterozyogisty_within_truth_interval_plot
-        Float proband_hom_percentage = PostProcessWittyer.proband_hom_percentage
-        Float proband_het_percentage = PostProcessWittyer.proband_het_percentage
-        Float normal_hom_percentage = PostProcessWittyer.normal_hom_percentage
-        Float normal_het_percentage = PostProcessWittyer.normal_het_percentage
     }
 }
     task GenerateTruthVCF{
