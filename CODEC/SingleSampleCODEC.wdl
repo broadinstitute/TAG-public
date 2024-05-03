@@ -94,19 +94,14 @@ workflow SingleSampleCODEC {
                 raw_bam = MergeSplit.merged_bam,
                 sample_id = sample_id
         }
-        call MarkRawDuplicates {
+        call CollectInsertSizeMetrics {
             input:
                 input_bam = ReplaceRawReadGroup.bam,
                 sample_id = sample_id
         }
-        call CollectInsertSizeMetrics {
-            input:
-                input_bam = MarkRawDuplicates.dup_marked_bam,
-                sample_id = sample_id
-        }
         call GroupReadByUMI {
             input:
-                input_bam = MarkRawDuplicates.dup_marked_bam,
+                input_bam = ReplaceRawReadGroup.bam,
                 sample_id = sample_id
         }
         call FgbioCollapseReadFamilies {
@@ -192,7 +187,6 @@ workflow SingleSampleCODEC {
         File MolConsensusBAM_index = MergeAndSortMoleculeConsensusReads.bai
         File InsertSizeMetrics = CollectInsertSizeMetrics.insert_size_metrics
         File InsertSizeHistogram = CollectInsertSizeMetrics.insert_size_histogram
-        File DuplicationMetrics = MarkRawDuplicates.dup_metrics
         File umiHistogram = GroupReadByUMI.umi_histogram
         File WgsMetrics = CollectWgsMetrics.WgsMetrics
         File mutant_metrics = CSS_SFC_ErrorMetrics.mutant_metrics
@@ -520,39 +514,6 @@ task ReplaceRawReadGroup {
     }
 }
 
-task MarkRawDuplicates {
-    input {
-        File input_bam
-        String sample_id
-        Int memory = 64
-        Int disk_size = 200
-    }
-
-    command {
-        java -jar /dependencies/picard.jar MarkDuplicates \
-            I=~{input_bam} \
-            O=~{sample_id}.raw.replacerg.markdup.bam \
-            M=~{sample_id}.raw.marked_duplicates.txt \
-            CREATE_INDEX=true \
-            TAG_DUPLICATE_SET_MEMBERS=true \
-            TAGGING_POLICY=All
-            
-        samtools index ~{sample_id}.raw.replacerg.markdup.bam
-    }
-
-    output {
-        File dup_marked_bam = "~{sample_id}.raw.replacerg.markdup.bam"
-        File dup_marked_bai = "~{sample_id}.raw.replacerg.markdup.bam.bai"
-        File dup_metrics = "~{sample_id}.raw.marked_duplicates.txt"
-    }
-
-    runtime {
-        memory: memory + " GB"
-        docker: "us.gcr.io/tag-team-160914/codec:v1" 
-        disks: "local-disk " + disk_size + " HDD"
-    }
-}
-
 task CollectInsertSizeMetrics {
     input {
         File input_bam
@@ -724,7 +685,7 @@ task CollectWgsMetrics {
         File reference_fasta_index
         File reference_dict
         File eval_genome_interval
-        Int memory = 64
+        Int memory = 32
         Int disk_size = 200
     }
 
@@ -786,7 +747,7 @@ task CSS_SFC_ErrorMetrics {
             -Q 0.7 \
             -B 0.6 \
             -N 0.05 \
-            -Y 5 \
+            -Y 10 \
             -W 1 \
             -a ~{sample_id}.mutant_metrics.txt \
             -e ~{sample_id}.variants_called.txt \
@@ -815,7 +776,7 @@ task QC_metrics {
         File umiHistogram
         File InsertSizeMetrics
         File mutant_metrics
-        Int memory = 16
+        Int memory = 32
         Int disk_size = 16
 
     }
@@ -916,8 +877,8 @@ task CalculateDuplexDepth {
         String n_bases_eval
         Float mean_insert_size
         Int n_total_fastq
-        Int memory = 16
-        Int disk_size = 8
+        Int memory = 32
+        Int disk_size = 64
     }
 
     command <<<  
