@@ -87,7 +87,7 @@ task absolute_extract{
 	docker: docker
 	preemptible: 1
 	disks: "local-disk ~{diskGB} HDD"
-	memory: "~{memory}GB"
+	memory: "~{memory} GB"
 	maxRetries: 1
 	}
 
@@ -127,7 +127,7 @@ task pre_variant_review{
 		docker: docker
 		preemptible: 1
 		disks: "local-disk ~{diskGB} HDD"
-		memory: "~{memory}GB"
+		memory: "~{memory} GB"
 		maxRetries: 1
 	}
 
