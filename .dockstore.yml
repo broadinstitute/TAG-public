@@ -129,3 +129,8 @@ workflows:
    primaryDescriptorPath: /NeoVax/NeoVax_PackageData/NeoVax_PackageData.wdl
    testParameterFiles:
     - /NeoVax/NeoVax_PackageData/NeoVax_PackageData.inputs.json
+ - name: QUICviz
+   subclass: WDL
+   primaryDescriptorPath: /PECGS-QUICviz/QUICviz.wdl
+   testParameterFiles:
+    - /PECGS-QUICviz/QUICviz.inputs.json
