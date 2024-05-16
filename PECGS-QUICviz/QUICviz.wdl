@@ -55,7 +55,7 @@ task QUICviz {
         set -e
         mkdir outputs
 
-        Rscript /BaseImage/CMI_QUICviz/scripts/CMI_QUICviz_v0.3.R \
+        Rscript /BaseImage/CMI_QUICviz/scripts/CMI_QUICviz_v0.4.1.R \
             --sample ~{sampleID} \
             --tumor_type ~{tumorType} \
             --normal_acf ~{allelicCountsNormal} \
