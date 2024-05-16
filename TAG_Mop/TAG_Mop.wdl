@@ -47,6 +47,8 @@ workflow TAG_Mop{
             String namespace
             String workspaceName
             String mopDocker
+            Int memory = 32
+            Int cpu = 8
         }
         command <<<
             source activate NeoVax-Input-Parser
@@ -60,7 +62,7 @@ workflow TAG_Mop{
             bucket_name = fapi.get_workspace(namespace, workspaceName).json()['workspace']['bucketName']
 
             # Collect the system files to delete
-            storage_client = storage.Client()
+            storage_client = storage.Client(namespace)
             blobs = storage_client.list_blobs(bucket_name, projection='full')
             patterns_to_remove = ["stdout.log", "stderr.log", "localization.sh", "gcs_transfer.sh", "/stdout","/stderr","/rc","-rc.txt",'/memory_retry_rc','/output','/script','/exec.sh']
             sys_files_to_delete = []
@@ -92,8 +94,8 @@ workflow TAG_Mop{
         }
         runtime {
             docker: mopDocker
-            memory: "32 GiB"
-            cpu: 8
+            memory: memory + " GiB"
+            cpu: cpu
         }
     }
 
@@ -103,6 +105,8 @@ workflow TAG_Mop{
             String workspaceName
             String mopDocker
             Int sysfiles
+            Int memory = 32
+            Int cpu = 8
         }
         command <<<
             source activate NeoVax-Input-Parser
@@ -126,7 +130,7 @@ workflow TAG_Mop{
         }
         runtime {
             docker: mopDocker
-            memory: "32 GiB"
-            cpu: 8
+            memory: memory + " GiB"
+            cpu: cpu
         }
     }
