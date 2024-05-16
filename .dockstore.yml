@@ -124,3 +124,8 @@ workflows:
    primaryDescriptorPath: /TAG_Mop/TAG_Mop.wdl
    testParameterFiles:
     - /TAG_Mop/TAG_Mop.inputs.json
+ - name: QUICviz
+   subclass: WDL
+   primaryDescriptorPath: /PECGS-QUICviz/QUICviz.wdl
+   testParameterFiles:
+    - /PECGS-QUICviz/QUICviz.inputs.json
