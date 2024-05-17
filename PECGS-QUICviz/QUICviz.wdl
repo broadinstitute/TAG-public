@@ -3,6 +3,7 @@ version 1.0
 workflow QUICviz {
     input {
         String sampleID
+        Boolean isPECGS = true
         String tumorType
         String quicvizDocker = "us-central1-docker.pkg.dev/tag-team-160914/gptag-dockers/cmi_quicviz:0.4.1"
         File allelicCountsNormal
@@ -40,6 +41,7 @@ workflow QUICviz {
 task QUICviz {
     input {
         String sampleID
+        Boolean isPECGS
         String tumorType
         String quicvizDocker
         File allelicCountsNormal
@@ -55,8 +57,18 @@ task QUICviz {
         set -e
         mkdir outputs
 
+        if ~{isPECGS}; then
+            IFS='-' read -r tumor_sample normal_sample <<< "~{sampleID}"
+            echo "Input Tumor Sample: $tumor_sample"
+            echo "Input Normal Sample: $normal_sample"
+        else
+            tumor_sample=~{sampleID}
+            echo "Input Tumor Sample: $tumor_sample"
+        fi
+
+
         Rscript /BaseImage/CMI_QUICviz/scripts/CMI_QUICviz_v0.4.1.R \
-            --sample ~{sampleID} \
+            --sample $tumor_sample \
             --tumor_type ~{tumorType} \
             --normal_acf ~{allelicCountsNormal} \
             --normal_cr ~{denoisedCopyRatiosNormal} \
@@ -66,12 +78,15 @@ task QUICviz {
             --tumor_seg_oncotated ~{oncotatedCalledTumor} \
             --output_dir outputs/
 
+        mv outputs/chromosome_plots.pdf outputs/~{sampleID}_chromosome_plots.pdf
+        mv outputs/gene_level_calls.csv outputs/~{sampleID}_gene_level_calls.csv
+        mv outputs/All_chr.png outputs/~{sampleID}_All_chr.png
 
     >>>
     output {
-        File QUICvizPDF = "outputs/chromosome_plots.pdf"
-        File GeneLevelCNV = "outputs/gene_level_calls.csv"
-        File AllChrPlot = "outputs/All_chr.png"
+        File QUICvizPDF = "outputs/~{sampleID}_chromosome_plots.pdf"
+        File GeneLevelCNV = "outputs/~{sampleID}_gene_level_calls.csv"
+        File AllChrPlot = "outputs/~{sampleID}_All_chr.png"
     }
     runtime {
         docker: quicvizDocker
