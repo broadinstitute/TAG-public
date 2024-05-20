@@ -32,6 +32,7 @@ workflow TAG_Mop{
             File deleted_sys_files = rmSysfiles.sys_files_to_delete
             Int? num_mopped_files = mop.num_of_files_to_mop
             File? mopped_files = mop.mopped_files
+            String? total_size_to_mop = mop.total_size_to_mop
         }
 
         meta {
@@ -115,17 +116,19 @@ workflow TAG_Mop{
             # Dry run Mop
             fissfc mop -w ~{workspaceName} -p ~{namespace} --dry-run > mop_dry_run.txt
             echo Files to mop:" $(cat mop_dry_run.txt | wc -l)"
-            cat mop_dry_run.txt | wc -l > num_of_files_to_mop.txt
+            cat mop_dry_run.txt | grep "gs:" | wc -l > num_of_files_to_mop.txt
+            cat mop_dry_run.txt | grep Total | awk '{print $3 $4}' > total_size_to_mop.txt
 
             # Mop
             if [ $(cat mop_dry_run.txt | wc -l) -eq 0 ]; then
                 echo "No files to mop"
             else
-                fissfc mop -w ~{workspaceName} -p ~{namespace}
+                fissfc --yes mop -w ~{workspaceName} -p ~{namespace}
             fi
         >>>
         output{
             Int num_of_files_to_mop = read_int("num_of_files_to_mop.txt")
+            String total_size_to_mop = read_string("total_size_to_mop.txt")
             File mopped_files = "mop_dry_run.txt"
         }
         runtime {
