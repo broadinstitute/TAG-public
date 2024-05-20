@@ -121,7 +121,7 @@ workflow TAG_Mop{
             if [ $(cat mop_dry_run.txt | wc -l) -eq 0 ]; then
                 echo "No files to mop"
             else
-                fissfc mop -w ~{workspaceName} -p ~{namespace}
+                fissfc mop --yes -w ~{workspaceName} -p ~{namespace}
             fi
         >>>
         output{
