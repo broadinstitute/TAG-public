@@ -52,6 +52,7 @@ task QUICviz {
         File oncotatedCalledTumor
         Int memory = 16
         Int cpu = 4
+        Int maxRetries = 3
     }
     command <<<
         set -e
@@ -93,5 +94,6 @@ task QUICviz {
         memory: memory + " GB"
         cpu: cpu
         disks: "local-disk 100 HDD"
+        maxRetries: maxRetries
     }
 }
