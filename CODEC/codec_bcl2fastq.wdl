@@ -48,7 +48,7 @@ task GetBclBucketSize {
   }
 
   runtime {
-    docker: "us.gcr.io/tag-public/bcl2fastq_codec:v1"
+    docker: "us-central1-docker.pkg.dev/tag-team-160914/gptag-dockers/bcl2fastq_codec:v1"
     memory: memory + " GB"
 	disks: "local-disk 16 HDD"
   }
@@ -108,7 +108,7 @@ task run_bcl2fastq {
     }
 
  	runtime {
-		docker: "us.gcr.io/tag-public/bcl2fastq_codec:v1"
+		docker: "us-central1-docker.pkg.dev/tag-team-160914/gptag-dockers/bcl2fastq_codec:v1"
 		memory: memory
 		bootDiskSizeGb: 12
 		disks: "local-disk ${disk_space} HDD"
