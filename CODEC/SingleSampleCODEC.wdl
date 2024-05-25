@@ -839,7 +839,7 @@ task QC_metrics {
     }
     runtime {
         memory: memory + " GB"
-        docker: "us.gcr.io/tag-team-160914/picard_docker" 
+        docker: "us.gcr.io/tag-public/metadata_upload" 
         disks: "local-disk " + disk_size + " HDD"
         preemptible: 2
     }
@@ -864,7 +864,7 @@ task EvalGenomeBases {
     }
     runtime {
         memory: memory + " GB"
-        docker: "us.gcr.io/tag-team-160914/picard_docker" 
+        docker: "us.gcr.io/tag-public/metadata_upload" 
         disks: "local-disk " + disk_size + " HDD"
         preemptible: 1
     }
@@ -907,7 +907,7 @@ task CalculateDuplexDepth {
     }
     runtime {
         memory: memory + " GB"
-        docker: "us.gcr.io/tag-team-160914/picard_docker" 
+        docker: "us.gcr.io/tag-public/metadata_upload" 
         disks: "local-disk " + disk_size + " HDD"
         preemptible: 1
     }
