@@ -214,7 +214,7 @@ task concatenate_and_compress_fastq {
     }
 
     runtime {
-        docker: "us.gcr.io/tag-team-160914/gcloudsdk"
+        docker: "us.gcr.io/tag-public/bcl2fastq_codec:v1"
         disks: "local-disk " + disk_size + " HDD"
         memory: memory + " GB"
     }
@@ -270,7 +270,7 @@ task UploadDataTable {
     }
 
     runtime {
-        docker: "us.gcr.io/tag-team-160914/metadata_upload"
+        docker: "us.gcr.io/tag-public/metadata_upload"
         disks: "local-disk " + disk_size + " HDD"
         memory: memory + " GB"
     }
