@@ -241,7 +241,7 @@ task SplitFastq1 {
     }
 
     runtime {
-        docker: "us.gcr.io/tag-team-160914/codec:v1"
+        docker: "us.gcr.io/tag-public/codec:v1.1.1"
         memory: memory + " GB"
         disks: "local-disk " + disk_size + " HDD"
     }
@@ -268,7 +268,7 @@ task SplitFastq2 {
     }
 
     runtime {
-        docker: "us.gcr.io/tag-team-160914/codec:v1"
+        docker: "us.gcr.io/tag-public/codec:v1.1.1"
         memory: memory + " GB"
         disks: "local-disk " + disk_size + " HDD"
     }
@@ -293,7 +293,7 @@ task Trim {
     
     }
     runtime {
-        docker: "us.gcr.io/tag-team-160914/codec:v1" 
+        docker: "us.gcr.io/tag-public/codec:v1.1.1" 
         disks: "local-disk " + disk_size + " HDD"
         memory: mem + " GB"
     }
@@ -337,7 +337,7 @@ task AlignRawTrimmed {
     }
 
     runtime {
-        docker: "us.gcr.io/tag-team-160914/codec:v1"
+        docker: "us.gcr.io/tag-public/codec:v1.1.1"
         memory: mem + " GB"
         disks: "local-disk " + disk_size + " HDD"
         preemptible: 3
@@ -376,7 +376,7 @@ task ZipperBamAlignment {
     }
 
     runtime {
-        docker: "us.gcr.io/tag-team-160914/codec:v1" 
+        docker: "us.gcr.io/tag-public/codec:v1.1.1" 
         memory: select_first([mem, 8]) + " GB"
         disks: "local-disk " + select_first([disk_size, 16]) + " HDD"
         preemptible: 3
@@ -403,7 +403,7 @@ task MergeSplit {
     }
 
     runtime {
-        docker: "us.gcr.io/tag-team-160914/codec:v1" 
+        docker: "us.gcr.io/tag-public/codec:v1.1.1" 
         disks: "local-disk " + disk_size + " HDD"
         memory: memory + " GB"
     }
@@ -427,7 +427,7 @@ task MergeLogSplit {
     }
 
     runtime {
-        docker: "us.gcr.io/tag-team-160914/codec:v1" 
+        docker: "us.gcr.io/tag-public/codec:v1.1.1" 
         disks: "local-disk " + disk_size + " HDD"
         memory: mem + " GB"
     }
@@ -450,7 +450,7 @@ task SortBam {
     }
 
     runtime {
-        docker: "us.gcr.io/tag-team-160914/codec:v1" 
+        docker: "us.gcr.io/tag-public/codec:v1.1.1" 
         disks: "local-disk " + disk_size + " HDD"
         memory: mem + " GB"
         preemptible: 2
@@ -476,7 +476,7 @@ task ByProductMetrics {
     }
 
     runtime {
-        docker: "us.gcr.io/tag-team-160914/codec:v1" 
+        docker: "us.gcr.io/tag-public/codec:v1.1.1" 
         disks: "local-disk " + disk_size + " HDD"
         memory: mem + " GB"
     }
@@ -509,7 +509,7 @@ task ReplaceRawReadGroup {
 
     runtime {
         memory: memory + " GB"
-        docker: "us.gcr.io/tag-team-160914/codec:v1" 
+        docker: "us.gcr.io/tag-public/codec:v1.1.1" 
         disks: "local-disk " + disk_size + " HDD"
     }
 }
@@ -537,7 +537,7 @@ task CollectInsertSizeMetrics {
 
     runtime {
         memory: memory + " GB"
-        docker: "us.gcr.io/tag-team-160914/codec:v1"
+        docker: "us.gcr.io/tag-public/codec:v1.1.1"
         disks: "local-disk " + disk_size + " HDD"
     }
 }
@@ -568,7 +568,7 @@ task GroupReadByUMI {
 
     runtime {
         memory: memory + " GB"
-        docker: "us.gcr.io/tag-team-160914/codec:v1"
+        docker: "us.gcr.io/tag-public/codec:v1.1.1"
         disks: "local-disk " + disk_size + " HDD"
     }
 }
@@ -598,7 +598,7 @@ task FgbioCollapseReadFamilies {
 
     runtime {
         memory: memory + " GB"
-        docker: "us.gcr.io/tag-team-160914/codec:v1"
+        docker: "us.gcr.io/tag-public/codec:v1.1.1"
         disks: "local-disk " + disk_size + " HDD"
     }
 }
@@ -633,7 +633,7 @@ task AlignMolecularConsensusReads {
 
     runtime {
         memory: memory + " GB"
-        docker: "us.gcr.io/tag-team-160914/codec:v1" 
+        docker: "us.gcr.io/tag-public/codec:v1.1.1" 
         disks: "local-disk " + disk_size + " HDD"
         cpu: cpu_cores
         preemptible: 3
@@ -670,7 +670,7 @@ task MergeAndSortMoleculeConsensusReads {
 
     runtime {
         memory: memory+ " GB"
-        docker: "us.gcr.io/tag-team-160914/codec:v1" 
+        docker: "us.gcr.io/tag-public/codec:v1.1.1" 
         disks: "local-disk " + disk_size + " HDD"
         preemptible: 3
     }
@@ -701,7 +701,7 @@ task CollectWgsMetrics {
 
     runtime {
         memory: memory + " GB"
-        docker: "us.gcr.io/tag-team-160914/codec:v1" 
+        docker: "us.gcr.io/tag-public/codec:v1.1.1" 
         disks: "local-disk " + disk_size + " HDD"
         preemptible: 3
     }
@@ -762,7 +762,7 @@ task CSS_SFC_ErrorMetrics {
 
     runtime {
         memory: memory + " GB"
-        docker: "us.gcr.io/tag-team-160914/codec:v1" 
+        docker: "us.gcr.io/tag-public/codec:v1.1.1" 
         disks: "local-disk " + disk_size + " HDD"
         preemptible: 3
     }
