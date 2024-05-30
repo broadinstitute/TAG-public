@@ -98,7 +98,7 @@ task SplitFastq1 {
     }
 
     runtime {
-        docker: "us.gcr.io/tag-team-160914/codec:v1"
+        docker: "us.gcr.io/tag-public/codec:v1.1.1"
         memory: memory + " GB"
         disks: "local-disk " + disk_size + " HDD"
     }
@@ -124,7 +124,7 @@ task SplitFastq2 {
     }
 
     runtime {
-        docker: "us.gcr.io/tag-team-160914/codec:v1"
+        docker: "us.gcr.io/tag-public/codec:v1.1.1"
         memory: memory + " GB"
         disks: "local-disk " + disk_size + " HDD"
     }
@@ -146,7 +146,7 @@ task Demux {
         /CODECsuite/build/codec demux -1 ${paired_fastqs.left} -2 ${paired_fastqs.right} -p ${sample_sheet} -o ${batch_id}_split.${split} > ${batch_id}_split.${split}.log
     }
     runtime {
-        docker: "us.gcr.io/tag-team-160914/codec:v1"
+        docker: "us.gcr.io/tag-public/codec:v1.1.1"
         memory: memory + " GB"
         disks: "local-disk " + disk_size + " HDD"
     }
@@ -181,7 +181,7 @@ task GroupFastqFiles {
   }
 
   runtime {
-    docker: "us.gcr.io/tag-team-160914/codec:v1"
+    docker: "us.gcr.io/tag-public/bcl2fastq_codec:v1"
     disks: "local-disk " + disk_size + " HDD"
     memory: memory + " GB"
   }
