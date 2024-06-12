@@ -33,10 +33,10 @@ workflow coverageProfile {
         File intervals
         Int? mem_gb
         Int? cpu
-        Int machine_mem_mb = select_first([mem_gb, 7]) * 1000
-        Int command_mem_mb = machine_mem_mb - 1000
         String gatk_docker = "broadinstitute/gatk:4.5.0.0"
     }
+        Int machine_mem_mb = select_first([mem_gb, 7]) * 1000
+        Int command_mem_mb = machine_mem_mb - 1000
     command <<<
         mkdir output
         gatk --java-options "-Xmx~{command_mem_mb}m" DepthOfCoverage \
