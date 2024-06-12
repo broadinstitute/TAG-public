@@ -14,6 +14,8 @@ workflow coverageProfile {
             sampleName = sampleName,
             alignedBam = alignedBam,
             referenceFasta = referenceFasta,
+            referenceDict = referenceDict,
+            referenceFai = referenceFai,
             intervals = intervals
     }
     output {
