@@ -1,0 +1,12 @@
+{
+  "coverageProfile.referenceFasta": "File",
+  "coverageProfile.DepthOfCoverage.gatk_docker": "String (optional, default = \"broadinstitute/gatk:4.5.0.0\")",
+  "coverageProfile.intervals": "File",
+  "coverageProfile.alignedBam": "File",
+  "coverageProfile.DepthOfCoverage.command_mem_mb": "Int? (optional)",
+  "coverageProfile.DepthOfCoverage.cpu": "Int? (optional)",
+  "coverageProfile.DepthOfCoverage.machine_mem_mb": "Int? (optional)",
+  "coverageProfile.DepthOfCoverage.mem_gb": "Int? (optional)",
+  "coverageProfile.sampleName": "String"
+}
+
