@@ -5,6 +5,8 @@ workflow coverageProfile {
         String sampleName
         File alignedBam
         File referenceFasta
+        File referenceDict
+        File referenceFai
         File intervals
     }
     call DepthOfCoverage {
@@ -30,6 +32,8 @@ workflow coverageProfile {
         String sampleName
         File alignedBam
         File referenceFasta
+        File referenceDict
+        File referenceFai
         File intervals
         Int? mem_gb
         Int? cpu
@@ -38,11 +42,26 @@ workflow coverageProfile {
         Int machine_mem_mb = select_first([mem_gb, 7]) * 1000
         Int command_mem_mb = machine_mem_mb - 1000
     command <<<
+        # Create directories for input, output, reference localization
+        mkdir input
         mkdir output
+        mkdir reference
+
+        # Localize Reference Files and BAM
+        mv ~{referenceFasta} reference/reference.fasta
+        mv ~{referenceDict} reference/reference.dict
+        mv ~{referenceFai} reference/reference.fai
+        mv ~{alignedBam} input/~{sampleName}.bam
+
+        # Index BAM file
+        gatk BuildBamIndex \
+            --INPUT input/~{sampleName}.bam
+
+        # Run DepthOfCoverage
         gatk --java-options "-Xmx~{command_mem_mb}m" DepthOfCoverage \
             -L ~{intervals} \
-            --input ~{alignedBam} \
-            --reference ~{referenceFasta} \
+            --input input/~{sampleName}.bam \
+            --reference reference/reference.fasta \
             --output output/~{sampleName}
 
         cat output/~{sampleName}.sample_interval_summary | awk 'BEGIN {FS = ","}{print $3}' | tail -n 1 > output/mean_coverage.txt
