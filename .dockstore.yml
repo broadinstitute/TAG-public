@@ -129,3 +129,8 @@ workflows:
    primaryDescriptorPath: /PECGS-QUICviz/QUICviz.wdl
    testParameterFiles:
     - /PECGS-QUICviz/QUICviz.inputs.json
+ - name: CoverageProfiler
+   subclass: WDL
+   primaryDescriptorPath: /CoverageProfiler/CoverageProfiler.wdl
+   testParameterFiles:
+    - /CoverageProfiler/CoverageProfiler.inputs.json
