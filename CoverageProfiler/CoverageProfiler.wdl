@@ -52,6 +52,7 @@ workflow coverageProfile {
         # Index BAM file
         gatk BuildBamIndex \
             --INPUT input/~{sampleName}.bam
+            --OUTPUT input/~{sampleName}.bam.bai
 
         # Run DepthOfCoverage
         gatk --java-options "-Xmx~{command_mem_mb}m" DepthOfCoverage \
