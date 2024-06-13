@@ -58,6 +58,7 @@ workflow coverageProfile {
         gatk --java-options "-Xmx~{command_mem_mb}m" DepthOfCoverage \
             -L ~{intervals} \
             --input input/~{sampleName}.bam \
+            --read-index input/~{sampleName}.bam.bai \
             --reference ~{referenceFasta} \
             --output output/~{sampleName}
 
