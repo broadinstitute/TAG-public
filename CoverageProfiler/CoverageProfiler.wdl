@@ -4,6 +4,7 @@ workflow coverageProfile {
     input {
         String sampleName
         File alignedBam
+        File alignedBamIndex
         File referenceFasta
         File referenceDict
         File referenceFai
@@ -13,6 +14,7 @@ workflow coverageProfile {
         input:
             sampleName = sampleName,
             alignedBam = alignedBam,
+            alignedBamIndex = alignedBamIndex,
             referenceFasta = referenceFasta,
             referenceDict = referenceDict,
             referenceFai = referenceFai,
@@ -33,6 +35,7 @@ workflow coverageProfile {
     input {
         String sampleName
         File alignedBam
+        File alignedBamIndex
         File referenceFasta
         File referenceDict
         File referenceFai
@@ -44,28 +47,21 @@ workflow coverageProfile {
         Int machine_mem_mb = select_first([mem_gb, 7]) * 1000
         Int command_mem_mb = machine_mem_mb - 1000
     command <<<
-        # Create directories for input, output, reference localization
-        mkdir input
+        # Create directories for output
         mkdir output
-
-        mv ~{alignedBam} input/~{sampleName}.bam
-        # Index BAM file
-        gatk BuildBamIndex \
-            --INPUT input/~{sampleName}.bam
-            --OUTPUT input/~{sampleName}.bam.bai
 
         # Run DepthOfCoverage
         gatk --java-options "-Xmx~{command_mem_mb}m" DepthOfCoverage \
             -L ~{intervals} \
-            --input input/~{sampleName}.bam \
-            --read-index input/~{sampleName}.bam.bai \
+            --input ~{alignedBam} \
+            --read-index ~{alignedBamIndex} \
             --reference ~{referenceFasta} \
             --output output/~{sampleName}
 
         cat output/~{sampleName}.sample_interval_summary | awk 'BEGIN {FS = ","}{print $3}' | tail -n 1 > output/mean_coverage.txt
     >>>
     output {
-        File sample_interval_summary = "output/${sampleName}.sample_interval_summary"
+        File sample_interval_summary = "output/~{sampleName}.sample_interval_summary"
         Float mean_coverage = read_float("output/mean_coverage.txt")
     }
     runtime {
