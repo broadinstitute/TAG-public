@@ -10,6 +10,7 @@ workflow coverageProfile {
         File referenceDict
         File referenceFai
         File intervals
+        File interval_GCcontent_track
         Int MinBaseQuality = 20
         Int MinMappingQuality = 20
     }
@@ -26,6 +27,12 @@ workflow coverageProfile {
                 target_bed = IntervalListToBed.bed_intervals,
                 minBaseQuality = MinBaseQuality,
                 minMappingQuality = MinMappingQuality
+        }
+        call CovProfileViz {
+            input:
+                sampleName = sampleName,
+                SamtoolsDepthProfile = SamtoolsDepth.depth_profile,
+                GCcontentTrack = interval_GCcontent_track
         }
     }
     if (coverageTool == "DepthOfCoverage") {
@@ -162,3 +169,39 @@ workflow coverageProfile {
         disks: "local-disk 500 SSD"
     }
 }
+    task CovProfileViz {
+        input {
+            File SamtoolsDepthProfile
+            File GCcontentTrack
+            String sampleName
+            String CovProfileViz_docker = "us-central1-docker.pkg.dev/tag-team-160914/gptag-dockers/covprofileviz:0.0.0"
+            String? mem_gb
+            Int? cpu
+        }
+        command <<<
+            set -e
+            mkdir output
+            # Run the coverage profile visualization script
+            conda run --no-capture-output \
+            -n env_viz \
+            python3 /BaseImage/CovProfileViz/scripts/plot_samtoolsDepths_by_chr.py \
+            -s ~{sampleName} \
+            -d ~{SamtoolsDepthProfile} \
+            -g ~{GCcontentTrack} \
+            -o output
+
+            mv output/*_samtools_cov_with_gc.png output/sample_coverage_profile.png
+            mv output/*_avg_cov_std.txt output/per_chr_cov_std.txt
+            mv output/*_avg_cov_per_chr.csv output/per_chr_avg_cov.csv
+        >>>
+        output {
+            File cov_profile_plot = "output/sample_coverage_profile.png"
+            Float avg_chr_cov_std = read_float("output/per_chr_cov_std.txt")
+            File avg_chr_cov_per_chr = "output/per_chr_avg_cov.csv"
+        }
+        runtime {
+            memory: select_first([mem_gb, 7]) * 1000 + " MB"
+            cpu: select_first([cpu, 1])
+            docker: CovProfileViz_docker
+        }
+    }
