@@ -53,9 +53,10 @@ workflow coverageProfile {
         File? DepthOfCoverageIntervalCov = DepthOfCoverage.sample_interval_summary
         Float? DepthOfCoverageMeanCoverage = DepthOfCoverage.mean_coverage
         File? SamtoolsDepthProfile = SamtoolsDepth.depth_profile
-        File? CovProfilePlot = CovProfileViz.cov_profile_plot
-        Float? AvgChrCovStd = CovProfileViz.avg_chr_cov_std
-        File? AvgChrCovPerChr = CovProfileViz.avg_chr_cov_per_chr
+        File? SamtoolsCovProfilePlot = CovProfileViz.cov_profile_plot
+        Float? SamtoolsAvgChrCovStd = CovProfileViz.avg_chr_cov_std
+        File? SamtoolsAvgChrCovPerChr = CovProfileViz.avg_chr_cov_per_chr
+        Float? SamtoolsAvgCovMean = CovProfileViz.avg_cov_mean
     }
     meta {
         author: "Yueyao Gao"
@@ -178,7 +179,7 @@ workflow coverageProfile {
             File GCcontentTrack
             String sampleName
             String CovProfileViz_docker = "us-central1-docker.pkg.dev/tag-team-160914/gptag-dockers/covprofileviz:0.0.0"
-            Int? mem_gb
+            Int mem_gb = 32
             Int? cpu
         }
         command <<<
@@ -196,11 +197,13 @@ workflow coverageProfile {
             mv output/*_samtools_cov_with_gc.png output/sample_coverage_profile.png
             mv output/*_avg_cov_std.txt output/per_chr_cov_std.txt
             mv output/*_avg_cov_per_chr.csv output/per_chr_avg_cov.csv
+            mv output/*_avg_cov_mean.txt output/avg_cov_mean.txt
         >>>
         output {
             File cov_profile_plot = "output/sample_coverage_profile.png"
             Float avg_chr_cov_std = read_float("output/per_chr_cov_std.txt")
             File avg_chr_cov_per_chr = "output/per_chr_avg_cov.csv"
+            Float avg_cov_mean = read_float("output/avg_cov_mean.txt")
         }
         runtime {
             memory: select_first([mem_gb, 7]) * 1000 + " MB"
