@@ -66,49 +66,49 @@ workflow coverageProfile {
     }
 }
     task DepthOfCoverage {
-    input {
-        String sampleName
-        File alignedBam
-        File alignedBamIndex
-        File referenceFasta
-        File referenceDict
-        File referenceFai
-        File intervals
-        Int minBaseQuality
-        Int minMappingQuality
-        Int? mem_gb
-        Int? cpu
-        String gatk_docker = "broadinstitute/gatk:4.5.0.0"
-    }
-        Int machine_mem_mb = select_first([mem_gb, 7]) * 1000
-        Int command_mem_mb = machine_mem_mb - 1000
-    command <<<
-        # Create directories for output
-        mkdir output
+        input {
+            String sampleName
+            File alignedBam
+            File alignedBamIndex
+            File referenceFasta
+            File referenceDict
+            File referenceFai
+            File intervals
+            Int minBaseQuality
+            Int minMappingQuality
+            Int? mem_gb
+            Int? cpu
+            String gatk_docker = "broadinstitute/gatk:4.5.0.0"
+        }
+            Int machine_mem_mb = select_first([mem_gb, 7]) * 1000
+            Int command_mem_mb = machine_mem_mb - 1000
+        command <<<
+            # Create directories for output
+            mkdir output
 
-        # Run DepthOfCoverage
-        gatk --java-options "-Xmx~{command_mem_mb}m" DepthOfCoverage \
-            -L ~{intervals} \
-            --input ~{alignedBam} \
-            --read-index ~{alignedBamIndex} \
-            --reference ~{referenceFasta} \
-            --minimum-mapping-quality ~{minMappingQuality} \
-            --min-base-quality ~{minBaseQuality} \
-            --count-type COUNT_READS \ # Count all reads independently (even if from the same fragment). The only option supported by GATK 4.5.0.0.
-            --output output/~{sampleName}
+            # Run DepthOfCoverage
+            gatk --java-options "-Xmx~{command_mem_mb}m" DepthOfCoverage \
+                -L ~{intervals} \
+                --input ~{alignedBam} \
+                --read-index ~{alignedBamIndex} \
+                --reference ~{referenceFasta} \
+                --minimum-mapping-quality ~{minMappingQuality} \
+                --min-base-quality ~{minBaseQuality} \
+                --count-type COUNT_READS \ # Count all reads independently (even if from the same fragment). The only option supported by GATK 4.5.0.0.
+                --output output/~{sampleName}
 
-        cat output/~{sampleName}.sample_interval_summary | awk 'BEGIN {FS = ","}{print $3}' | tail -n 1 > output/mean_coverage.txt
-    >>>
-    output {
-        File sample_interval_summary = "output/~{sampleName}.sample_interval_summary"
-        Float mean_coverage = read_float("output/mean_coverage.txt")
-    }
-    runtime {
-        memory: machine_mem_mb + " MB"
-        cpu: select_first([cpu, 1])
-        docker: gatk_docker
-        disks: "local-disk 500 SSD"
-    }
+            cat output/~{sampleName}.sample_interval_summary | awk 'BEGIN {FS = ","}{print $3}' | tail -n 1 > output/mean_coverage.txt
+        >>>
+        output {
+            File sample_interval_summary = "output/~{sampleName}.sample_interval_summary"
+            Float mean_coverage = read_float("output/mean_coverage.txt")
+        }
+        runtime {
+            memory: machine_mem_mb + " MB"
+            cpu: select_first([cpu, 1])
+            docker: gatk_docker
+            disks: "local-disk 500 SSD"
+        }
 }
     task IntervalListToBed {
         input {
