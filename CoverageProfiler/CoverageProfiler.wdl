@@ -53,6 +53,9 @@ workflow coverageProfile {
         File? DepthOfCoverageIntervalCov = DepthOfCoverage.sample_interval_summary
         Float? DepthOfCoverageMeanCoverage = DepthOfCoverage.mean_coverage
         File? SamtoolsDepthProfile = SamtoolsDepth.depth_profile
+        File? CovProfilePlot = CovProfileViz.cov_profile_plot
+        Float? AvgChrCovStd = CovProfileViz.avg_chr_cov_std
+        File? AvgChrCovPerChr = CovProfileViz.avg_chr_cov_per_chr
     }
     meta {
         author: "Yueyao Gao"
@@ -175,7 +178,7 @@ workflow coverageProfile {
             File GCcontentTrack
             String sampleName
             String CovProfileViz_docker = "us-central1-docker.pkg.dev/tag-team-160914/gptag-dockers/covprofileviz:0.0.0"
-            String? mem_gb
+            Int? mem_gb
             Int? cpu
         }
         command <<<
