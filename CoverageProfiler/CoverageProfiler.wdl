@@ -23,9 +23,6 @@ workflow coverageProfile {
                 sampleName = sampleName,
                 alignedBam = alignedBam,
                 alignedBamIndex = alignedBamIndex,
-                referenceFasta = referenceFasta,
-                referenceDict = referenceDict,
-                referenceFai = referenceFai,
                 target_bed = IntervalListToBed.bed_intervals,
                 minBaseQuality = MinBaseQuality,
                 minMappingQuality = MinMappingQuality
@@ -131,9 +128,6 @@ workflow coverageProfile {
             String sampleName
             File alignedBam
             File alignedBamIndex
-            File referenceFasta
-            File referenceDict
-            File referenceFai
             File target_bed
             Int minBaseQuality
             Int minMappingQuality
