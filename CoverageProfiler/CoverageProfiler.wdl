@@ -142,8 +142,9 @@ workflow coverageProfile {
             String samtools_docker = "euformatics/samtools:1.20"
     }
     command <<<
-        # Create directories for output
+        # Create directories for input & output
         mkdir input
+        mkdir output
         readlink -f ~{alignedBam} > input/bam_path.txt
 
         # Run samtools depth
