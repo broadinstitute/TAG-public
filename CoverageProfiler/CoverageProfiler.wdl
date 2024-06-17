@@ -14,6 +14,10 @@ workflow coverageProfile {
         Int MinMappingQuality = 20
     }
     if (coverageTool =="Samtools") {
+        call IntervalListToBed {
+            input:
+                intervals = intervals
+        }
         call SamtoolsDepth {
             input:
                 sampleName = sampleName,
@@ -22,7 +26,7 @@ workflow coverageProfile {
                 referenceFasta = referenceFasta,
                 referenceDict = referenceDict,
                 referenceFai = referenceFai,
-                intervals = intervals,
+                target_bed = IntervalListToBed.bed_intervals,
                 minBaseQuality = MinBaseQuality,
                 minMappingQuality = MinMappingQuality
         }
@@ -98,7 +102,29 @@ workflow coverageProfile {
         disks: "local-disk 500 SSD"
     }
 }
+    task IntervalListToBed {
+        input {
+            File intervals
+        }
+        command <<<
+            # Create directories for output
+            mkdir output
 
+            # Convert interval list to BED file
+            # This is necessary because samtools depth requires a BED file as input
+            gatk IntervalListToBed \
+                --INPUT ~{intervals} \
+                --OUTPUT output/intervals.bed
+        >>>
+        output {
+            File bed_intervals = "output/intervals.bed"
+        }
+        runtime {
+            docker: "broadinstitute/gatk:4.5.0.0"
+            memory: "1 GB"
+            cpu: 1
+        }
+    }
 
     task SamtoolsDepth {
         input {
@@ -108,7 +134,7 @@ workflow coverageProfile {
             File referenceFasta
             File referenceDict
             File referenceFai
-            File intervals
+            File target_bed
             Int minBaseQuality
             Int minMappingQuality
             Int? mem_gb
@@ -122,7 +148,7 @@ workflow coverageProfile {
 
         # Run samtools depth
         samtools depth \
-        -b ~{intervals} \
+        -b ~{target_bed} \
         -f input/bam_path.txt \
         --min-BQ ~{minBaseQuality} \
         --min-MQ ~{minMappingQuality} \
