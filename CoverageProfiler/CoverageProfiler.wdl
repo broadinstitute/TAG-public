@@ -148,12 +148,13 @@ workflow coverageProfile {
         readlink -f ~{alignedBam} > input/bam_path.txt
 
         # Run samtools depth
+        # Counting fragments instead of reads using -s option
         samtools depth \
         -b ~{target_bed} \
         -f input/bam_path.txt \
         --min-BQ ~{minBaseQuality} \
         --min-MQ ~{minMappingQuality} \
-        -s \ # Remove Overlapping Reads, Count fragment
+        -s \
         -o output/~{sampleName}_samtools.depth
 
     >>>
