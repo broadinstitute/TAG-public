@@ -57,6 +57,7 @@ workflow coverageProfile {
         Float? SamtoolsAvgChrCovStd = CovProfileViz.avg_chr_cov_std
         File? SamtoolsAvgChrCovPerChr = CovProfileViz.avg_chr_cov_per_chr
         Float? SamtoolsAvgCovMean = CovProfileViz.avg_cov_mean
+        File? SamtoolsAvgChrCovPerChrPlot = CovProfileViz.avg_chr_cov_per_chr_plot
     }
     meta {
         author: "Yueyao Gao"
@@ -195,12 +196,14 @@ workflow coverageProfile {
             -o output
 
             mv output/*_samtools_cov_with_gc.png output/sample_coverage_profile.png
+            mv output/*_avg_cov_per_chr.png output/avg_cov_per_chr.png
             mv output/*_avg_cov_std.txt output/per_chr_cov_std.txt
             mv output/*_avg_cov_per_chr.csv output/per_chr_avg_cov.csv
             mv output/*_avg_cov_mean.txt output/avg_cov_mean.txt
         >>>
         output {
             File cov_profile_plot = "output/sample_coverage_profile.png"
+            File avg_chr_cov_per_chr_plot = "output/avg_cov_per_chr.png"
             Float avg_chr_cov_std = read_float("output/per_chr_cov_std.txt")
             File avg_chr_cov_per_chr = "output/per_chr_avg_cov.csv"
             Float avg_cov_mean = read_float("output/avg_cov_mean.txt")
