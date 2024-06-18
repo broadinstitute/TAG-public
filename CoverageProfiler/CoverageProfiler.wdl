@@ -197,18 +197,18 @@ workflow coverageProfile {
             -g ~{GCcontentTrack} \
             -o output
 
-            mv output/*_samtools_cov_with_gc.png output/~{sampleName}_sample_coverage_profile.png
-            mv output/*_avg_cov_per_chr.png output/~{sampleName}_avg_cov_per_chr.png
-            mv output/*_avg_cov_std.txt output/~{sampleName}_per_chr_cov_std.txt
-            mv output/*_avg_cov_per_chr.csv output/~{sampleName}_per_chr_avg_cov.csv
-            mv output/*_avg_cov_mean.txt output/~{sampleName}_avg_cov_mean.txt
+            mv output/*_samtools_cov_with_gc.png output/~{sampleName}Sample_Cov_profile.png
+            mv output/*_avg_cov_per_chr.png output/~{sampleName}Avg_Cov_per_chr.png
+            mv output/*_avg_cov_std.txt output/~{sampleName}_Per_Chr_Cov_std.txt
+            mv output/*_avg_cov_per_chr.csv output/~{sampleName}_Per_Chr_Avg_cov.csv
+            mv output/*_avg_cov_mean.txt output/~{sampleName}_Avg_Cov_mean.txt
         >>>
         output {
-            File cov_profile_plot = "output/~{sampleName}_sample_coverage_profile.png"
-            File avg_chr_cov_per_chr_plot = "output/~{sampleName}_avg_cov_per_chr.png"
-            Float avg_chr_cov_std = read_float("output/~{sampleName}_per_chr_cov_std.txt")
-            File avg_chr_cov_per_chr = "output/~{sampleName}_per_chr_avg_cov.csv"
-            Float avg_cov_mean = read_float("output/~{sampleName}_avg_cov_mean.txt")
+            File cov_profile_plot = "output/~{sampleName}Sample_Cov_profile.png"
+            File avg_chr_cov_per_chr_plot = "output/~{sampleName}_Avg_Cov_per_chr.png"
+            Float avg_chr_cov_std = read_float("output/~{sampleName}_Per_Chr_Cov_std.txt")
+            File avg_chr_cov_per_chr = "output/~{sampleName}_Per_Chr_Avg_cov.csv"
+            Float avg_cov_mean = read_float("output/~{sampleName}_Avg_Cov_mean.txt")
         }
         runtime {
             memory: select_first([mem_gb, 7]) * 1000 + " MB"
