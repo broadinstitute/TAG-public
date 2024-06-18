@@ -172,6 +172,8 @@ workflow coverageProfile {
         cpu: select_first([cpu, 1])
         docker: samtools_docker
         disks: "local-disk 500 SSD"
+        preemptible: 0
+        maxRetries: 3
     }
 }
     task CovProfileViz {
