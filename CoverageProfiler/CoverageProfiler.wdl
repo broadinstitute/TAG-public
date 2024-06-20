@@ -205,7 +205,7 @@ workflow coverageProfile {
         >>>
         output {
             File cov_profile_plot = "output/~{sampleName}Sample_Cov_profile.png"
-            File avg_chr_cov_per_chr_plot = "output/~{sampleName}_Avg_Cov_per_chr.png"
+            File avg_chr_cov_per_chr_plot = "output/~{sampleName}Avg_Cov_per_chr.png"
             Float avg_chr_cov_std = read_float("output/~{sampleName}_Per_Chr_Cov_std.txt")
             File avg_chr_cov_per_chr = "output/~{sampleName}_Per_Chr_Avg_cov.csv"
             Float avg_cov_mean = read_float("output/~{sampleName}_Avg_Cov_mean.txt")
