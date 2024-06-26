@@ -13,6 +13,8 @@ workflow coverageProfile {
         File interval_GCcontent_track
         Int MinBaseQuality = 20
         Int MinMappingQuality = 20
+        Boolean cnv_depth_profile = false
+        File? cnvBed
     }
     if (coverageTool =="Samtools") {
         call IntervalListToBed {
@@ -34,6 +36,15 @@ workflow coverageProfile {
                 SamtoolsDepthProfile = SamtoolsDepth.depth_profile,
                 GCcontentTrack = interval_GCcontent_track
         }
+        if (cnv_depth_profile) {
+            call RegionalDepthProfile {
+                input:
+                    sampleName = sampleName,
+                    SamtoolsDepthProfile = SamtoolsDepth.depth_profile,
+                    cnvBed = cnvBed
+            }
+        }
+
     }
     if (coverageTool == "DepthOfCoverage") {
         call DepthOfCoverage {
@@ -58,6 +69,7 @@ workflow coverageProfile {
         File? SamtoolsAvgChrCovPerChr = CovProfileViz.avg_chr_cov_per_chr
         Float? SamtoolsAvgCovMean = CovProfileViz.avg_cov_mean
         File? SamtoolsAvgChrCovPerChrPlot = CovProfileViz.avg_chr_cov_per_chr_plot
+        Array[File]? RegionalDepthProfile = RegionalDepthProfile.regional_depth_profile
     }
     meta {
         author: "Yueyao Gao"
@@ -213,11 +225,46 @@ workflow coverageProfile {
             Float avg_cov_mean = read_float("output/~{sampleName}_Avg_Cov_mean.txt")
         }
         runtime {
-            memory: select_first([mem_gb, 7]) * 1000 + " MB"
+            memory: mem_gb + " GB"
             cpu: select_first([cpu, 1])
             docker: CovProfileViz_docker
             disks: "local-disk ~{disk_size_gb} SSD"
-            preemptible: select_first([preemptible, 0])
+            preemptible: preemptible
+            maxRetries: 3
+        }
+    }
+    task RegionalDepthProfile {
+        input {
+            String sampleName
+            File SamtoolsDepthProfile
+            File? cnvBed
+            String RegionalDepthProfile_docker = "us-central1-docker.pkg.dev/tag-team-160914/gptag-dockers/covprofileviz:0.0.1"
+            Int mem_gb = 7
+            Int? cpu
+            Int? preemptible = 3
+            Int? disk_size_gb = 500
+        }
+        command <<<
+            set -e
+            mkdir output
+            # Run the coverage profile visualization script
+            conda run --no-capture-output \
+            -n env_viz \
+            python3 /BaseImage/CovProfileViz/scripts/CNV_Depth_Profiler.py \
+            -c ~{SamtoolsDepthProfile} \
+            -b ~{cnvBed} \
+            -n output/~{sampleName}
+
+        >>>
+        output {
+            Array[File] regional_depth_profile = glob("output/*png")
+        }
+        runtime {
+            memory: mem_gb + " GB"
+            cpu: select_first([cpu, 1])
+            docker: RegionalDepthProfile_docker
+            disks: "local-disk ~{disk_size_gb} SSD"
+            preemptible: preemptible
             maxRetries: 3
         }
     }
