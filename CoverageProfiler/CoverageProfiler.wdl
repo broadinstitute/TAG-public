@@ -10,9 +10,10 @@ workflow coverageProfile {
         File referenceDict
         File referenceFai
         File intervals
-        File interval_GCcontent_track
+        File? interval_GCcontent_track
         Int MinBaseQuality = 20
         Int MinMappingQuality = 20
+        Boolean visualise_coverage = false
         Boolean cnv_depth_profile = false
         File? cnvBed
     }
@@ -30,21 +31,23 @@ workflow coverageProfile {
                 minBaseQuality = MinBaseQuality,
                 minMappingQuality = MinMappingQuality
         }
-        call CovProfileViz {
-            input:
-                sampleName = sampleName,
-                SamtoolsDepthProfile = SamtoolsDepth.depth_profile,
-                GCcontentTrack = interval_GCcontent_track
-        }
-        if (cnv_depth_profile) {
-            call RegionalDepthProfile {
+        if (visualise_coverage) {
+            call CovProfileViz {
                 input:
                     sampleName = sampleName,
                     SamtoolsDepthProfile = SamtoolsDepth.depth_profile,
-                    cnvBed = cnvBed
+                    GCcontentTrack = interval_GCcontent_track
             }
-        }
+            if (cnv_depth_profile) {
+                call RegionalDepthProfile {
+                    input:
+                        sampleName = sampleName,
+                        SamtoolsDepthProfile = SamtoolsDepth.depth_profile,
+                        cnvBed = cnvBed
+                }
+            }
 
+        }
     }
     if (coverageTool == "DepthOfCoverage") {
         call DepthOfCoverage {
@@ -191,7 +194,7 @@ workflow coverageProfile {
     task CovProfileViz {
         input {
             File SamtoolsDepthProfile
-            File GCcontentTrack
+            File? GCcontentTrack
             String sampleName
             String CovProfileViz_docker = "us-central1-docker.pkg.dev/tag-team-160914/gptag-dockers/covprofileviz:0.0.0"
             Int mem_gb = 32
@@ -247,6 +250,7 @@ workflow coverageProfile {
         command <<<
             set -e
             mkdir output
+
             # Run the coverage profile visualization script
             conda run --no-capture-output \
             -n env_viz \
