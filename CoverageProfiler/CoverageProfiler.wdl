@@ -184,6 +184,8 @@ workflow coverageProfile {
             String CovProfileViz_docker = "us-central1-docker.pkg.dev/tag-team-160914/gptag-dockers/covprofileviz:0.0.0"
             Int mem_gb = 32
             Int? cpu
+            Int? preemptible = 3
+            Int? disk_size_gb = 500
         }
         command <<<
             set -e
@@ -214,5 +216,8 @@ workflow coverageProfile {
             memory: select_first([mem_gb, 7]) * 1000 + " MB"
             cpu: select_first([cpu, 1])
             docker: CovProfileViz_docker
+            disks: "local-disk ~{disk_size_gb} SSD"
+            preemptible: select_first([preemptible, 0])
+            maxRetries: 3
         }
     }
