@@ -149,6 +149,7 @@ workflow coverageProfile {
             Int minMappingQuality
             Int? mem_gb
             Int? cpu
+            Int? disk_size_gb
             String samtools_docker = "euformatics/samtools:1.20"
     }
     command <<<
@@ -175,7 +176,7 @@ workflow coverageProfile {
         memory: select_first([mem_gb, 7]) * 1000 + " MB"
         cpu: select_first([cpu, 1])
         docker: samtools_docker
-        disks: "local-disk 500 SSD"
+        disks: "local-disk ~{disk_size_gb} SSD"
         preemptible: 0
         maxRetries: 3
     }
