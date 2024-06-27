@@ -14,8 +14,6 @@ workflow coverageProfile {
         Int MinBaseQuality = 20
         Int MinMappingQuality = 20
         Boolean visualise_coverage = false
-        Boolean cnv_depth_profile = false
-        File? cnvBed
     }
     if (coverageTool =="Samtools") {
         call IntervalListToBed {
@@ -38,17 +36,9 @@ workflow coverageProfile {
                     SamtoolsDepthProfile = SamtoolsDepth.depth_profile,
                     GCcontentTrack = interval_GCcontent_track
             }
-            if (cnv_depth_profile) {
-                call RegionalDepthProfile {
-                    input:
-                        sampleName = sampleName,
-                        SamtoolsDepthProfile = SamtoolsDepth.depth_profile,
-                        cnvBed = cnvBed
-                }
             }
 
         }
-    }
     if (coverageTool == "DepthOfCoverage") {
         call DepthOfCoverage {
             input:
@@ -72,12 +62,13 @@ workflow coverageProfile {
         File? SamtoolsAvgChrCovPerChr = CovProfileViz.avg_chr_cov_per_chr
         Float? SamtoolsAvgCovMean = CovProfileViz.avg_cov_mean
         File? SamtoolsAvgChrCovPerChrPlot = CovProfileViz.avg_chr_cov_per_chr_plot
-        Array[File]? RegionalDepthProfile = RegionalDepthProfile.regional_depth_profile
     }
     meta {
         author: "Yueyao Gao"
         email: "tag@broadinstitute.org"
-        description: "Calculates the depth of coverage of an input sample"
+        description: "Calculates the depth of coverage of an input sample and visualize it.
+                     Currently supports two tools: Samtools and DepthOfCoverage.
+                     The visualisation is only available for Samtools and Exome."
 
     }
 }
@@ -231,42 +222,6 @@ workflow coverageProfile {
             memory: mem_gb + " GB"
             cpu: select_first([cpu, 1])
             docker: CovProfileViz_docker
-            disks: "local-disk ~{disk_size_gb} SSD"
-            preemptible: preemptible
-            maxRetries: 3
-        }
-    }
-    task RegionalDepthProfile {
-        input {
-            String sampleName
-            File SamtoolsDepthProfile
-            File? cnvBed
-            String RegionalDepthProfile_docker = "us-central1-docker.pkg.dev/tag-team-160914/gptag-dockers/covprofileviz:0.0.1"
-            Int mem_gb = 7
-            Int? cpu
-            Int? preemptible = 3
-            Int? disk_size_gb = 500
-        }
-        command <<<
-            set -e
-            mkdir output
-
-            # Run the coverage profile visualization script
-            conda run --no-capture-output \
-            -n env_viz \
-            python3 /BaseImage/CovProfileViz/scripts/CNV_Depth_Profiler.py \
-            -c ~{SamtoolsDepthProfile} \
-            -b ~{cnvBed} \
-            -n output/~{sampleName}
-
-        >>>
-        output {
-            Array[File] regional_depth_profile = glob("output/*png")
-        }
-        runtime {
-            memory: mem_gb + " GB"
-            cpu: select_first([cpu, 1])
-            docker: RegionalDepthProfile_docker
             disks: "local-disk ~{disk_size_gb} SSD"
             preemptible: preemptible
             maxRetries: 3
