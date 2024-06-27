@@ -66,9 +66,7 @@ workflow coverageProfile {
     meta {
         author: "Yueyao Gao"
         email: "tag@broadinstitute.org"
-        description: "Calculates the depth of coverage of an input sample and visualize it.
-                     Currently supports two tools: Samtools and DepthOfCoverage.
-                     The visualisation is only available for Samtools and Exome."
+        description:"Calculates the depth of coverage of an input sample and visualize it. Currently supports two tools: Samtools and DepthOfCoverage. The visualisation is only available for Samtools and Exome."
 
     }
 }
