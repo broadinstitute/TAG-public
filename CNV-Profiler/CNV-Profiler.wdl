@@ -121,7 +121,7 @@ task GetPaddedCnvBed {
         source activate env_viz
         python3 <<CODE
         padded_cnv_interval_list = []
-        with open(~{cnvBedFile}, 'r') as f:
+        with open("~{cnvBedFile}", 'r') as f:
             for line in f:
                 chr = line.strip().split('\t')[0]
                 start = line.strip().split('\t')[1]
