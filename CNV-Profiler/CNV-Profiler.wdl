@@ -153,9 +153,10 @@ task SamtoolsDepth {
             File target_bed
             Int minBaseQuality = 20
             Int minMappingQuality = 20
-            Int? mem_gb
-            Int? cpu
-            Int? disk_size_gb
+            Int mem_gb = 32
+            Int cpu = 4
+            Int disk_size_gb = 500
+            Boolean use_ssd = true
             String samtools_docker = "euformatics/samtools:1.20"
     }
     command <<<
@@ -179,10 +180,10 @@ task SamtoolsDepth {
         File depth_profile = "output/~{sampleName}_samtools.depth"
     }
     runtime {
-        memory: select_first([mem_gb, 7]) * 1000 + " MB"
-        cpu: select_first([cpu, 1])
+        memory: mem_gb * 1000 + " MB"
+        cpu: cpu
         docker: samtools_docker
-        disks: "local-disk ~{disk_size_gb} SSD"
+        disks: "local-disk " + disk_size_gb + if use_ssd then " SSD" else " HDD"
         preemptible: 0
         maxRetries: 3
     }
@@ -199,6 +200,7 @@ task cnvDepthProfiler{
             Int preemptible = 0
             Int disk_size_gb = 500
             Int maxRetries = 1
+            Boolean use_ssd = true
         }
         command <<<
             set -e
@@ -220,7 +222,7 @@ task cnvDepthProfiler{
             memory: mem_gb + " GB"
             cpu: cpu
             docker: cnvProfiler_Docker
-            disks: "local-disk ~{disk_size_gb} SSD"
+            disks: "local-disk " + disk_size_gb + if use_ssd then " SSD" else " HDD"
             preemptible: preemptible
             maxRetries: maxRetries
         }
@@ -239,6 +241,7 @@ task HeterozygosityCheck{
         Int preemptible = 0
         Int disk_size_gb = 500
         Int maxRetries = 1
+        Boolean use_ssd = true
     }
     command <<<
         set -e
@@ -265,7 +268,7 @@ task HeterozygosityCheck{
         memory: mem_gb + " GB"
         cpu: cpu
         docker: cnvProfiler_Docker
-        disks: "local-disk ~{disk_size_gb} SSD"
+        disks: "local-disk " + disk_size_gb + if use_ssd then " SSD" else " HDD"
         preemptible: preemptible
         maxRetries: maxRetries
     }
