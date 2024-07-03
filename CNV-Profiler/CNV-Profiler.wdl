@@ -134,7 +134,7 @@ task GetPaddedCnvBed {
                 chrom = interval.split(':')[0]
                 start = interval.split(':')[1].split('-')[0]
                 end = interval.split(':')[1].split('-')[1]
-                f.write("{chr}\t{start}\t{end}" + '\n')
+                f.write(f"{chr}\t{start}\t{end}" + '\n')
         CODE
     >>>
     runtime {
