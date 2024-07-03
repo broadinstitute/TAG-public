@@ -215,7 +215,7 @@ task cnvDepthProfiler{
             python3 /BaseImage/CovProfileViz/scripts/CNV_Depth_Profiler.py \
             -c ~{depthProfile} \
             -b ~{cnvBedFile} \
-            -n output/~{sampleName}
+            -o output/~{sampleName}
 
         >>>
         output {
