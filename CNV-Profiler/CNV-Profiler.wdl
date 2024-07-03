@@ -131,7 +131,7 @@ task GetPaddedCnvBed {
 
         with open('padded_cnv.bed', 'a') as f:
             for interval in padded_cnv_interval_list:
-                chrom = interval.split(':')[0]
+                chr = interval.split(':')[0]
                 start = interval.split(':')[1].split('-')[0]
                 end = interval.split(':')[1].split('-')[1]
                 f.write(f"{chr}\t{start}\t{end}" + '\n')
