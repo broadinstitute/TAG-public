@@ -34,9 +34,10 @@ task cnvArrayProber {
         File CytoSNP850K_Support_Csv
         File GDA_Support_Csv
         String cnvProberDocker
-        Int memory = 4
-        Int cpu = 1
-        Int disk = 100
+        Int memory = 32
+        Int cpu = 2
+        Int disk_size_gb = 500
+        Boolean use_ssd = false
     }
     command <<<
     set -e
@@ -58,6 +59,6 @@ task cnvArrayProber {
         docker: cnvProberDocker
         memory: memory
         cpu: cpu
-        disk: disk
+        disks: "local-disk " + disk_size_gb + if use_ssd then " SSD" else " HDD"
     }
 }
