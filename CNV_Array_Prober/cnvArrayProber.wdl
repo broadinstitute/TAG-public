@@ -38,6 +38,8 @@ task cnvArrayProber {
         Int cpu = 2
         Int disk_size_gb = 500
         Boolean use_ssd = false
+        Int preemptible = 3
+        Int maxRetries = 3
     }
     command <<<
     set -e
@@ -60,5 +62,7 @@ task cnvArrayProber {
         memory: memory
         cpu: cpu
         disks: "local-disk " + disk_size_gb + if use_ssd then " SSD" else " HDD"
+        preemptible: preemptible
+        maxRetries: maxRetries
     }
 }
