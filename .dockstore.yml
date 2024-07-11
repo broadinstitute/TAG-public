@@ -134,3 +134,8 @@ workflows:
    primaryDescriptorPath: /CODEC/SingleSampleCODEC.wdl
    testParameterFiles:
     - /CODEC/SingleSampleCODEC.inputs.json
+ - name: SigProfiler
+   subclass: WDL
+   primaryDescriptorPath: /CODEC/SigProfiler.wdl
+   testParameterFiles:
+    - /CODEC/SigProfiler.inputs.json
