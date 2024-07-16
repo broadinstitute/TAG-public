@@ -58,10 +58,7 @@ workflow coverageProfile {
         Float? DepthOfCoverageMeanCoverage = DepthOfCoverage.mean_coverage
         File? SamtoolsDepthProfile = SamtoolsDepth.depth_profile
         File? SamtoolsCovProfilePlot = CovProfileViz.cov_profile_plot
-        Float? SamtoolsAvgChrCovStd = CovProfileViz.avg_chr_cov_std
-        File? SamtoolsAvgChrCovPerChr = CovProfileViz.avg_chr_cov_per_chr
         Float? SamtoolsAvgCovMean = CovProfileViz.avg_cov_mean
-        File? SamtoolsAvgChrCovPerChrPlot = CovProfileViz.avg_chr_cov_per_chr_plot
     }
     meta {
         author: "Yueyao Gao"
@@ -150,7 +147,9 @@ workflow coverageProfile {
             Int? mem_gb
             Int? cpu
             Int? disk_size_gb
-            String samtools_docker = "euformatics/samtools:1.20"
+            Int preemptible = 1
+            Int maxRetries = 3
+            String samtools_docker = "quay.io/biocontainers/samtools:1.20--h50ea8bc_0"
     }
     command <<<
         # Create directories for input & output
@@ -177,8 +176,8 @@ workflow coverageProfile {
         cpu: select_first([cpu, 1])
         docker: samtools_docker
         disks: "local-disk ~{disk_size_gb} SSD"
-        preemptible: 0
-        maxRetries: 3
+        preemptible: preemptible
+        maxRetries: maxRetries
     }
 }
     task CovProfileViz {
@@ -189,7 +188,8 @@ workflow coverageProfile {
             String CovProfileViz_docker = "us-central1-docker.pkg.dev/tag-team-160914/gptag-dockers/covprofileviz:0.0.0"
             Int mem_gb = 32
             Int? cpu
-            Int? preemptible = 3
+            Int? preemptible = 1
+            Int MaxRetries = 3
             Int? disk_size_gb = 500
         }
         command <<<
@@ -205,16 +205,10 @@ workflow coverageProfile {
             -o output
 
             mv output/*_samtools_cov_with_gc.png output/~{sampleName}Sample_Cov_profile.png
-            mv output/*_avg_cov_per_chr.png output/~{sampleName}Avg_Cov_per_chr.png
-            mv output/*_avg_cov_std.txt output/~{sampleName}_Per_Chr_Cov_std.txt
-            mv output/*_avg_cov_per_chr.csv output/~{sampleName}_Per_Chr_Avg_cov.csv
             mv output/*_avg_cov_mean.txt output/~{sampleName}_Avg_Cov_mean.txt
         >>>
         output {
             File cov_profile_plot = "output/~{sampleName}Sample_Cov_profile.png"
-            File avg_chr_cov_per_chr_plot = "output/~{sampleName}Avg_Cov_per_chr.png"
-            Float avg_chr_cov_std = read_float("output/~{sampleName}_Per_Chr_Cov_std.txt")
-            File avg_chr_cov_per_chr = "output/~{sampleName}_Per_Chr_Avg_cov.csv"
             Float avg_cov_mean = read_float("output/~{sampleName}_Avg_Cov_mean.txt")
         }
         runtime {
@@ -223,6 +217,6 @@ workflow coverageProfile {
             docker: CovProfileViz_docker
             disks: "local-disk ~{disk_size_gb} SSD"
             preemptible: preemptible
-            maxRetries: 3
+            maxRetries: MaxRetries
         }
     }
