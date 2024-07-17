@@ -89,6 +89,7 @@ workflow coverageProfile {
             mkdir output
 
             # Run DepthOfCoverage
+            # Count all reads independently (even if from the same fragment). The only option supported by GATK 4.5.0.0.
             gatk --java-options "-Xmx~{command_mem_mb}m" DepthOfCoverage \
                 -L ~{intervals} \
                 --input ~{alignedBam} \
@@ -96,7 +97,7 @@ workflow coverageProfile {
                 --reference ~{referenceFasta} \
                 --minimum-mapping-quality ~{minMappingQuality} \
                 --min-base-quality ~{minBaseQuality} \
-                --count-type COUNT_READS \ # Count all reads independently (even if from the same fragment). The only option supported by GATK 4.5.0.0.
+                --count-type COUNT_READS \
                 --output output/~{sampleName}
 
             cat output/~{sampleName}.sample_interval_summary | awk 'BEGIN {FS = ","}{print $3}' | tail -n 1 > output/mean_coverage.txt
