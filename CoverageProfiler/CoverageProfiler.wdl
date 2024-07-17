@@ -78,8 +78,8 @@ workflow coverageProfile {
             File intervals
             Int minBaseQuality
             Int minMappingQuality
-            Int? mem_gb
-            Int? cpu
+            Int mem_gb = 32
+            Int cpu = 4
             String gatk_docker = "broadinstitute/gatk:4.5.0.0"
         }
             Int machine_mem_mb = select_first([mem_gb, 7]) * 1000
@@ -144,9 +144,9 @@ workflow coverageProfile {
             File target_bed
             Int minBaseQuality
             Int minMappingQuality
-            Int? mem_gb
-            Int? cpu
-            Int? disk_size_gb
+            Int mem_gb = 32
+            Int cpu = 4
+            Int disk_size_gb = 500
             Int preemptible = 1
             Int maxRetries = 3
             String samtools_docker = "quay.io/biocontainers/samtools:1.20--h50ea8bc_0"
@@ -187,10 +187,10 @@ workflow coverageProfile {
             String sampleName
             String CovProfileViz_docker = "us-central1-docker.pkg.dev/tag-team-160914/gptag-dockers/covprofileviz:0.0.0"
             Int mem_gb = 32
-            Int? cpu
-            Int? preemptible = 1
+            Int cpu = 4
+            Int preemptible = 1
             Int MaxRetries = 3
-            Int? disk_size_gb = 500
+            Int disk_size_gb = 500
         }
         command <<<
             set -e
