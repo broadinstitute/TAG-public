@@ -6,7 +6,7 @@ workflow cnvArrayProber {
         File cnvBedFile
         File CytoSNP850K_Support_Csv
         File GDA_Support_Csv
-        String cnvProberDocker = "us.gcr.io/tag-public/cnv-array-prober:0.0.0"
+        String cnvProberDocker = "us.gcr.io/tag-public/cnv-array-prober:0.0.1"
     }
     call cnvArrayProber {
         input:
@@ -54,7 +54,7 @@ task cnvArrayProber {
             -o output/~{sampleName}
     >>>
     output{
-        File cnvProbeAnnotation = "output/~{sampleName}CNV_Probe_Mappings.csv"
+        File cnvProbeAnnotation = "output/~{sampleName}CNV_Probe_Mappings.xlsx"
         File cnvProbePlots = "output/~{sampleName}CNV_Probe_Mappings_Plots.pdf"
     }
     runtime {
