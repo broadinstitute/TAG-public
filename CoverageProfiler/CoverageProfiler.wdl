@@ -15,7 +15,7 @@ workflow coverageProfile {
         Int MinMappingQuality = 20
         Boolean visualise_coverage = false
     }
-    if (coverageTool =="Samtools") {
+    if (coverageTool == "Samtools") {
         call IntervalListToBed {
             input:
                 intervals = intervals
