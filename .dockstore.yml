@@ -19,9 +19,9 @@ workflows:
    - /CollectSamError/CollectSamErrorMetrics.inputs.json
  - name: GATK4_CNV
    subclass: WDL
-   primaryDescriptorPath: /GATK_CNV_Mutect2/GATK4_CNV/GATK4_CNV.wdl
+   primaryDescriptorPath: /GATK_CNV_Mutect2/GATK4_CNV/GATK4_CNVSomaticPairWorkflow.wdl
    testParameterFiles:
-   - /GATK_CNV_Mutect2/GATK4_CNV/GATK4_CNV.inputs.json
+   - /GATK_CNV_Mutect2/GATK4_CNV/GATK4_CNVSomaticPairWorkflow.inputs.json
  - name: mutect2-gatk4
    subclass: WDL
    primaryDescriptorPath: /GATK_CNV_Mutect2/mutect2-gatk4/mutect2-gatk4.wdl
@@ -113,9 +113,25 @@ workflows:
    subclass: WDL
    primaryDescriptorPath: /DownsampleBam/DownsampleBam.wdl
    testParameterFiles:
-    - /DownsampleBam/DownsampleBam.inputs.json 
+    - /DownsampleBam/DownsampleBam.inputs.json
  - name: CrosscheckFingerprints
    subclass: WDL
    primaryDescriptorPath: /CrossCheckFingerPrint/CrossCheckFingerPrint.wdl
    testParameterFiles:
     - /CrossCheckFingerPrint/CrossCheckFingerPrint.inputs.json
+ - name: Cleanup_Failed_Submissions
+   subclass: WDL
+   primaryDescriptorPath: /CleanupFailedSubmissions/Cleanup_Failed_Submissions.wdl
+   testParameterFiles:
+    - /CleanupFailedSubmissions/Cleanup_Failed_Submissions.inputs.json
+ - name: TAG_Mop
+   subclass: WDL
+   primaryDescriptorPath: /TAG_Mop/TAG_Mop.wdl
+   testParameterFiles:
+    - /TAG_Mop/TAG_Mop.inputs.json
+ - name: QUICviz
+   subclass: WDL
+   primaryDescriptorPath: /PECGS-QUICviz/QUICviz.wdl
+   testParameterFiles:
+    - /PECGS-QUICviz/QUICviz.inputs.json
+
