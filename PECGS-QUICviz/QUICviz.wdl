@@ -68,7 +68,7 @@ task QUICviz {
         fi
 
 
-        Rscript /BaseImage/CMI_QUICviz/scripts/CMI_QUICviz_v0.4.1.R \
+        Rscript /BaseImage/CMI_QUICviz/scripts/CMI_QUICviz_v0.4.2.R \
             --sample $tumor_sample \
             --tumor_type ~{tumorType} \
             --normal_acf ~{allelicCountsNormal} \
