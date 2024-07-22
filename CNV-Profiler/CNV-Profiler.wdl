@@ -3,7 +3,7 @@ version 1.0
 workflow CNV_Profiler {
     input{
         String sampleName
-        String cnvProfiler_Docker = "us-central1-docker.pkg.dev/tag-team-160914/gptag-dockers/covprofileviz:0.0.2"
+        String cnvProfiler_Docker = "us-central1-docker.pkg.dev/tag-team-160914/gptag-dockers/covprofileviz:0.0.3"
         File cramOrBamFile
         File cramOrBamIndexFile
         File referenceFasta
@@ -198,6 +198,9 @@ task cnvDepthProfiler{
             String cnvProfiler_Docker
             File depthProfile
             File cnvBedFile
+            File? secondBedFile
+            Int smooth_window = 5000
+            Int intervalPadding = 0
             Int mem_gb = 64
             Int cpu = 8
             Int preemptible = 0
@@ -215,7 +218,12 @@ task cnvDepthProfiler{
             python3 /BaseImage/CovProfileViz/scripts/CNV_Depth_Profiler.py \
             -c ~{depthProfile} \
             -b ~{cnvBedFile} \
-            -o output/~{sampleName}
+            -n ~{sampleName} \
+            -sb ~{secondBedFile} \
+            -sn DRAGEN \
+            -p ~{intervalPadding} \
+            -s ~{smooth_window} \
+            -o output
 
         >>>
         output {
