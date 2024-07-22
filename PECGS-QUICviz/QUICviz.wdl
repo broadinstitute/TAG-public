@@ -5,7 +5,7 @@ workflow QUICviz {
         String sampleID
         Boolean isPECGS = true
         String tumorType
-        String quicvizDocker = "us-central1-docker.pkg.dev/tag-team-160914/gptag-dockers/cmi_quicviz:0.4.1"
+        String quicvizDocker = "us-central1-docker.pkg.dev/tag-team-160914/gptag-dockers/cmi_quicviz:0.4.2"
         File allelicCountsNormal
         File allelicCountsTumor
         File denoisedCopyRatiosNormal
@@ -79,9 +79,9 @@ task QUICviz {
             --tumor_seg_oncotated ~{oncotatedCalledTumor} \
             --output_dir outputs/
 
-        mv outputs/chromosome_plots.pdf outputs/~{sampleID}_chromosome_plots.pdf
-        mv outputs/gene_level_calls.csv outputs/~{sampleID}_gene_level_calls.csv
-        mv outputs/All_chr.png outputs/~{sampleID}_All_chr.png
+        mv outputs/*chromosome_plots.pdf outputs/~{sampleID}_chromosome_plots.pdf
+        mv outputs/*gene_level_calls.csv outputs/~{sampleID}_gene_level_calls.csv
+        mv outputs/*_all_chr.png outputs/~{sampleID}_All_chr.png
 
     >>>
     output {
