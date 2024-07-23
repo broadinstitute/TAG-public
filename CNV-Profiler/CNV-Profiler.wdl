@@ -126,7 +126,7 @@ task GetPaddedCnvBed {
 
         # Read the reference dictionary file to get the chromosome lengths
         length_dict = {}
-        with open(~{referenceDict}, 'r') as f:
+        with open('~{referenceDict}', 'r') as f:
             for i in f.readlines():
                 if i.startswith('@SQ\tSN'):
                     chrom = i.split('\t')[1].split('SN:')[1]
