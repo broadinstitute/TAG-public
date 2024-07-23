@@ -298,7 +298,7 @@ task HeterozygosityCheck{
         -n1 ~{sampleName} \
         -n2 HG001 \
         -n3 HG002  \
-        -o output/~{sampleName}
+        -o output
 
     >>>
     output {
