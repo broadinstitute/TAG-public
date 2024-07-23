@@ -29,6 +29,7 @@ workflow CNV_Profiler {
     call GetPaddedCnvBed {
         input:
             cnvBedFile = cnvBedFile,
+            referenceDict = referenceDict,
             cnvProfiler_Docker = cnvProfiler_Docker
     }
     call SamtoolsDepth {
@@ -111,6 +112,7 @@ task CramToBam {
 task GetPaddedCnvBed {
     input {
         File cnvBedFile
+        File referenceDict
         String cnvProfiler_Docker
         Int mem_gb = 1
         Int cpu = 1
@@ -120,6 +122,21 @@ task GetPaddedCnvBed {
     command <<<
         source activate env_viz
         python3 <<CODE
+        import re
+
+        # Read the reference dictionary file to get the chromosome lengths
+        length_dict = {}
+        with open(~{referenceDict}, 'r') as f:
+            for i in f.readlines():
+                if i.startswith('@SQ\tSN'):
+                    chrom = i.split('\t')[1].split('SN:')[1]
+                    match = re.match(pattern=r'(chr)?(\d+|X|Y)\b', string=chrom)
+                    if match:
+                        length = i.split('\t')[2].split('LN:')[1]
+                        length_dict[chrom] = int(length)
+
+        # Get CNV interval with padding
+        # Padding is 2 times the length of the CNV unless it goes beyond the chromosome length
         padded_cnv_interval_list = []
         with open("~{cnvBedFile}", 'r') as f:
             for line in f:
@@ -127,7 +144,19 @@ task GetPaddedCnvBed {
                 start = line.strip().split('\t')[1]
                 end = line.strip().split('\t')[2]
                 svlen = int(end) - int(start) + 1
-                padded_cnv_interval_list.append(f'{chr}:{int(start)-svlen*2}-{int(end)+svlen*2}')
+                initial_padding_start = int(start)-svlen*2
+                initial_padding_end = int(end)+svlen*2
+                if initial_padding_start < 0:
+                    padding_start = 0
+                else:
+                    padding_start = initial_padding_start
+                if initial_padding_end > length_dict[chr]:
+                    padding_end = length_dict[chr]
+                else:
+                    padding_end = initial_padding_end
+                # Add the padded interval to the list
+                padded_cnv_interval_list.append(f'{chr}:{padding_start}-{padding_end}')
+
 
         with open('padded_cnv.bed', 'a') as f:
             for interval in padded_cnv_interval_list:
