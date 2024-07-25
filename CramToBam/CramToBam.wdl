@@ -36,8 +36,8 @@ workflow CramToBamWorkflow {
     }
     
     meta {
-        author: "Patrick Schlaeger"
-        email: "tag@broadinstitute.org"
+        author: "TAG Team, Patrick Schlaeger(updated script writer), Yueyao Gao(bugfixer)"
+        email: "tag@broadinstitute.org, pschlaeg@broadinstitute.org, gaoyueya@broadinstitute.org"
         description: "(Bug Fix and version update in 2024) This workflow converts an inputted Cram file into a Bam file with the use of the Cram file's reference genome dictionary/fasta/fasta_index. It then validates the the newly created Bam file."
     }
 }
