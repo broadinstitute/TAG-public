@@ -34,6 +34,12 @@ workflow CramToBamWorkflow {
         File bam_index_file = CramToBam.output_bam_index
         File validation_output = ValidateBam.validation_output
     }
+    
+    meta {
+        author: "Patrick Schlaeger"
+        email: "tag@broadinstitute.org"
+        description: "This workflow converts an inputted Cram file into a Bam file with the use of the Cram file's reference genome dictionary/fasta/fasta_index. It then validates the the newly created Bam file."
+    }
 }
 
 
