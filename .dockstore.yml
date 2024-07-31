@@ -139,3 +139,8 @@ workflows:
    primaryDescriptorPath: /CODEC/SigProfiler.wdl
    testParameterFiles:
     - /CODEC/SigProfiler.inputs.json
+ - name: Peddy_AnalysisFamiliarRelatedness
+   subclass: WDL
+   primaryDescriptorPath: /PeddyAnalysis/Peddy_AnalyzeFamilialRelateness.wdl
+   testParameterFiles:
+    - /PeddyAnalysis/Peddy_AnalyzeFamilialRelateness.inputs.json
