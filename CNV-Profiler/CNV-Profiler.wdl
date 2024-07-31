@@ -45,7 +45,8 @@ workflow CNV_Profiler {
             sampleName = sampleName,
             depthProfile = SamtoolsDepth.depth_profile,
             cnvBedFile = cnvBedFile,
-            cnvProfiler_Docker = cnvProfiler_Docker
+            cnvProfiler_Docker = cnvProfiler_Docker,
+            PaddedcnvBedFile = GetPaddedCnvBed.paddedCnvBed
     }
     if (heterozygosityCheck) {
         call HeterozygosityCheck {
@@ -227,8 +228,7 @@ task cnvDepthProfiler{
             String cnvProfiler_Docker
             File depthProfile
             File cnvBedFile
-            File? secondBedFile
-            Int smooth_window = 5000
+            File PaddedcnvBedFile
             Int intervalPadding = 0
             Int mem_gb = 64
             Int cpu = 8
@@ -248,10 +248,8 @@ task cnvDepthProfiler{
             -c ~{depthProfile} \
             -b ~{cnvBedFile} \
             -n ~{sampleName} \
-            -sb ~{secondBedFile} \
-            -sn DRAGEN \
+            -pd ~{PaddedcnvBedFile} \
             -p ~{intervalPadding} \
-            -s ~{smooth_window} \
             -o output
 
         >>>
