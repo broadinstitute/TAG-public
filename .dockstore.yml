@@ -131,6 +131,6 @@ workflows:
     - /PECGS-QUICviz/QUICviz.inputs.json
  - name: PeddyAnalysis
    subclass: WDL
-   primaryDescriptorPath: /PeddyAnalysis/Peddy_AnalyzeFamilialRelatedness.wdl
+   primaryDescriptorPath: /PeddyAnalysis/PeddyAnalysis.wdl
    testParameterFiles:
-    - /PeddyAnalysis/Peddy_AnalyzeFamilialRelatedness.inputs.json
+    - /PeddyAnalysis/PeddyAnalysis.inputs.json
