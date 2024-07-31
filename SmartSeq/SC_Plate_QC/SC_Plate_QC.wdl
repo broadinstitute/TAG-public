@@ -219,7 +219,7 @@ task graphPlate{
 
 	runtime {
 	    docker: "bgranger/ss2_qc:0.1"
-        memory: memory + "GB"
+        memory: memory + " GB"
         cpu: "2"
 		disks: "local-disk "+disk_space+" HDD"
         bootDiskSizeGb: boot_disk_space
