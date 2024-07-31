@@ -1,0 +1,22 @@
+{
+    "Peddy_AnalyzeFamilialRelateness.AnalyzeAndCheckFamilySamples.disk_size": "${}",
+    "Peddy_AnalyzeFamilialRelateness.AnalyzeAndCheckFamilySamples.memory": "${}",
+    "Peddy_AnalyzeFamilialRelateness.MergeFamilyVCFs.memory": "${}",
+    "Peddy_AnalyzeFamilialRelateness.MergePeddyResults.disk_size": "${}",
+    "Peddy_AnalyzeFamilialRelateness.MergePeddyResults.memory": "${}",
+    "Peddy_AnalyzeFamilialRelateness.PlotPeddyResults.disk_size": "${}",
+    "Peddy_AnalyzeFamilialRelateness.PlotPeddyResults.memory": "${}",
+    "Peddy_AnalyzeFamilialRelateness.RunPeddy.disk_size": "${}",
+    "Peddy_AnalyzeFamilialRelateness.RunPeddy.memory": "${}",
+    "Peddy_AnalyzeFamilialRelateness.RunPeddy.reference_genome": "${}",
+    "Peddy_AnalyzeFamilialRelateness.RunPlink.disk_size": "${}",
+    "Peddy_AnalyzeFamilialRelateness.RunPlink.memory": "${}",
+    "Peddy_AnalyzeFamilialRelateness.UpdateFamFile.disk_size": "${}",
+    "Peddy_AnalyzeFamilialRelateness.UpdateFamFile.memory": "${}",
+    "Peddy_AnalyzeFamilialRelateness.family_ids": "${this.samples.sidr_family_id}",
+    "Peddy_AnalyzeFamilialRelateness.gvcf_index_paths": "${this.samples.single_sample_vcf_index_path}",
+    "Peddy_AnalyzeFamilialRelateness.gvcf_paths": "${this.samples.single_sample_vcf_path}",
+    "Peddy_AnalyzeFamilialRelateness.pedigrees": "${this.samples.pedigree}",
+    "Peddy_AnalyzeFamilialRelateness.reported_sexes": "${this.samples.reported_sex}",
+    "Peddy_AnalyzeFamilialRelateness.sample_ids": "${this.samples.sample_id}"
+}
