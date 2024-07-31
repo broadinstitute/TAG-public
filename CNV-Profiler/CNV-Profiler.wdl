@@ -248,7 +248,7 @@ task cnvDepthProfiler{
             -c ~{depthProfile} \
             -b ~{cnvBedFile} \
             -n ~{sampleName} \
-            -pd ~{PaddedcnvBedFile} \
+            -pb ~{PaddedcnvBedFile} \
             -p ~{intervalPadding} \
             -o output
 
