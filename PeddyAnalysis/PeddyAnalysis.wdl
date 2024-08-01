@@ -295,8 +295,16 @@ task UpdateFamFile {
                     info = sample_info[sample_id]
                     fam_file_df.at[i, 'FamilyID'] = info['sidr_family_id']
                     if info['pedigree'] == 'Proband':
-                        father_id = known_trio_info_df[(known_trio_info_df['sidr_family_id'] == info['sidr_family_id']) & (known_trio_info_df['pedigree'] == 'Father')]['sample_id'].values[0]
-                        mother_id = known_trio_info_df[(known_trio_info_df['sidr_family_id'] == info['sidr_family_id']) & (known_trio_info_df['pedigree'] == 'Mother')]['sample_id'].values[0]
+                        father_id_row = known_trio_info_df[(known_trio_info_df['sidr_family_id'] == info['sidr_family_id']) & (known_trio_info_df['pedigree'] == 'Father')]
+                        mother_id_row = known_trio_info_df[(known_trio_info_df['sidr_family_id'] == info['sidr_family_id']) & (known_trio_info_df['pedigree'] == 'Mother')]
+                        # This is to handle if only one parent present
+                        father_id = '0'
+                        mother_id = '0'                
+                        if not father_id_row.empty:
+                            father_id = father_id_row['sample_id'].values[0]
+                        if not mother_id_row.empty:
+                            mother_id = mother_id_row['sample_id'].values[0]
+
                         fam_file_df.at[i, 'FatherID'] = father_id
                         fam_file_df.at[i, 'MotherID'] = mother_id
                     else:
