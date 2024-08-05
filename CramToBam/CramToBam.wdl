@@ -76,7 +76,7 @@ workflow CramToBamWorkflow {
             docker: docker_image
             memory: mem_size + " GB"
             disks: "local-disk " + disk_size + " HDD"
-            preemptible: preemtible_attempts
+            preemptible: preemptible_attempts
         }
 }
 
@@ -91,7 +91,7 @@ workflow CramToBamWorkflow {
         Int? disk_size = 500
         Int? preemptible_attempts = 2
         }
-        Int machine_mem_mb = select_first([mem_size, 7]) * 1000
+        Int machine_mem_mb = mem_size * 1000
         Int command_mem_mb = machine_mem_mb - 1000
         command <<<
             gatk --java-options "-Xmx~{command_mem_mb}m" ValidateSamFile \
@@ -106,7 +106,7 @@ workflow CramToBamWorkflow {
             docker: gatk_docker
             memory: mem_size + " GB"
             disks: "local-disk " + disk_size + " HDD"
-            preemptible: preemtible_attempts
+            preemptible: preemptible_attempts
         }
 
 }
