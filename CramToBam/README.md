@@ -16,7 +16,7 @@ The second task simply validates that the Bam File has been correctly created, a
 
 ###### Sample Data:
 ```
-"SAMPLE .cram FILE INPUT HERE"
+"SAMPLE cram_file_name.cram FILE INPUT HERE"
 ```
 ###### Reference Data:
 ```
@@ -32,13 +32,13 @@ The output index file is a .bam.bai file.
 The validation output file is a .txt file.
 
 Output Bam:
-(INPUT ONCE THE WDL HAS RUN)
+cram_file_name.bam
 <br>
 Output Bam Index:
-(INPUT ONCE THE WDL HAS RUN)
+cram_file_name.bam.bai
 <br>
 Validation Output .txt file:
-(INPUT ONCE THE WDL HAS RUN)
+cram_file_name_validation_output.txt
 <br>
 
 
