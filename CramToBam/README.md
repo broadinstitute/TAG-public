@@ -7,7 +7,7 @@ The second task simply validates that the Bam File has been correctly created, a
 
 ## Usage with Terra
 
-1. This CramToBam Conversion task is currently only available via Terra. You can find the WDL [here](https://app.terra.bio/#workspaces/broadtagteam/tag2010_PECGS_cvg_drop/workflows/TAG-PUBLIC-BUGFIXED-WDLS/FixedCramToBam). 
+1. This CramToBam Conversion task is currently available via Terra. You can find the WDL [here](https://app.terra.bio/#workspaces/broadtagteam/tag2010_PECGS_cvg_drop/workflows/TAG-PUBLIC-BUGFIXED-WDLS/FixedCramToBam). 
 
 
 2. We will now input some test data to exhibit the functionality of the WDL. For the test inputs, we have the .cram file for Sample (INPUT SAMPLE HERE). And since this sample is referenced against the hg19 reference genome, we will use the hg19 reference files.
