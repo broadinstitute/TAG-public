@@ -51,9 +51,9 @@ workflow CramToBamWorkflow {
         File cram_file
         String sample_id
         String docker_image = "broadinstitute/genomes-in-the-cloud:2.3.1-1504795437"
-        Int? mem_size
-        Int? disk_size
-        Int? preemptible_attempts
+        Int? mem_size = 32
+        Int? disk_size = 500
+        Int? preemptible_attempts = 2
         }
         command <<<
             set -e
@@ -74,9 +74,9 @@ workflow CramToBamWorkflow {
         }
         runtime {
             docker: docker_image
-            memory: select_first([mem_size, 4]) + " GB"
-            disks: "local-disk " + select_first([disk_size, 200]) + " HDD"
-            preemptible: select_first([preemptible_attempts, 2])
+            memory: mem_size + " GB"
+            disks: "local-disk " + disk_size + " HDD"
+            preemptible: preemtible_attempts
         }
 }
 
@@ -87,9 +87,9 @@ workflow CramToBamWorkflow {
         String sample_id
         String gatk_docker = "broadinstitute/gatk:4.6.0.0"
         String output_mode = "SUMMARY"
-        Int? mem_size
-        Int? disk_size
-        Int? preemptible_attempts
+        Int? mem_size = 32
+        Int? disk_size = 500
+        Int? preemptible_attempts = 2
         }
         Int machine_mem_mb = select_first([mem_size, 7]) * 1000
         Int command_mem_mb = machine_mem_mb - 1000
@@ -104,9 +104,9 @@ workflow CramToBamWorkflow {
         }
         runtime {
             docker: gatk_docker
-            memory: select_first([mem_size, 4]) + " GB"
-            disks: "local-disk " + select_first([disk_size, 100]) + " HDD"
-            preemptible: select_first([preemptible_attempts, 2])
+            memory: mem_size + " GB"
+            disks: "local-disk " + disk_size + " HDD"
+            preemptible: preemtible_attempts
         }
 
 }
