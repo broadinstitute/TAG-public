@@ -132,3 +132,5 @@ workflows:
  - name: CramToBam
    subclass: WDL
    primaryDescriptorPath: /CramToBam/CramToBam.wdl
+   testParameterFiles:
+   - /CramToBam/CramtoBam.inputs.json
