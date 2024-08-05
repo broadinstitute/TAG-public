@@ -129,3 +129,8 @@ workflows:
    primaryDescriptorPath: /PECGS-QUICviz/QUICviz.wdl
    testParameterFiles:
     - /PECGS-QUICviz/QUICviz.inputs.json
+ - name: CramToBam
+   subclass: WDL
+   primaryDescriptorPath: /CramToBam/CramToBam.wdl
+   testParameterFiles:
+   - /CramToBam/CramtoBam.inputs.json

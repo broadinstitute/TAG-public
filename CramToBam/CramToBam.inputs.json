@@ -1,0 +1,14 @@
+{
+  "CramToBamWorkflow.referenceFasta": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta",
+  "CramToBamWorkflow.referenceFai": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta.fai",
+  "CramToBamWorkflow.referenceDict": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.dict",
+  "CramToBamWorkflow.cram_file": "File",
+  "CramToBamWorkflow.sample_id": "String",
+  "CramToBamWorkflow.docker_image": "broadinstitute/genomes-in-the-cloud:2.3.1-1504795437",
+  "CramToBamWorkflow.gatk_docker": "broadinstitute/gatk:4.6.0.0",
+  "CramToBamWorkflow.output_mode": "SUMMARY",
+  "CramToBamWorkflow.CramToBam.disk_space": 5,
+  "CramToBamWorkflow.ValidateBam.disk_space": 5,
+  "CramToBamWorkflow.CramToBam.mem_size": 2,
+  "CramToBamWorkflow.ValidateBam.mem_size": 2
+}
