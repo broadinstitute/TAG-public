@@ -103,6 +103,7 @@ task AnalyzeAndCheckFamilySamples {
             num_trios = (family_counts == 3).sum()
             num_duos = (family_counts == 2).sum()
             num_single = (family_counts == 1).sum()
+            num_large_families = (family_counts >= 4).sum() 
 
             with open(log_file, 'w') as log:
                 # Check for families with only one sample
@@ -113,6 +114,7 @@ task AnalyzeAndCheckFamilySamples {
                         log.write(f'Warning: Family {family_id} has only one sample: {sample_id}\n')
 
                 log.write(f'This sample set has {num_trios} Trios and {num_duos} Duos.\n')
+                log.write(f'The number of families with size >= 4 is {num_large_families}.\n') 
                 log.write(f'There are {distinct_family_ids} distinct families in total.\n')
                 log.write(f'The total number of samples is {total_samples}.\n')
 
