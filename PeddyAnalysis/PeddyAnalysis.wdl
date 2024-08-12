@@ -5,51 +5,57 @@ workflow Peddy_AnalyzeFamilialRelatedness {
     input {
         Array[String] sample_ids
         Array[String] family_ids
-        Array[File] gvcf_paths
-        Array[File] gvcf_index_paths
+        Array[String] gvcf_paths
+        Array[String] gvcf_index_paths
         Array[String] pedigrees
         Array[String] reported_sexes
-        Int buffer_disk_size = 20
     }
-        Int merging_disk_size = ceil(length(gvcf_paths) + buffer_disk_size)
+        
 
     call AnalyzeAndCheckFamilySamples {
         input:  
         sample_ids = sample_ids, 
         family_ids = family_ids
     }
-    if (AnalyzeAndCheckFamilySamples.num_single_sample_families == 0) {
-        scatter (family_id in AnalyzeAndCheckFamilySamples.unique_family_ids) {
-            call MergeFamilyVCFs {
-                input:
-                    family_id = family_id,
-                    sample_ids = sample_ids,
-                    gvcf_paths = gvcf_paths,
-                    gvcf_index_paths = gvcf_index_paths,
-                    family_ids = family_ids,
-                    pedigrees = pedigrees,
-                    reported_sexes = reported_sexes,
-                    disk_size = merging_disk_size
-            }
-            call RunPlink {
-                input:
-                    family_id =  family_id,
-                    merged_vcf = MergeFamilyVCFs.merged_vcf,
-                    merged_vcf_index = MergeFamilyVCFs.merged_vcf_index
-            }
-            call UpdateFamFile {
-                input:
-                    fam_file = RunPlink.binary_fam,
-                    known_trio_info = MergeFamilyVCFs.family_info,
-                    family_id = family_id
-            }
-            call RunPeddy {
-                input:
-                    prefix = family_id,
-                    merged_vcf = MergeFamilyVCFs.merged_vcf,
-                    merged_vcf_index = MergeFamilyVCFs.merged_vcf_index,
-                    fam_file = UpdateFamFile.updated_fam_file
-            }
+    call FilterSingleSampleFamilies {
+        input:
+            unique_family_ids = AnalyzeAndCheckFamilySamples.unique_family_ids,
+            sample_ids = sample_ids,
+            family_ids = family_ids,
+            gvcfs = gvcf_paths,
+            gvcf_indexes = gvcf_index_paths,
+            pedigrees = pedigrees,
+            reported_sexes = reported_sexes
+    }
+    scatter (index in range(length(FilterSingleSampleFamilies.passing_family_ids))){
+        call GroupFamilyGVCFs {
+            input : 
+                grouped_per_family_gvcf = FilterSingleSampleFamilies.grouped_per_family_gvcf[index]
+        }
+        call MergeFamilyVCFs {
+            input:
+                family_id = GroupFamilyGVCFs.family_id,
+                gvcf_paths = GroupFamilyGVCFs.gvcf_paths
+        }
+        call RunPlink {
+            input:
+                family_id = GroupFamilyGVCFs.family_id,
+                merged_gvcf = MergeFamilyVCFs.merged_gvcf,
+                merged_gvcf_index = MergeFamilyVCFs.merged_gvcf_index
+        }
+        call UpdateFamFile {
+            input:
+                fam_file = RunPlink.binary_fam,
+                known_trio_info = FilterSingleSampleFamilies.family_info[index],
+                family_id = GroupFamilyGVCFs.family_id
+        }
+        call RunPeddy {
+            input:
+                prefix = GroupFamilyGVCFs.family_id,
+                merged_gvcf = MergeFamilyVCFs.merged_gvcf,
+                merged_gvcf_index = MergeFamilyVCFs.merged_gvcf_index,
+                fam_file = UpdateFamFile.updated_fam_file
+        }
         }
         call MergePeddyResults {
             input:
@@ -60,23 +66,24 @@ workflow Peddy_AnalyzeFamilialRelatedness {
             input:
                 merged_peddy_results = MergePeddyResults.merged_peddy_results
         }
-    }
 
 
 
     output {
         File family_composition_log =  AnalyzeAndCheckFamilySamples.family_composition_log
         Int num_single_sample_families =  AnalyzeAndCheckFamilySamples.num_single_sample_families
-        Array[File]? merged_vcf_files = MergeFamilyVCFs.merged_vcf
-        Array[File]? merged_vcf_indices = MergeFamilyVCFs.merged_vcf_index
-        Array[File]? family_info_files = MergeFamilyVCFs.family_info
-        Array[File]? updated_fam_file = UpdateFamFile.updated_fam_file
-        File? merged_peddy_results = MergePeddyResults.merged_peddy_results
-        File? all_family_peddy_prediction_plot = PlotPeddyResults.all_family_peddy_prediction_plot
+        Array[String] processed_families = FilterSingleSampleFamilies.passing_family_ids
+        Array[String] unprocessed_family_ids = FilterSingleSampleFamilies.unprocessed_family_ids
+        Array[File] merged_gvcf_files = MergeFamilyVCFs.merged_gvcf
+        Array[File] merged_gvcf_indices = MergeFamilyVCFs.merged_gvcf_index
+        Array[File] family_info_files = FilterSingleSampleFamilies.family_info
+        Array[File] updated_fam_file = UpdateFamFile.updated_fam_file
+        Float concordance = MergePeddyResults.concordance
+        File merged_peddy_results = MergePeddyResults.merged_peddy_results
+        File all_family_peddy_prediction_plot = PlotPeddyResults.all_family_peddy_prediction_plot
     }
     
 }
-
 
 task AnalyzeAndCheckFamilySamples {
     input {
@@ -157,89 +164,203 @@ task AnalyzeAndCheckFamilySamples {
     }
 }
 
-task MergeFamilyVCFs {
+task FilterSingleSampleFamilies {
     input {
-        String family_id
-        Array[String] family_ids
+        Array[String] unique_family_ids
         Array[String] sample_ids
-        Array[File] gvcf_paths
-        Array[File] gvcf_index_paths
+        Array[String] family_ids
+        Array[String] gvcfs
+        Array[String] gvcf_indexes
         Array[String] pedigrees
         Array[String] reported_sexes
-        Int memory = 32
-        Int disk_size
     }
 
     command <<<
-        # Merge and Index the multi-sample gVCF files for the family
-
         echo ~{sep=' ' sample_ids} > sample_ids.txt
+        echo ~{sep=' ' unique_family_ids} > unique_family_ids.txt
         echo ~{sep=' ' family_ids} > family_ids.txt
-        echo ~{sep=' ' gvcf_paths} > gvcf_paths.txt
-        echo ~{sep=' ' gvcf_index_paths} > gvcf_index_paths.txt
+        echo ~{sep=' ' gvcfs} > gvcf_paths.txt
+        echo ~{sep=' ' gvcf_indexes} > gvcf_index_paths.txt
         echo ~{sep=' ' pedigrees} > pedigrees.txt
         echo ~{sep=' ' reported_sexes} > reported_sexes.txt
-        echo ~{family_id} > family_id.txt
 
+        # Filter out single-sample families and generate the required files
         python3 <<CODE
+
         import os
-        import shutil
+
+        with open("sample_ids.txt", "r") as f:
+            sample_ids = f.read().strip().split(' ')
+        with open("unique_family_ids.txt", "r") as f:
+            unique_family_ids = f.read().strip().split(' ')
+        with open("family_ids.txt", "r") as f:
+            family_ids = f.read().strip().split(' ')
+        with open("gvcf_paths.txt", "r") as f:
+            gvcfs = f.read().strip().split(' ')
+        with open("gvcf_index_paths.txt", "r") as f:
+            gvcf_indexes = f.read().strip().split(' ')
+        with open("pedigrees.txt", "r") as f:
+            pedigrees = f.read().strip().split(' ')
+        with open("reported_sexes.txt", "r") as f:
+            reported_sexes = f.read().strip().split(' ')
+
+        pass_family_ids = []
+        excluded_family_ids = []
+
+        for family_id in unique_family_ids:
+            family_sample_ids = [sample_id for sample_id, fid in zip(sample_ids, family_ids) if fid == family_id]
+            family_gvcfs = [gvcf for gvcf, fid in zip(gvcfs, family_ids) if fid == family_id]
+            family_gvcf_indexes = [gvcf_index for gvcf_index, fid in zip(gvcf_indexes, family_ids) if fid == family_id]
+            family_pedigrees = [pedigree for pedigree, fid in zip(pedigrees, family_ids) if fid == family_id]
+            family_reported_sexes = [reported_sex for reported_sex, fid in zip(reported_sexes, family_ids) if fid == family_id]
+
+            if len(family_sample_ids) > 1:
+                pass_family_ids.append(family_id)
+
+                with open(f"family_info_{family_id}.txt", "w") as family_info_file, \
+                     open(f"grouped_per_family_gvcf_{family_id}.txt", "w") as grouped_gvcf_file:
+                    family_info_file.write("sample_id\tpedigree\treported_sex\tsidr_family_id\n")
+                    grouped_gvcf_file.write("family_id\tsample_id\tgvcf_path\tgvcf_index_path\n")
+
+                    for sample_id, gvcf, gvcf_index, pedigree, reported_sex in zip(family_sample_ids, family_gvcfs, family_gvcf_indexes, family_pedigrees, family_reported_sexes):
+                        # Write to individual family_info.txt
+                        family_info_file.write(f"{sample_id}\t{pedigree}\t{reported_sex}\t{family_id}\n")
+                        # Write to individual grouped_per_family_gvcf.txt
+                        grouped_gvcf_file.write(f"{family_id}\t{sample_id}\t{gvcf}\t{gvcf_index}\n")
+            else:
+                excluded_family_ids.append(family_id)
+
+        # Write the excluded and passing family IDs
+        with open("excluded_family_ids.txt", "w") as f:
+            f.write("\n".join(excluded_family_ids))
+
+        with open("passing_family_ids.txt", "w") as f:
+            f.write("\n".join(pass_family_ids))
+
+        CODE
+    >>>
+
+    output {
+        Array[File] family_info = glob("family_info_*.txt")
+        Array[File] grouped_per_family_gvcf = glob("grouped_per_family_gvcf_*.txt")
+        Array[String] unprocessed_family_ids = read_lines("excluded_family_ids.txt")
+        Array[String] passing_family_ids = read_lines("passing_family_ids.txt")
+    }
+
+    runtime {
+        docker: "us.gcr.io/tag-public/peddy-analysis:v1"
+        memory: "8 GB"
+        disks: "local-disk 16 HDD"
+    }
+}
+
+task GroupFamilyGVCFs {
+    input {
+        File grouped_per_family_gvcf
+    }
+
+    command <<<
+        python3 <<CODE
+
+        import os
+
+        family_file = "~{grouped_per_family_gvcf}"
+
+        sample_ids = []
+        gvcf_paths = []
+        gvcf_index_paths = []
+        consistent_family_id = None
+        family_id_set = set()
+
+        with open(family_file, "r") as f:
+            next(f)  # Skip the header
+            for line in f:
+                fields = line.strip().split("\t")
+                family_id = fields[0] 
+                family_id_set.add(family_id)
+                sample_ids.append(fields[1])
+                gvcf_paths.append(fields[2])
+                gvcf_index_paths.append(fields[3])
+
+        if len(family_id_set) == 1:
+            consistent_family_id = family_id_set.pop() 
+        else:
+            raise ValueError("Inconsistent family_id values found in the file.")
+        
+        with open("consistent_family_id.txt", "w") as f:
+            f.write(consistent_family_id)
+
+        with open("gvcf_paths.txt", "w") as f:
+            f.write("\n".join(gvcf_paths))
+        
+        with open("gvcf_index_paths.txt", "w") as f:
+            f.write("\n".join(gvcf_index_paths))
+        
+        with open("sample_ids.txt", "w") as f:
+            f.write("\n".join(sample_ids))       
+
+        CODE
+    >>>
+
+    output {
+        String family_id = read_string("consistent_family_id.txt")
+        Array[File] gvcf_paths = read_lines("gvcf_paths.txt")
+        Array[File] gvcf_index_paths = read_lines("gvcf_index_paths.txt")
+        Array[String] sample_ids = read_lines("sample_ids.txt")
+    }
+
+    runtime {
+        docker: "us.gcr.io/tag-public/peddy-analysis:v1"
+        memory: "8 GB"
+        disks: "local-disk 16 HDD"
+    }
+}
+
+task MergeFamilyVCFs {
+    input {
+        String family_id
+        Array[File] gvcf_paths
+        Int disk_size = 10
+        Int memory = 32
+        Int? buffer_disk_size
+        Int preemptible_attempts = 3
+    }
+
+    command <<<
+
+        echo ~{sep=' ' gvcf_paths} > gvcf_paths.txt
+        echo ~{family_id} > family_id.txt
+        
+        python3 <<CODE
+
         import subprocess
 
-
-        def process_family(sample_ids, family_ids, gvcf_paths, family_id):
+        def process_family(gvcf_paths, family_id):
             print(f"Processing family: {family_id}.")
             
             family_gvcfs = []
-
-            for sample_id, fam_id, gvcf_path in zip(sample_ids, family_ids, gvcf_paths):
-                if fam_id == family_id:
-                    family_gvcfs.append(gvcf_path)
-                    print(f"Added gVCF for sample {sample_id}: {gvcf_path}")
-
+            for gvcf_path in gvcf_paths:
+                family_gvcfs.append(gvcf_path)
                     # Index the gVCF file using bcftools
-                    try:
-                        subprocess.run(['bcftools', 'index', '-t', gvcf_path], check=True)
-                        print(f"Indexed gVCF for sample {sample_id}: {gvcf_path}")
-                    except subprocess.CalledProcessError as e:
-                        print(f"Error indexing gVCF for sample {sample_id}: {e}")
+                try:
+                    subprocess.run(['bcftools', 'index', '-t', gvcf_path], check=True)
+                    print(f"Indexed gVCF for {gvcf_path}")
+                except subprocess.CalledProcessError as e:
+                    print(f"Error indexing gVCF for {gvcf_path}")
 
             print(f"There are {len(family_gvcfs)} samples in this family.")
 
             return family_gvcfs
 
-        def write_family_info(sample_ids, pedigrees, reported_sexes, family_ids, family_id):
-            filename = f"family_info_{family_id}.txt"
-            header = "sample_id\tpedigree\treported_sex\tsidr_family_id\n"
-
-            with open(filename, "w") as f:
-                # Write the header
-                f.write(header)              
-                # Iterate over the lists and filter by family_id
-                for sample_id, pedigree, reported_sex, fam_id in zip(sample_ids, pedigrees, reported_sexes, family_ids):
-                    if fam_id == family_id:
-                        line = f"{sample_id}\t{pedigree}\t{reported_sex}\t{family_id}\n"
-                        f.write(line)
-
-        with open("sample_ids.txt", "r") as f:
-                sample_ids = f.read().strip().split(' ')
-        with open("family_ids.txt", "r") as f:
-                family_ids = f.read().strip().split(' ')
         with open("gvcf_paths.txt", "r") as f:
-                gvcf_paths = f.read().strip().split(' ')
-        with open("pedigrees.txt", "r") as f:
-                pedigrees = f.read().strip().split(' ')
-        with open("reported_sexes.txt", "r") as f:
-                reported_sexes = f.read().strip().split(' ')    
+            gvcf_paths = f.read().strip().split(' ')
         with open("family_id.txt", "r") as f:
-                family_id = f.read().strip()
-        
+            family_id = f.read().strip()
+      
+        family_gvcfs = process_family(gvcf_paths, family_id)
+        family_gvcfs_str = ' '.join(gvcf_paths)
 
-        family_gvcfs = process_family(sample_ids, family_ids, gvcf_paths, family_id)
-        write_family_info(sample_ids, pedigrees, reported_sexes, family_ids, family_id)
-
-        family_gvcfs_str = ' '.join(family_gvcfs)
-
+        # Run vcf-merge command
         vcf_merge_command = f"vcf-merge {family_gvcfs_str} > merged_family_{family_id}.vcf"
         bgzip_command = f"bgzip merged_family_{family_id}.vcf"
         bcftools_index_command = f"bcftools index -t merged_family_{family_id}.vcf.gz"
@@ -249,12 +370,40 @@ task MergeFamilyVCFs {
         subprocess.run(bcftools_index_command, shell=True, check=True)
 
         CODE
-        >>>
+    >>>
 
     output {
-        File merged_vcf = "merged_family_~{family_id}.vcf.gz"
-        File merged_vcf_index = "merged_family_~{family_id}.vcf.gz.tbi"
-        File family_info = "family_info_~{family_id}.txt"
+        File merged_gvcf = "merged_family_${family_id}.vcf.gz"
+        File merged_gvcf_index = "merged_family_${family_id}.vcf.gz.tbi"
+    }
+
+    runtime {
+        docker: "us.gcr.io/tag-public/peddy-analysis:v1"
+        memory: memory + "GB"
+        disks: "local-disk " + (disk_size + select_first([buffer_disk_size, 0])) + " SSD"
+        preemptible: select_first([preemptible_attempts, 3])
+    }
+}
+
+
+task RunPlink {
+    input {
+        String family_id
+        File merged_gvcf
+        File merged_gvcf_index
+        Int memory = 16
+        Int disk_size = 16
+    }
+
+    command <<<
+        # Run PLINK on the merged VCF file
+        plink --vcf ~{merged_gvcf} --make-bed --out ~{family_id} --allow-extra-chr
+    >>>
+
+    output {
+        File binary_bim = "~{family_id}.bim"
+        File binary_fam = "~{family_id}.fam"
+        File binary_bed = "~{family_id}.bed"
     }
 
     runtime {
@@ -264,8 +413,6 @@ task MergeFamilyVCFs {
     }
 }
 
-
-
 task UpdateFamFile {
     input {
         File fam_file
@@ -273,6 +420,7 @@ task UpdateFamFile {
         File known_trio_info
         Int memory = 16
         Int disk_size = 16
+
     }
 
     command <<<
@@ -306,7 +454,7 @@ task UpdateFamFile {
                             father_id = father_id_row['sample_id'].values[0]
                         if not mother_id_row.empty:
                             mother_id = mother_id_row['sample_id'].values[0]
-
+                        
                         fam_file_df.at[i, 'FatherID'] = father_id
                         fam_file_df.at[i, 'MotherID'] = mother_id
                     else:
@@ -333,45 +481,20 @@ task UpdateFamFile {
     }
 }
 
-task RunPlink {
-    input {
-        String family_id
-        File merged_vcf
-        File merged_vcf_index
-        Int memory = 16
-        Int disk_size = 16
-    }
 
-    command <<<
-        # Run PLINK on the merged VCF file
-        plink --vcf ~{merged_vcf} --make-bed --out ~{family_id} --allow-extra-chr
-    >>>
-
-    output {
-        File binary_bim = "~{family_id}.bim"
-        File binary_fam = "~{family_id}.fam"
-        File binary_bed = "~{family_id}.bed"
-    }
-
-    runtime {
-        docker: "us.gcr.io/tag-public/peddy-analysis:v1"
-        memory: memory + "GB"
-        disks: "local-disk " + disk_size + " HDD"
-    }
-}
 
 task RunPeddy {
     input {
         String prefix
-        File merged_vcf
-        File merged_vcf_index
+        File merged_gvcf
+        File merged_gvcf_index
         File fam_file
         String reference_genome = "hg38"
         Int memory = 16
         Int disk_size = 16
     }
     command <<<        
-        peddy -p 4 --plot --prefix ~{prefix} ~{merged_vcf} ~{fam_file} --sites ~{reference_genome}
+        peddy -p 4 --plot --prefix ~{prefix} ~{merged_gvcf} ~{fam_file} --sites ~{reference_genome}
 
     >>>
     output {
@@ -401,11 +524,29 @@ task MergePeddyResults {
         for file in ~{sep=' ' peddy_results}; do
             tail -n +2 $file >> merged_peddy_results.csv
         done
+
+
+        # Calculate the prediction concordance
+        python3 <<CODE
+        import pandas as pd
+
+        df = pd.read_csv("merged_peddy_results.csv")
+
+        # Calculate the concordance as the ratio of "False" in the parent_error column
+        total_rows = len(df)
+        false_count = df['parent_error'].astype(str).value_counts().get('False', 0)
+        concordance = false_count / total_rows if total_rows > 0 else 0
+        concordance = round(concordance, 2) # round by 2 decimals
+
+        with open("concordance.txt", "w") as f:
+            f.write(str(concordance))
+        CODE
     
     >>>
 
     output {
         File merged_peddy_results = "merged_peddy_results.csv"
+        Float concordance = read_float("concordance.txt")
     }
 
     runtime {
@@ -423,33 +564,42 @@ task PlotPeddyResults {
     }
 
     command <<<
-        # Create a Python script to generate the plot
+
         python3 <<CODE
+
         import pandas as pd
+        import seaborn as sns
         import matplotlib.pyplot as plt
 
-        def plot_peddy_results(input_file, output_file):
-            df = pd.read_csv(input_file)
-            fig, ax = plt.subplots(figsize=(15, 12))
 
-            # Define color mapping
-            colors = {'True': 'red', 'False': 'green'}
+        df = pd.read_csv("~{merged_peddy_results}")
 
-            for idx, row in df.iterrows():
-                color = colors.get(str(row['parent_error']), 'black')
-                ax.scatter(row['pedigree_relatedness'], row['rel'], color=color, marker='o')
-                if str(row['parent_error']) == 'True':
-                    ax.text(row['pedigree_relatedness'], row['rel'], f"{row['sample_a']}-{row['sample_b']}", fontsize=9)
+        df['concordance'] = df['parent_error'].apply(lambda x: 'Disconcordant' if x else 'Concordant')
 
-            plt.title('Peddy Pedigree Predictions')
-            plt.xlabel('Pedigree Relatedness')
-            plt.ylabel('Peddy Infered Relatedness')
-            plt.xlim(0, 1)
-            plt.ylim(0, 1)
-            plt.plot([0, 1], [0, 1], color='gray', linestyle='--')  # Add y = x line
-            plt.savefig(output_file, dpi=300)
+        custom_palette = {'Concordant': 'green', 'Disconcordant': 'red'}
+        total_num_points = len(df)
+        sns.catplot(x="concordance", y="rel_difference", kind="swarm", data=df, height=6, aspect=1.5,  palette=custom_palette)
 
-        plot_peddy_results("~{merged_peddy_results}", "peddy_prediction_plot.png")
+        # Add annotations for the number of dots and percentages
+        for label, xpos in zip(['Concordant', 'Disconcordant'], [0, 1]):
+            num_points = len(df[df['concordance'] == label])
+            percentage = (num_points / len(df)) * 100
+            plt.text(xpos, -0.9, f'{num_points} ({percentage:.2f}%)', 
+                    ha='center', fontsize=12, color='gray')
+
+        # Set the Y-axis limits
+        plt.ylim(-1, 1)
+
+        plt.title('Peddy Concordance with Relatedness Difference', y =1)
+        plt.xlabel('Prediction VS Known')
+        plt.ylabel('Rel Difference')
+        plt.tight_layout()
+        plt.axhline(y=0, color='grey', linestyle='--')
+
+        plt.suptitle(f'( # of sample pairs = {total_num_points} )', fontsize=12, ha='center', color='black', y=0.94)
+
+        plt.savefig("peddy_prediction_plot.png", dpi = 300)
+
         CODE
 
     >>>
