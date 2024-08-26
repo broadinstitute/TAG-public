@@ -578,25 +578,27 @@ task PlotPeddyResults {
 
         custom_palette = {'Concordant': 'green', 'Disconcordant': 'red'}
         total_num_points = len(df)
-        sns.catplot(x="concordance", y="rel_difference", kind="swarm", data=df, height=6, aspect=1.5,  palette=custom_palette)
+        mean_n = df['n'].mean()
+        unique_concordance = df['concordance'].unique()
+        g = sns.catplot(x="concordance", y="rel_difference", kind="swarm", data=df, height=6, aspect=1.5,  palette=custom_palette)
 
-        # Add annotations for the number of dots and percentages
-        for label, xpos in zip(['Concordant', 'Disconcordant'], [0, 1]):
+        for i, label in enumerate(unique_concordance):
             num_points = len(df[df['concordance'] == label])
             percentage = (num_points / len(df)) * 100
-            plt.text(xpos, -0.9, f'{num_points} ({percentage:.2f}%)', 
+            plt.text(i, -0.9, f'{num_points} ({percentage:.2f}%)', 
                     ha='center', fontsize=12, color='gray')
 
-        # Set the Y-axis limits
+
         plt.ylim(-1, 1)
 
-        plt.title('Peddy Concordance with Relatedness Difference', y =1)
+        plt.title('Peddy Concordance with Relatedness Difference', y=1)
         plt.xlabel('Prediction VS Known')
         plt.ylabel('Rel Difference')
         plt.tight_layout()
         plt.axhline(y=0, color='grey', linestyle='--')
 
-        plt.suptitle(f'( # of sample pairs = {total_num_points} )', fontsize=12, ha='center', color='black', y=0.94)
+        # Add the mean variants count as a label
+        plt.suptitle(f'( # of sample pairs = {total_num_points} | Mean Variants (n) = {mean_n:.2f} )', fontsize=12, ha='center', color='black', y=0.94)
 
         plt.savefig("peddy_prediction_plot.png", dpi = 300)
 
