@@ -460,7 +460,7 @@ task GenotypeGVCFs {
         File reference_dict 
         String output_prefix
         Int disk_pad = 32
-        Int disk_size = ceil(size(combined_gvcf, "GB") + disk_pad
+        Int disk_size = ceil(size(combined_gvcf, "GB")) + disk_pad
         Int memory = 32
         Int preemptible = 2
     }
