@@ -414,12 +414,12 @@ task CombineGVCFs {
         File interval_list
         Array[File] family_gvcfs
         Int memory = 32
-        Int disk_size = size(reference_fasta, 'GB') +
-                                   size(reference_fasta_index, 'GB') +
-                                   size(reference_dict, 'GB') +
-                                   size(interval_list, 'GB') +
-                                   sum(size(family_gvcfs, 'GB')) + disk_pad
+        Int disk_size = ceil(size(reference_fasta, 'GB') +
+                                size(reference_fasta_index, 'GB') +
+                                size(reference_dict, 'GB') +
+                                (length(family_gvcfs) * 5)) + disk_pad
         Int disk_pad = 32
+        Int preemptible = 2
     }
 
 
@@ -447,6 +447,8 @@ task CombineGVCFs {
         docker: "us.gcr.io/broad-gatk/gatk:4.6.0.0"
         memory: memory + "GB"
         disks: "local-disk " + disk_size + " HDD"
+        maxRetries: 2
+        preemptible: "${preemptible}"
     }
 }
 
@@ -457,8 +459,10 @@ task GenotypeGVCFs {
         File reference_fasta_index
         File reference_dict 
         String output_prefix
-        Int disk_size = 32
+        Int disk_pad = 32
+        Int disk_size = ceil(size(combined_gvcf, "GB") + disk_pad
         Int memory = 32
+        Int preemptible = 2
     }
 
 
@@ -466,7 +470,6 @@ task GenotypeGVCFs {
     
      bcftools index -t ~{combined_gvcf} > ~{output_prefix}.g.vcf.gz.tbi
      
-
      # genotype grouped a multiple-sample gVCF
      gatk GenotypeGVCFs \
        -R ~{reference_fasta} \
@@ -486,6 +489,8 @@ task GenotypeGVCFs {
         memory: memory + "GB"
         cpu: "2"
         disks: "local-disk " + disk_size + " HDD"
+        maxRetries: 2
+        preemptible: "${preemptible}"
     }
 }
 
