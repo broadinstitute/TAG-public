@@ -9,6 +9,10 @@ workflow Peddy_AnalyzeFamilialRelatedness {
         Array[String] gvcf_index_paths
         Array[String] pedigrees
         Array[String] reported_sexes
+        File interval_list
+        File reference_fasta
+        File reference_fasta_index
+        File reference_dict
     }
         
 
@@ -29,19 +33,38 @@ workflow Peddy_AnalyzeFamilialRelatedness {
     }
     scatter (index in range(length(FilterSingleSampleFamilies.passing_family_ids))){
         call GroupFamilyGVCFs {
-            input : 
+            input: 
                 grouped_per_family_gvcf = FilterSingleSampleFamilies.grouped_per_family_gvcf[index]
         }
-        call MergeFamilyVCFs {
+        call ProcessFamilyGVCFs {
             input:
-                family_id = GroupFamilyGVCFs.family_id,
-                gvcf_paths = GroupFamilyGVCFs.gvcf_paths
+                gvcf_paths = GroupFamilyGVCFs.gvcf_paths,
+                family_id = GroupFamilyGVCFs.family_id
+        }
+        call CombineGVCFs {
+            input:
+                output_prefix = GroupFamilyGVCFs.family_id,
+                reference_fasta = reference_fasta,
+                reference_fasta_index = reference_fasta_index,
+                reference_dict = reference_dict,
+                family_gvcfs = ProcessFamilyGVCFs.family_gvcfs,
+                interval_list = interval_list
+
+        }
+        call GenotypeGVCFs {
+            input: 
+                combined_gvcf = CombineGVCFs.combined_gvcf,
+                reference_fasta = reference_fasta,
+                reference_fasta_index = reference_fasta_index,
+                reference_dict = reference_dict,
+                output_prefix = GroupFamilyGVCFs.family_id
+
         }
         call RunPlink {
             input:
                 family_id = GroupFamilyGVCFs.family_id,
-                merged_gvcf = MergeFamilyVCFs.merged_gvcf,
-                merged_gvcf_index = MergeFamilyVCFs.merged_gvcf_index
+                merged_gvcf = GenotypeGVCFs.genotyped_gvcf,
+                merged_gvcf_index = GenotypeGVCFs.genotyped_gvcf_index
         }
         call UpdateFamFile {
             input:
@@ -52,8 +75,8 @@ workflow Peddy_AnalyzeFamilialRelatedness {
         call RunPeddy {
             input:
                 prefix = GroupFamilyGVCFs.family_id,
-                merged_gvcf = MergeFamilyVCFs.merged_gvcf,
-                merged_gvcf_index = MergeFamilyVCFs.merged_gvcf_index,
+                merged_gvcf = GenotypeGVCFs.genotyped_gvcf,
+                merged_gvcf_index = GenotypeGVCFs.genotyped_gvcf_index,
                 fam_file = UpdateFamFile.updated_fam_file
         }
         }
@@ -74,8 +97,8 @@ workflow Peddy_AnalyzeFamilialRelatedness {
         Int num_single_sample_families =  AnalyzeAndCheckFamilySamples.num_single_sample_families
         Array[String] processed_families = FilterSingleSampleFamilies.passing_family_ids
         Array[String] unprocessed_family_ids = FilterSingleSampleFamilies.unprocessed_family_ids
-        Array[File] merged_gvcf_files = MergeFamilyVCFs.merged_gvcf
-        Array[File] merged_gvcf_indices = MergeFamilyVCFs.merged_gvcf_index
+        Array[File] merged_gvcf_files = GenotypeGVCFs.genotyped_gvcf
+        Array[File] merged_gvcf_indices = GenotypeGVCFs.genotyped_gvcf_index
         Array[File] family_info_files = FilterSingleSampleFamilies.family_info
         Array[File] updated_fam_file = UpdateFamFile.updated_fam_file
         Float concordance = MergePeddyResults.concordance
@@ -257,6 +280,9 @@ task FilterSingleSampleFamilies {
 task GroupFamilyGVCFs {
     input {
         File grouped_per_family_gvcf
+        Int disk_size = 10
+        Int memory = 32
+        Int? buffer_disk_size
     }
 
     command <<<
@@ -272,32 +298,32 @@ task GroupFamilyGVCFs {
         consistent_family_id = None
         family_id_set = set()
 
+        # Parse the grouped gVCF file
         with open(family_file, "r") as f:
-            next(f)  # Skip the header
+            next(f) 
             for line in f:
                 fields = line.strip().split("\t")
-                family_id = fields[0] 
+                family_id = fields[0]
                 family_id_set.add(family_id)
                 sample_ids.append(fields[1])
                 gvcf_paths.append(fields[2])
                 gvcf_index_paths.append(fields[3])
 
+        # Ensure consistent family_id in the file
         if len(family_id_set) == 1:
-            consistent_family_id = family_id_set.pop() 
+            consistent_family_id = family_id_set.pop()
         else:
             raise ValueError("Inconsistent family_id values found in the file.")
-        
+
+        # Save parsed data to intermediate files
         with open("consistent_family_id.txt", "w") as f:
             f.write(consistent_family_id)
-
         with open("gvcf_paths.txt", "w") as f:
             f.write("\n".join(gvcf_paths))
-        
         with open("gvcf_index_paths.txt", "w") as f:
             f.write("\n".join(gvcf_index_paths))
-        
         with open("sample_ids.txt", "w") as f:
-            f.write("\n".join(sample_ids))       
+            f.write("\n".join(sample_ids))
 
         CODE
     >>>
@@ -311,79 +337,158 @@ task GroupFamilyGVCFs {
 
     runtime {
         docker: "us.gcr.io/tag-public/peddy-analysis:v1"
-        memory: "8 GB"
-        disks: "local-disk 16 HDD"
+        memory: memory + " GB"
+        disks: "local-disk " + (disk_size + select_first([buffer_disk_size, 0])) + " SSD"
     }
 }
 
-task MergeFamilyVCFs {
+task ProcessFamilyGVCFs {
     input {
-        String family_id
         Array[File] gvcf_paths
+        String family_id
         Int disk_size = 10
         Int memory = 32
         Int? buffer_disk_size
-        Int preemptible_attempts = 3
     }
 
     command <<<
-
-        echo ~{sep=' ' gvcf_paths} > gvcf_paths.txt
-        echo ~{family_id} > family_id.txt
-        
         python3 <<CODE
 
+        import os
         import subprocess
+        from urllib.parse import urlparse
 
+        # read in gvcf_paths as input
+        gvcf_paths = "~{sep=' ' gvcf_paths}".split(" ")
+
+        # Process and index gVCF files for the family
         def process_family(gvcf_paths, family_id):
             print(f"Processing family: {family_id}.")
             
             family_gvcfs = []
+            
             for gvcf_path in gvcf_paths:
-                family_gvcfs.append(gvcf_path)
-                    # Index the gVCF file using bcftools
+                gvcf_base_name = os.path.basename(urlparse(gvcf_path).path)
+                filtered_gVCF_path = f"filtered_{gvcf_base_name}"
+                print(f"Starting to filter: {gvcf_path}")
                 try:
-                    subprocess.run(['bcftools', 'index', '-t', gvcf_path], check=True)
-                    print(f"Indexed gVCF for {gvcf_path}")
+                    # Filter the gVCF file and ensure the ALT column is all <NON_REF>
+                    import subprocess
+
+                    # Filter the gVCF file and ensure the ALT column is all <NON_REF>
+                    subprocess.run(f'bcftools view -i \'ALT=="<NON_REF>"\' {gvcf_path} | bgzip > {filtered_gVCF_path}', shell=True, check=True)
+                    family_gvcfs.append(filtered_gVCF_path)
+
                 except subprocess.CalledProcessError as e:
-                    print(f"Error indexing gVCF for {gvcf_path}")
+                    print(f"Error filtering gVCF for {gvcf_path}: {e.stderr}")
 
-            print(f"There are {len(family_gvcfs)} samples in this family.")
-
+            print(f"Processed {len(family_gvcfs)} samples in this family.")
             return family_gvcfs
 
-        with open("gvcf_paths.txt", "r") as f:
-            gvcf_paths = f.read().strip().split(' ')
-        with open("family_id.txt", "r") as f:
-            family_id = f.read().strip()
-      
-        family_gvcfs = process_family(gvcf_paths, family_id)
-        family_gvcfs_str = ' '.join(gvcf_paths)
 
-        # Run vcf-merge command
-        vcf_merge_command = f"vcf-merge {family_gvcfs_str} > merged_family_{family_id}.vcf"
-        bgzip_command = f"bgzip merged_family_{family_id}.vcf"
-        bcftools_index_command = f"bcftools index -t merged_family_{family_id}.vcf.gz"
+        # Process per family gVCFs
+        family_gvcfs = process_family(gvcf_paths, "~{family_id}")
 
-        subprocess.run(vcf_merge_command, shell=True, check=True)
-        subprocess.run(bgzip_command, shell=True, check=True)
-        subprocess.run(bcftools_index_command, shell=True, check=True)
 
         CODE
     >>>
 
     output {
-        File merged_gvcf = "merged_family_${family_id}.vcf.gz"
-        File merged_gvcf_index = "merged_family_${family_id}.vcf.gz.tbi"
+        Array[File] family_gvcfs = glob("filtered_*.gvcf.gz")
     }
 
     runtime {
         docker: "us.gcr.io/tag-public/peddy-analysis:v1"
-        memory: memory + "GB"
+        memory: memory + " GB"
         disks: "local-disk " + (disk_size + select_first([buffer_disk_size, 0])) + " SSD"
-        preemptible: select_first([preemptible_attempts, 3])
     }
 }
+
+
+task CombineGVCFs {
+    input {
+        String output_prefix
+        File reference_fasta
+        File reference_fasta_index
+        File reference_dict 
+        File interval_list
+        Array[File] family_gvcfs
+        Int memory = 32
+        Int disk_size = size(reference_fasta, 'GB') +
+                                   size(reference_fasta_index, 'GB') +
+                                   size(reference_dict, 'GB') +
+                                   size(interval_list, 'GB') +
+                                   sum(size(family_gvcfs, 'GB')) + disk_pad
+        Int disk_pad = 32
+    }
+
+
+    command <<<
+
+        # Index gVCF files using bcftools
+        for gvcf in ~{sep=' ' family_gvcfs}; do
+            echo "Indexing $gvcf"
+            bcftools index -t $gvcf
+        done       
+
+        gatk CombineGVCFs \
+        -R ~{reference_fasta} \
+        ~{sep=' ' prefix("--variant ", family_gvcfs)} \
+        -O ~{output_prefix}.g.vcf.gz \
+        -L ~{interval_list}
+
+    >>>
+
+    output {
+      File combined_gvcf = "~{output_prefix}.g.vcf.gz"
+    }
+    
+    runtime {
+        docker: "us.gcr.io/broad-gatk/gatk:4.6.0.0"
+        memory: memory + "GB"
+        disks: "local-disk " + disk_size + " HDD"
+    }
+}
+
+task GenotypeGVCFs {
+    input {
+        File combined_gvcf
+        File reference_fasta
+        File reference_fasta_index
+        File reference_dict 
+        String output_prefix
+        Int disk_size = 32
+        Int memory = 32
+    }
+
+
+    command <<<
+    
+     bcftools index -t ~{combined_gvcf} > ~{output_prefix}.g.vcf.gz.tbi
+     
+
+     # genotype grouped a multiple-sample gVCF
+     gatk GenotypeGVCFs \
+       -R ~{reference_fasta} \
+       -V ~{combined_gvcf} \
+       --read-index ~{output_prefix}.g.vcf.gz.tbi \
+       -O ~{output_prefix}.genotyped.vcf.gz
+            
+    >>>
+
+    output {
+        File genotyped_gvcf = "~{output_prefix}.genotyped.vcf.gz"
+        File genotyped_gvcf_index = "~{output_prefix}.genotyped.vcf.gz.tbi"
+    }
+
+    runtime {
+        docker: "us.gcr.io/broad-gatk/gatk:4.6.0.0"
+        memory: memory + "GB"
+        cpu: "2"
+        disks: "local-disk " + disk_size + " HDD"
+    }
+}
+
 
 
 task RunPlink {
