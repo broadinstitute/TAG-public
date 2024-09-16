@@ -1,6 +1,6 @@
 # Peddy Analysis Pipeline
 
-This PeddyAnalysis workflow is designed to use gVCFs from multiple families to generating relatedness statistics within grouped samples. The pipeline helps analyze and visualize familial relationships and concordance with known pedigree information using Peddy.
+This PeddyAnalysis workflow is designed to use gVCFs to generate relatedness statistics within familiy (Can process multiple families at a time and should submit at sample set level). The pipeline helps analyze and visualize familial relationships and concordance with known pedigree information using Peddy.
 
 **NOTE: For prediction accuracy, gVCFs are encouraged for this analysis.**
 
@@ -32,11 +32,15 @@ This PeddyAnalysis workflow is designed to use gVCFs from multiple families to g
 
 ## Workflow Diagram
 
-![Workflow Diagram](/Users/lining/Desktop/workflow.png)
+
+![workflow](https://github.com/user-attachments/assets/b963f544-7516-41a6-a924-802300771437)
+
 
 ## Example Delivery
 
-1. Summarized Peddy Statistics
+
+#### 1. Summarized Peddy Statistics
+
 
 | family_id | sample_a | sample_b | rel       | hets_a | hets_b | shared_hets | ibs0 | ibs2 | n    | pedigree_parents | pedigree_relatedness | predicted_parents | parent_error | sample_duplication_error | rel_difference |
 | --------- | -------- | -------- | --------- | ------ | ------ | ----------- | ---- | ---- | ---- | ---------------- | -------------------- | ----------------- | ------------ | ------------------------ | -------------- |
@@ -52,6 +56,9 @@ This PeddyAnalysis workflow is designed to use gVCFs from multiple families to g
 | SF0417467 | SDSM-TI  | SDSM-VS  | 0.01341   | 3739   | 3653   | 1141        | 546  | 2195 | 7859 | FALSE            | 0                    | FALSE             | FALSE        | FALSE                    | \-0.01341      |
 
 
-2. Concordance 
+#### 2. Concordance
 
-![Concordance Check](/Users/lining/Desktop/tag_1932/concordance-check.png)
+
+![concordance-check](https://github.com/user-attachments/assets/55e66e6d-da31-4860-8c03-6928ad4a7a03)
+
+
