@@ -114,6 +114,7 @@ task AnalyzeAndCheckFamilySamples {
         Array[String] family_ids
         Int memory = 16
         Int disk_size = 16
+        String? docker_override
     }
 
     command <<<
@@ -181,7 +182,7 @@ task AnalyzeAndCheckFamilySamples {
     }
 
     runtime {
-        docker: "us.gcr.io/tag-public/peddy-analysis:v1"
+        docker: select_first([docker_override, "us.gcr.io/tag-public/peddy-analysis:v1"])
         memory: memory + "GB"
         disks: "local-disk " + disk_size + " HDD"
     }
@@ -196,6 +197,7 @@ task FilterSingleSampleFamilies {
         Array[String] gvcf_indexes
         Array[String] pedigrees
         Array[String] reported_sexes
+        String? docker_override
     }
 
     command <<<
@@ -271,7 +273,7 @@ task FilterSingleSampleFamilies {
     }
 
     runtime {
-        docker: "us.gcr.io/tag-public/peddy-analysis:v1"
+        docker: select_first([docker_override, "us.gcr.io/tag-public/peddy-analysis:v1"])
         memory: "8 GB"
         disks: "local-disk 16 HDD"
     }
@@ -283,6 +285,7 @@ task GroupFamilyGVCFs {
         Int disk_size = 10
         Int memory = 32
         Int? buffer_disk_size
+        String? docker_override
     }
 
     command <<<
@@ -336,7 +339,7 @@ task GroupFamilyGVCFs {
     }
 
     runtime {
-        docker: "us.gcr.io/tag-public/peddy-analysis:v1"
+        docker: select_first([docker_override, "us.gcr.io/tag-public/peddy-analysis:v1"])
         memory: memory + " GB"
         disks: "local-disk " + (disk_size + select_first([buffer_disk_size, 0])) + " SSD"
     }
@@ -349,6 +352,7 @@ task ProcessFamilyGVCFs {
         Int disk_size = 10
         Int memory = 32
         Int? buffer_disk_size
+        String? docker_override
     }
 
     command <<<
@@ -376,7 +380,7 @@ task ProcessFamilyGVCFs {
                     import subprocess
 
                     # Filter the gVCF file and ensure the ALT column is all <NON_REF>
-                    subprocess.run(f'bcftools view -i \'ALT=="<NON_REF>"\' {gvcf_path} | bgzip > {filtered_gVCF_path}', shell=True, check=True)
+                    subprocess.run(f'bcftools view -i \'ALT=="<NON_REF>"\' {gvcf_path} -Oz -o {filtered_gVCF_path}', shell=True, check=True)
                     family_gvcfs.append(filtered_gVCF_path)
 
                 except subprocess.CalledProcessError as e:
@@ -398,7 +402,7 @@ task ProcessFamilyGVCFs {
     }
 
     runtime {
-        docker: "us.gcr.io/tag-public/peddy-analysis:v1"
+        docker: select_first([docker_override, "us.gcr.io/tag-public/peddy-analysis:v1"])
         memory: memory + " GB"
         disks: "local-disk " + (disk_size + select_first([buffer_disk_size, 0])) + " SSD"
     }
@@ -413,12 +417,12 @@ task CombineGVCFs {
         File reference_dict 
         File interval_list
         Array[File] family_gvcfs
-        Int memory = 32
+        Int memory = 64
         Int disk_size = ceil(size(reference_fasta, 'GB') +
                                 size(reference_fasta_index, 'GB') +
                                 size(reference_dict, 'GB') +
                                 (length(family_gvcfs) * 5)) + disk_pad
-        Int disk_pad = 32
+        Int disk_pad = 0
         Int preemptible = 2
     }
 
@@ -459,7 +463,7 @@ task GenotypeGVCFs {
         File reference_fasta_index
         File reference_dict 
         String output_prefix
-        Int disk_pad = 32
+        Int disk_pad = 0
         Int disk_size = ceil(size(combined_gvcf, "GB")) + disk_pad
         Int memory = 32
         Int preemptible = 2
@@ -503,6 +507,8 @@ task RunPlink {
         File merged_gvcf_index
         Int memory = 16
         Int disk_size = 16
+        String? docker_override
+        
     }
 
     command <<<
@@ -517,7 +523,7 @@ task RunPlink {
     }
 
     runtime {
-        docker: "us.gcr.io/tag-public/peddy-analysis:v1"
+        docker: select_first([docker_override, "us.gcr.io/tag-public/peddy-analysis:v1"])
         memory: memory + "GB"
         disks: "local-disk " + disk_size + " HDD"
     }
@@ -530,6 +536,7 @@ task UpdateFamFile {
         File known_trio_info
         Int memory = 16
         Int disk_size = 16
+        String? docker_override
 
     }
 
@@ -585,7 +592,7 @@ task UpdateFamFile {
     }
 
     runtime {
-        docker: "us.gcr.io/tag-public/peddy-analysis:v1"
+        docker: select_first([docker_override, "us.gcr.io/tag-public/peddy-analysis:v1"])
         memory: memory + "GB"
         disks: "local-disk " + disk_size + " HDD"
     }
@@ -602,6 +609,7 @@ task RunPeddy {
         String reference_genome = "hg38"
         Int memory = 16
         Int disk_size = 16
+        String? docker_override
     }
     command <<<        
         peddy -p 4 --plot --prefix ~{prefix} ~{merged_gvcf} ~{fam_file} --sites ~{reference_genome}
@@ -614,7 +622,7 @@ task RunPeddy {
     }
 
     runtime {
-        docker: "us.gcr.io/tag-public/peddy-analysis:v1"
+        docker: select_first([docker_override, "us.gcr.io/tag-public/peddy-analysis:v1"])
         memory: memory + "GB"
         disks: "local-disk " + disk_size + " HDD"
     }
@@ -625,6 +633,7 @@ task MergePeddyResults {
         Array[File] peddy_results
         Int memory = 16
         Int disk_size = 16
+        String? docker_override
     }
     command <<<
         # Concatenate all the Peddy results
@@ -660,7 +669,7 @@ task MergePeddyResults {
     }
 
     runtime {
-        docker: "us.gcr.io/tag-public/peddy-analysis:v1"
+        docker: select_first([docker_override, "us.gcr.io/tag-public/peddy-analysis:v1"])
         memory: memory + "GB"
         disks: "local-disk " + disk_size + " HDD"
     }
@@ -671,6 +680,7 @@ task PlotPeddyResults {
         File merged_peddy_results
         Int memory = 8
         Int disk_size = 16
+        String? docker_override
     }
 
     command <<<
@@ -721,7 +731,7 @@ task PlotPeddyResults {
     }
 
     runtime {
-        docker: "us.gcr.io/tag-public/peddy-analysis:v1"
+        docker: select_first([docker_override, "us.gcr.io/tag-public/peddy-analysis:v1"])
         memory: memory + "GB"
         disks: "local-disk " + disk_size + " HDD"
     }
