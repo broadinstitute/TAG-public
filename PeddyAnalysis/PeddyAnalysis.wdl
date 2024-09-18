@@ -349,7 +349,7 @@ task ProcessFamilyGVCFs {
     input {
         Array[File] gvcf_paths
         String family_id
-        Int disk_size = 10
+        Int disk_size = 32
         Int memory = 32
         Int? buffer_disk_size
         String? docker_override
