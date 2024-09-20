@@ -35,7 +35,7 @@ task BwaAlignment {
 		/usr/gitc/bwa aln -q 5 -l 32 -k 2 -t ${cpu} -o 1 ${refFasta} ./${fq2} -f ./${basename2}.sai
         export bwa_cmd=$bwa_cmd" /usr/gitc/bwa aln -q 5 -l 32 -k 2 -t "${cpu}" -o 1 "${refFasta}" ./"${fq2}" -f ./"${basename2}".sai\;"
 
-		/usr/gitc/bwa sampe -t ${cpu} -P -T ${refFasta} ./${basename1}.sai ./${basename2}.sai ./${fq1} ./${fq2} -f ./${sampleName}.aligned.sam
+		/usr/gitc/bwa sampe -P ${refFasta} ./${basename1}.sai ./${basename2}.sai ./${fq1} ./${fq2} -f ./${sampleName}.aligned.sam
         export bwa_cmd=$bwa_cmd" /usr/gitc/bwa sampe -P "${refFasta}" ./"${basename1}".sai ./"${basename2}".sai ./"${fq1}" ./"${fq2}" -f ./"${sampleName}".aligned.sam"
         echo $bwa_cmd > bwa_cmd.txt
         
