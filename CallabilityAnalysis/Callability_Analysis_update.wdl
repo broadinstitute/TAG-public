@@ -521,11 +521,8 @@ task GenerateAnnotation {
         maxRetries: maxRetries
     }
     output {
-        File ungrouped_annotation = "~{output_prefix}.ungrouped.annotated.txt"
         File annotation_per_interval = "~{output_prefix}.grouped_by_interval.annotated.txt"
         File grouped_by_gene = "~{output_prefix}.grouped_by_gene.txt"
-        File coding_base_count_file= "coding_base_count.txt"
-        File intergenic_base_count_file = "intergenic_base_count.txt"
     }
 }
 
