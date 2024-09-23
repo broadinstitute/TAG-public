@@ -223,35 +223,6 @@ task CalculateCoverage {
    }
 }
 
-task GetSampleName {
-    input {
-    	File bam_or_cram_path
-    }
-
-    Int disk_size = 10 + ceil(size(bam_or_cram_path, "GiB"))
-    command <<<
-        set -e
-
-        samtools view -H ~{bam_or_cram_path} | \
-            awk '$1=="@RG" {
-                    for(i=2; i<=NF; i++) {
-                        split($i,split_str,":")
-                        if(split_str[1]=="SM") {
-                            print split_str[2]
-                        }
-                    }
-                }' | sort | uniq
-    >>>
-  runtime {
-    docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud@sha256:82dd1af86c9e6d4432170133382053525864d8f156a352e18ecf5947542e0b29"
-    disks: "local-disk "+disk_size+" HDD"
-    memory: "4 GB"
-  }
-  output {
-    String sample_name = read_string(stdout())
-  }
-}
-
 task CollectData {
 	input {
        Array[File] coverage_files
