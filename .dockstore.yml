@@ -144,3 +144,4 @@ workflows:
    primaryDescriptorPath: /CallabilityAnalysis/CallabilityAnalysis.wdl
    testParameterFiles:
     - /CallabilityAnalysis/CallabilityAnalysis.inputs.json
+
