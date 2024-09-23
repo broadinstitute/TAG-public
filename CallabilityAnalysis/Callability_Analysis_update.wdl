@@ -612,6 +612,7 @@ task concatenate_results {
         String output_prefix
         Int memory_gb = 16
         Int disk_size = 32
+        String? docker_override
     }
     command {
         python3 /scripts/aggregation_script.hg38.py --clinvar_file ~{clinvar_annotation} --samtools_coverage_file ~{samtools_coverage_file} --annotation_file ~{annotation_file} --output_prefix ~{output_prefix}
