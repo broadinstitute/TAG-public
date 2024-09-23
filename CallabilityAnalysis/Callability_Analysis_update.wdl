@@ -168,7 +168,6 @@ output {
         File out_coverage_output = coverage_output
         Int out_bases_undercovered = bases_undercovered
         Float out_fraction_undercovered = fraction_undercovered
-        File? ungrouped_annotation = GenerateAnnotation.ungrouped_annotation
         File? annotation_per_interval = GenerateAnnotation.annotation_per_interval
         File? grouped_by_gene = GenerateAnnotation.grouped_by_gene
         Array[File]? coverage_outputs = samtools_coverage.coverage_output
