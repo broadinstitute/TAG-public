@@ -172,10 +172,21 @@ task CreateBedFromIntervals {
         Int disk_size_gb = 10
     }
     command <<<
+        # Write the CNV intervals to a file
+        cnvIntervals=(~{sep=" " cnvIntervals})
+        for interval in "${cnvIntervals[@]}"; do
+            echo $interval >> cnv_intervals.txt
+        done
+
+        # Create a bed file from the CNV intervals
         source activate env_viz
         python3 <<CODE
+
+        with open('cnv_intervals.txt', 'r') as f:
+                cnvIntervals = f.readlines()
+
         with open('cnv_intervals.bed', 'a') as f:
-            for interval in ~{cnvIntervals}:
+            for interval in cnvIntervals:
                 chr = interval.split(':')[0]
                 start = interval.split(':')[1].split('-')[0]
                 end = interval.split(':')[1].split('-')[1]
