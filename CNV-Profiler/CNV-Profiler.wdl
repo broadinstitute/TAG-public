@@ -9,11 +9,14 @@ workflow CNV_Profiler {
         File referenceFasta
         File referenceFastaIndex
         File referenceDict
-        File cnvBedFile
+        File? cnvBedFile
+        Array[String]? cnvIntervals
         Boolean heterozygosityCheck = false
         File? hardFilteredVcfFile
     }
-    if (basename(cramOrBamFile) != basename(cramOrBamFile, ".cram")) {
+        Boolean isCram = basename(cramOrBamFile) != basename(cramOrBamFile, ".cram")
+
+    if (isCram) {
         call CramToBam {
             input:
                 sampleName = sampleName,
@@ -24,8 +27,27 @@ workflow CNV_Profiler {
                 referenceDict = referenceDict
         }
     }
+
     File alignedBam = select_first([cramOrBamFile, CramToBam.output_bam])
     File alignedBai = select_first([cramOrBamIndexFile, CramToBam.output_bai])
+
+    call ValidateCnvInputs {
+        input:
+            cnvBedFile = cnvBedFile,
+            cnvIntervals = cnvIntervals,
+            cnvProfiler_Docker = cnvProfiler_Docker
+    }
+
+    if (defined(cnvIntervals)) {
+        call CreateBedFromIntervals {
+            input:
+                cnvIntervals = cnvIntervals,
+                cnvProfiler_Docker = cnvProfiler_Docker
+        }
+    }
+
+    File cnvBedFile = select_first([cnvBedFile, CreateBedFromIntervals.output_bed])
+
     call GetPaddedCnvBed {
         input:
             cnvBedFile = cnvBedFile,
@@ -107,6 +129,61 @@ task CramToBam {
     output {
         File output_bam = "~{sampleName}.bam"
         File output_bai = "~{sampleName}.bai"
+    }
+}
+
+task ValidateCnvInputs {
+    input {
+        File? cnvBedFile
+        Array[String]? cnvIntervals
+        String cnvProfiler_Docker
+        Int mem_gb = 1
+        Int cpu = 1
+        Int disk_size_gb = 10
+    }
+    command <<<
+        if [[ -n "${cnvBedFile}" && -n "${cnvIntervals}" ]]; then
+            echo "Both CNV bed file and CNV intervals were provided. Please provide only one." 1>&2
+            exit 1
+        elif [[ -z "${cnvBedFile}" && -z "${cnvIntervals}" ]]; then
+            echo "Neither CNV bed file nor CNV intervals were provided. Please provide one." 1>&2
+            exit 1
+        else
+            echo "Input validation passed."
+        fi
+    >>>
+    runtime {
+        docker: cnvProfiler_Docker
+        cpu: cpu
+        memory: mem_gb + " GB"
+        disks: "local-disk " + disk_size_gb + " HDD"
+    }
+    output {
+        String cnv_input_validation = read_string(stdout())
+    }
+}
+
+task CreateBedFromIntervals {
+    input {
+        Array[String] cnvIntervals
+        String cnvProfiler_Docker
+        Int mem_gb = 1
+        Int cpu = 1
+        Int disk_size_gb = 10
+    }
+    command <<<
+        for interval in ~{join(cnvIntervals, " ")}; do
+            echo $interval | tr ':' '\t' | tr '-' '\t' >> cnv_intervals.bed
+        done
+    >>>
+    runtime {
+        docker: cnvProfiler_Docker
+        cpu: cpu
+        memory: mem_gb + " GB"
+        disks: "local-disk " + disk_size_gb + " HDD"
+    }
+    output {
+        File output_bed = "cnv_intervals.bed"
     }
 }
 
