@@ -165,16 +165,22 @@ task ValidateCnvInputs {
 
 task CreateBedFromIntervals {
     input {
-        Array[String] cnvIntervals
+        Array[String]? cnvIntervals
         String cnvProfiler_Docker
         Int mem_gb = 1
         Int cpu = 1
         Int disk_size_gb = 10
     }
     command <<<
-        for interval in ~{join(cnvIntervals, " ")}; do
-            echo $interval | tr ':' '\t' | tr '-' '\t' >> cnv_intervals.bed
-        done
+        source activate env_viz
+        python3 <<CODE
+        with open('cnv_intervals.bed', 'a') as f:
+            for interval in ~{cnvIntervals}:
+                chr = interval.split(':')[0]
+                start = interval.split(':')[1].split('-')[0]
+                end = interval.split(':')[1].split('-')[1]
+                f.write(f"{chr}\t{start}\t{end}" + '\n')
+        CODE
     >>>
     runtime {
         docker: cnvProfiler_Docker
