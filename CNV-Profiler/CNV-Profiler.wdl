@@ -196,6 +196,7 @@ task GetPaddedCnvBed {
         # Padding is 2 times the length of the CNV unless it goes beyond the chromosome length
         padded_cnv_interval_list = []
         with open("~{cnvBedFile}", 'r') as f:
+            f = [line for line in f if line.strip()]
             for line in f:
                 chr = line.strip().split('\t')[0]
                 start = line.strip().split('\t')[1]
