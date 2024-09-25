@@ -3,7 +3,7 @@ version 1.0
 workflow CNV_Profiler {
     input{
         String sampleName
-        String cnvProfiler_Docker = "us-central1-docker.pkg.dev/tag-team-160914/gptag-dockers/covprofileviz:0.0.3"
+        String cnvProfiler_Docker = "us-central1-docker.pkg.dev/tag-team-160914/gptag-dockers/covprofileviz:0.0.4"
         File cramOrBamFile
         File cramOrBamIndexFile
         File referenceFasta
