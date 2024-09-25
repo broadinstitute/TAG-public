@@ -280,8 +280,8 @@ task SamtoolsDepth {
             File target_bed
             Int minBaseQuality = 20
             Int minMappingQuality = 20
-            Int mem_gb = 32
-            Int cpu = 4
+            Int mem_gb = 64
+            Int cpu = 8
             Int disk_size_gb = 500
             Boolean use_ssd = true
             String samtools_docker = "euformatics/samtools:1.20"
