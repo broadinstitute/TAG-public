@@ -134,3 +134,14 @@ workflows:
    primaryDescriptorPath: /CNV-Profiler/CNV-Profiler.wdl
    testParameterFiles:
     - /CNV-Profiler/CNV-Profiler.inputs.json
+ - name: cnvArrayProber
+   subclass: WDL
+   primaryDescriptorPath: /CNV_Array_Prober/cnvArrayProber.wdl
+   testParameterFiles:
+    - /CNV_Array_Prober/cnvArrayProber.inputs.json
+ - name: CallabilityAnalysis
+   subclass: WDL
+   primaryDescriptorPath: /CallabilityAnalysis/Callability_Analysis_update.wdl
+   testParameterFiles:
+    - /CallabilityAnalysis/Callability_Analysis_update.inputs.json
+
