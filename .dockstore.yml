@@ -129,13 +129,13 @@ workflows:
    primaryDescriptorPath: /PECGS-QUICviz/QUICviz.wdl
    testParameterFiles:
     - /PECGS-QUICviz/QUICviz.inputs.json
+ - name: PeddyAnalysis
+   subclass: WDL
+   primaryDescriptorPath: /PeddyAnalysis/PeddyAnalysis.wdl
+   testParameterFiles:
+    - /PeddyAnalysis/PeddyAnalysis.inputs.json
  - name: cnvArrayProber
    subclass: WDL
    primaryDescriptorPath: /CNV_Array_Prober/cnvArrayProber.wdl
    testParameterFiles:
     - /CNV_Array_Prober/cnvArrayProber.inputs.json
- - name: CallabilityAnalysis
-   subclass: WDL
-   primaryDescriptorPath: /CallabilityAnalysis/Callability_Analysis_update.wdl
-   testParameterFiles:
-    - /CallabilityAnalysis/Callability_Analysis_update.inputs.json
