@@ -129,6 +129,11 @@ workflows:
    primaryDescriptorPath: /PECGS-QUICviz/QUICviz.wdl
    testParameterFiles:
     - /PECGS-QUICviz/QUICviz.inputs.json
+ - name: CNV-Profiler
+   subclass: WDL
+   primaryDescriptorPath: /CNV-Profiler/CNV-Profiler.wdl
+   testParameterFiles:
+    - /CNV-Profiler/CNV-Profiler.inputs.json
  - name: cnvArrayProber
    subclass: WDL
    primaryDescriptorPath: /CNV_Array_Prober/cnvArrayProber.wdl
@@ -139,3 +144,4 @@ workflows:
    primaryDescriptorPath: /CallabilityAnalysis/Callability_Analysis_update.wdl
    testParameterFiles:
     - /CallabilityAnalysis/Callability_Analysis_update.inputs.json
+
