@@ -1,6 +1,6 @@
 # This workflow is originally from CCGD DFCI and modified as a Terra/FireCloud version by TAG
-import "https://raw.githubusercontent.com/broadinstitute/TAG-public/99c8c2ec6d7d6b798b62435ed260b0a6decdacd2/BreaKmer/breakmer_subworkflows/AlignAndHardClipBam.wdl" as realign_hardclip
-import "https://raw.githubusercontent.com/broadinstitute/TAG-public/master/BreaKmer/breakmer_subworkflows/AnnotateBreaKmer.wdl" as AnnotateBreaKmer
+import "./breakmer_subworkflows/AlignAndHardClipBam.wdl" as realign_hardclip
+import "./breakmer_subworkflows/AnnotateBreaKmer.wdl" as AnnotateBreaKmer
 
 
 workflow BreakmerAnalysis{
@@ -218,11 +218,13 @@ task MarkDuplicates {
 
     command {
         set -e
-        
+        ln -vs ${input_bam} ${out_basename}_input.bam
+        ln -vs ${input_bam_index} ${out_basename}_input.bai
+
         export PICARD_JAR=${default="/usr/gitc/picard.jar" picard_override}
 
         java -Xmx${compute_mem}m -jar $PICARD_JAR MarkDuplicates \
-            INPUT=${input_bam} \
+            INPUT=${out_basename}_input.bam \
             OUTPUT=${out_basename}.markdup.bam \
             M=${out_basename}.duplicate_metrics \
             CREATE_INDEX=true ${true="REMOVE_DUPLICATES=true" false=" " remove_duplicates_from_bam}
@@ -266,6 +268,8 @@ task DynamicDownsampleBam {
 
     command <<<
         set -e
+        ln -vs ${input_bam} ${out_basename}_input.bam
+        ln -vs ${input_bam_index} ${out_basename}_input.bai
 
         DS_FRAC=${ds_frac_default}
         export PICARD_JAR=${default="/usr/gitc/picard.jar" picard_override}
@@ -275,7 +279,7 @@ task DynamicDownsampleBam {
 
         if [ ${run_dynamic_downsample} = true ]
         then
-            samtools idxstats ${input_bam} > idx_stats.out
+            samtools idxstats ${out_basename}_input.bam > idx_stats.out
             python ${ds_stats_python} ${targets_bed} idx_stats.out > "${out_basename}.ds_stats.txt"
 
             DS_FRAC=$(grep ^downsample_fraction "${out_basename}.ds_stats.txt" | cut -f2)
@@ -287,7 +291,7 @@ task DynamicDownsampleBam {
             cp ${input_bam_index} "${out_basename}.ds.bai"
         else
             java -Xmx${compute_mem}m -jar $PICARD_JAR DownsampleSam \
-                INPUT=${input_bam} \
+                INPUT=${out_basename}_input.bam \
                 OUTPUT="${out_basename}.ds.bam" \
                 P=$DS_FRAC \
                 CREATE_INDEX=true
@@ -383,6 +387,9 @@ task RunBreakmer {
     command {
         set -e -o pipefail
 
+        ln -vs ${input_bam} ${sample_name}_input.bam
+        ln -vs ${input_bam_index} ${sample_name}_input.bai
+
         # Prepare reference k-mer directory
         mkdir -p ${targets_basename}
         if [[ -f "${ref_kmer_tar}" ]]; then
@@ -396,7 +403,7 @@ task RunBreakmer {
 
         # Create configuration file
         echo "analysis_name=${sample_name}" > ${config_file}
-        echo "sample_bam_file=${input_bam}" >> ${config_file}
+        echo "sample_bam_file=${sample_name}_input.bam" >> ${config_file}
         echo "analysis_dir=$OUTPUT" >> ${config_file}
         echo "targets_dir=$SCRATCH" >> ${config_file}
         echo "targets_bed_file=${targets_bed}" >> ${config_file}
