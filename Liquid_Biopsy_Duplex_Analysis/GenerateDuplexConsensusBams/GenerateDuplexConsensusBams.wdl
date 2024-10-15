@@ -70,6 +70,7 @@ workflow GenerateDuplexConsensusBams {
    }
    if(copy_umi_or_default){
       call copyUmi.CopyUmiTask as CopyUmiTask {
+         input: 
          bam_file = bam_file,
         	bam_index = bam_index,
          base_name = base_name
