@@ -139,3 +139,23 @@ workflows:
    primaryDescriptorPath: /CODEC/SigProfiler.wdl
    testParameterFiles:
     - /CODEC/SigProfiler.inputs.json
+ - name: TAG_Mop
+   subclass: WDL
+   primaryDescriptorPath: /TAG_Mop/TAG_Mop.wdl
+   testParameterFiles:
+    - /TAG_Mop/TAG_Mop.inputs.json
+ - name: QUICviz
+   subclass: WDL
+   primaryDescriptorPath: /PECGS-QUICviz/QUICviz.wdl
+   testParameterFiles:
+    - /PECGS-QUICviz/QUICviz.inputs.json
+ - name: PeddyAnalysis
+   subclass: WDL
+   primaryDescriptorPath: /PeddyAnalysis/PeddyAnalysis.wdl
+   testParameterFiles:
+    - /PeddyAnalysis/PeddyAnalysis.inputs.json
+ - name: cnvArrayProber
+   subclass: WDL
+   primaryDescriptorPath: /CNV_Array_Prober/cnvArrayProber.wdl
+   testParameterFiles:
+    - /CNV_Array_Prober/cnvArrayProber.inputs.json

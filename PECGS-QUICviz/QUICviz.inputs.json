@@ -1,0 +1,11 @@
+{
+  "QUICviz.calledCopyRatioSegTumor": "File",
+  "QUICviz.oncotatedCalledTumor": "File",
+  "QUICviz.allelicCountsNormal": "File",
+  "QUICviz.denoisedCopyRatiosTumor": "File",
+  "QUICviz.denoisedCopyRatiosNormal": "File",
+  "QUICviz.allelicCountsTumor": "File",
+  "QUICviz.tumorType": "String",
+  "QUICviz.sampleID": "String"
+}
+

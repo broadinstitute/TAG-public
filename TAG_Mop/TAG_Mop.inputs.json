@@ -1,0 +1,7 @@
+{
+  "TAG_Mop.mopDocker": "String (optional, default = \"us.gcr.io/tag-team-160914/neovax-parsley:2.2.1.0\")",
+  "TAG_Mop.workspaceName": "String",
+  "TAG_Mop.namespace": "String (optional, default = \"broadtagteam\")",
+  "TAG_Mop.runMop": "Boolean"
+}
+

@@ -35,6 +35,10 @@ workflow Cleanup_Failed_Submissions {
                 submission_id = sid
         }
     }
+
+output {
+        Int num_failed_submissions = length(GetWorkspaceInfo.failed_submissions)
+    }
 }
 
 task GetWorkspaceInfo {
@@ -87,7 +91,14 @@ task CleanupAFolder {
     }
 
     command <<<
-        timeout 23h gsutil -q rm -rf gs://~{bucket_name}/submissions/~{submission_id} || echo "Timed out. Please try again."
+        # Older version of Terra does not have the submission folder
+        if gsutil -q ls gs://~{bucket_name}/submissions/~{submission_id} >/dev/null 2>&1; then
+            timeout 23h gsutil -q rm -rf gs://~{bucket_name}/submissions/~{submission_id} || echo "Timed out. Please try again."
+        elif gsutil -q ls gs://~{bucket_name}/~{submission_id} >/dev/null 2>&1; then
+            timeout 23h gsutil -q rm -rf gs://~{bucket_name}/~{submission_id} || echo "Timed out. Please try again."
+        else
+            echo "Failed submission folder not found. This workspace has been cleaned up already."
+        fi
     >>>
 
     runtime {
