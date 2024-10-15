@@ -114,7 +114,6 @@ workflow SingleSampleCODEC_targeted {
                 groupbyumi_bam = GroupReadByUMI.groupbyumi_bam,
                 sample_id = sample_id,
                 duplex_eval_bed = bait_intervals
-
         }
         call PlotDuplexRecoveryByTarget {
             input:
@@ -486,8 +485,8 @@ task CollectSelectionMetrics {
         File bam_file
         File bam_index
         String sample_id
-        File bait_intervals
-        File target_intervals
+        File? bait_intervals
+        File? target_intervals
         Int? preemptible_attempts
         Int memory = 32
         Int disk_pad = 0
@@ -721,7 +720,7 @@ task DuplexRecoveryMetrics {
     input {
         File groupbyumi_bam 
         String sample_id
-        File duplex_eval_bed
+        File? duplex_eval_bed
         Int memory = 32
         Int extra_disk = 0
         Int disk_size = ceil(size(groupbyumi_bam , "GB") * 3) + select_first([extra_disk, 0])
@@ -755,7 +754,7 @@ task DuplexRecoveryMetrics {
 
 task PlotDuplexRecoveryByTarget {
     input {
-        File duplex_recovery_metrics
+        File? duplex_recovery_metrics
         String sample_id
     }
 
