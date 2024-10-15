@@ -1,6 +1,6 @@
 version 1.0
 
-workflow SingleSampleCODEC {
+workflow SingleSampleCODEC_targeted {
     input {
         String sample_id
         File fastq1
@@ -13,12 +13,16 @@ workflow SingleSampleCODEC {
         File reference_ann
         File reference_bwt
         File reference_sa
-        File germline_bam
-        File germline_bam_index
+        File? germline_bam
+        File? germline_bam_index
         Int num_parallel
-        String sort_memory
+        String sort_memory       
         File eval_genome_interval = "gs://gptag/CODEC/GRCh38_notinalldifficultregions.interval_list"
         File eval_genome_bed = "gs://gptag/CODEC/GRCh38_notinalldifficultregions.bed"
+        File? bait_intervals
+        File? target_intervals
+        Boolean is_captured_data
+        Boolean create_maf
     }
         call SplitFastq1 {
             input: 
@@ -104,6 +108,20 @@ workflow SingleSampleCODEC {
                 input_bam = ReplaceRawReadGroup.bam,
                 sample_id = sample_id
         }
+        if (is_captured_data) {
+        call DuplexRecoveryMetrics {
+            input:
+                groupbyumi_bam = GroupReadByUMI.groupbyumi_bam,
+                sample_id = sample_id,
+                duplex_eval_bed = bait_intervals
+
+        }
+        call PlotDuplexRecoveryByTarget {
+            input:
+            sample_id = sample_id,
+            duplex_recovery_metrics = DuplexRecoveryMetrics.duplex_recovery_metrics
+        }
+        }
         call FgbioCollapseReadFamilies {
             input:
                 grouped_umi_bam = GroupReadByUMI.groupbyumi_bam,
@@ -132,15 +150,22 @@ workflow SingleSampleCODEC {
                 sample_id = sample_id,
                 sort_memory = sort_memory
         }
-        call CollectWgsMetrics {
-            input:
-                ConsensusAlignedBam = MergeAndSortMoleculeConsensusReads.bam,
-                ConsensusAlignedBai = MergeAndSortMoleculeConsensusReads.bai,
-                sample_id = sample_id,
-                reference_fasta = reference_fasta,
-                reference_fasta_index = reference_fasta_index,
+        if (is_captured_data) {
+        call CollectSelectionMetrics {
+            input: 
+                reference = reference_fasta,
+                reference_index = reference_fasta_index,
                 reference_dict = reference_dict,
-                eval_genome_interval = eval_genome_interval
+                bam_file = MergeAndSortMoleculeConsensusReads.bam,
+                bam_index = MergeAndSortMoleculeConsensusReads.bai,
+                sample_id = sample_id,
+                bait_intervals = bait_intervals,
+                target_intervals = target_intervals
+        }
+        call Hs_metrics {
+            input:
+            output_selection_metrics = CollectSelectionMetrics.output_selection_metrics
+        }
         }
         call CSS_SFC_ErrorMetrics {
             input:
@@ -159,10 +184,16 @@ workflow SingleSampleCODEC {
                 germline_bam_index = germline_bam_index,
                 eval_genome_bed = eval_genome_bed
         }
+        if (create_maf) {
+        call codec2MAF {
+            input:
+                variants_called = CSS_SFC_ErrorMetrics.variants_called,
+                sample_id = sample_id
+        }
+        }
         call QC_metrics {
             input:
                 byproduct_metrics = ByProductMetrics.byproduct_metrics,
-                WgsMetrics = CollectWgsMetrics.WgsMetrics,
                 umiHistogram = GroupReadByUMI.umi_histogram,
                 InsertSizeMetrics = CollectInsertSizeMetrics.insert_size_metrics,
                 mutant_metrics = CSS_SFC_ErrorMetrics.mutant_metrics,
@@ -188,7 +219,11 @@ workflow SingleSampleCODEC {
         File InsertSizeMetrics = CollectInsertSizeMetrics.insert_size_metrics
         File InsertSizeHistogram = CollectInsertSizeMetrics.insert_size_histogram
         File umiHistogram = GroupReadByUMI.umi_histogram
-        File WgsMetrics = CollectWgsMetrics.WgsMetrics
+
+        File? output_selection_metrics = CollectSelectionMetrics.output_selection_metrics
+        File? output_per_target_selection_metrics = CollectSelectionMetrics.output_per_target_selection_metrics
+        File? output_theoretical_sensitivity = CollectSelectionMetrics.output_theoretical_sensitivity
+
         File mutant_metrics = CSS_SFC_ErrorMetrics.mutant_metrics
         File context_count = CSS_SFC_ErrorMetrics.context_count
         File variants_called = CSS_SFC_ErrorMetrics.variants_called
@@ -201,9 +236,7 @@ workflow SingleSampleCODEC {
         Int n_intermol = QC_metrics.n_intermol
         Float pct_intermol = QC_metrics.pct_intermol
         Int n_adp_dimer = QC_metrics.n_adp_dimer
-        Float pct_adp_dimer = QC_metrics.pct_adp_dimer 
-        Float raw_dedupped_mean_cov = QC_metrics.raw_dedupped_mean_cov
-        Int raw_dedupped_median_cov = QC_metrics.raw_dedupped_median_cov
+        Float pct_adp_dimer = QC_metrics.pct_adp_dimer
         Float duplication_rate = QC_metrics.duplication_rate
         Float mean_insert_size = QC_metrics.mean_insert_size
         Int median_insert_size = QC_metrics.median_insert_size
@@ -213,9 +246,14 @@ workflow SingleSampleCODEC {
         Float snv_rate = QC_metrics.snv_rate
         Float indel_rate = QC_metrics.indel_rate
         String eval_genome_bases = EvalGenomeBases.eval_genome_bases
+        Float? pct_selected_bases = Hs_metrics.pct_selected_bases
+        Float? mean_bait_coverage = Hs_metrics.mean_bait_coverage
+        Float? mean_target_coverage = Hs_metrics.mean_target_coverage
         Float duplex_depth = CalculateDuplexDepth.duplex_depth
         Float duplex_efficiency = CalculateDuplexDepth.duplex_efficiency
-
+        File? duplex_recovery_metrics = DuplexRecoveryMetrics.duplex_recovery_metrics
+        File? ds_duplex_plots = PlotDuplexRecoveryByTarget.ds_duplex_plots
+        File? outputMAF = codec2MAF.output_maf
     }
 }
 
@@ -227,6 +265,7 @@ task SplitFastq1 {
         Int memory = 64
         Int? extra_disk
         Int disk_size = ceil(size(fastq_read1, "GB") * 15) + select_first([extra_disk, 0])
+        String? docker_override
     }
 
     command <<<
@@ -241,7 +280,7 @@ task SplitFastq1 {
     }
 
     runtime {
-        docker: "us.gcr.io/tag-public/codec:v1.1.1"
+        docker: select_first([docker_override, "us.gcr.io/tag-public/codec:v1.1.4"])
         memory: memory + " GB"
         disks: "local-disk " + disk_size + " HDD"
     }
@@ -255,6 +294,7 @@ task SplitFastq2 {
         Int memory = 64
         Int? extra_disk
         Int disk_size = ceil(size(fastq_read2, "GB") * 15) + select_first([extra_disk, 0])
+        String? docker_override
     }
 
     command <<<
@@ -268,7 +308,7 @@ task SplitFastq2 {
     }
 
     runtime {
-        docker: "us.gcr.io/tag-public/codec:v1.1.1"
+        docker: select_first([docker_override, "us.gcr.io/tag-public/codec:v1.1.4"])
         memory: memory + " GB"
         disks: "local-disk " + disk_size + " HDD"
     }
@@ -284,6 +324,7 @@ task Trim {
         Int mem = 16
         Int? extra_disk
         Int disk_size = ceil(size(read1, "GB") * 8) + select_first([extra_disk, 0])
+        String? docker_override
     }
         
     command {
@@ -293,7 +334,7 @@ task Trim {
     
     }
     runtime {
-        docker: "us.gcr.io/tag-public/codec:v1.1.1" 
+        docker: select_first([docker_override, "us.gcr.io/tag-public/codec:v1.1.4"]) 
         disks: "local-disk " + disk_size + " HDD"
         memory: mem + " GB"
     }
@@ -319,6 +360,7 @@ task AlignRawTrimmed {
         Int disk_size = ceil(size(bam_input, "GB") * 20) + select_first([extra_disk, 0])
         String sample_id
         Int split
+        String? docker_override
     }
 
     String output_bam_name = "${sample_id}_split.${split}.aligned_tmp.bam"
@@ -337,7 +379,7 @@ task AlignRawTrimmed {
     }
 
     runtime {
-        docker: "us.gcr.io/tag-public/codec:v1.1.1"
+        docker: select_first([docker_override, "us.gcr.io/tag-public/codec:v1.1.4"])
         memory: mem + " GB"
         disks: "local-disk " + disk_size + " HDD"
         preemptible: 3
@@ -356,6 +398,7 @@ task ZipperBamAlignment {
         String sample_id
         Int split
         String sort_memory
+        String? docker_override
 
     }
 
@@ -376,7 +419,7 @@ task ZipperBamAlignment {
     }
 
     runtime {
-        docker: "us.gcr.io/tag-public/codec:v1.1.1" 
+        docker: select_first([docker_override, "us.gcr.io/tag-public/codec:v1.1.4"]) 
         memory: select_first([mem, 8]) + " GB"
         disks: "local-disk " + select_first([disk_size, 16]) + " HDD"
         preemptible: 3
@@ -389,6 +432,7 @@ task MergeSplit {
         String sample_id
         Int memory = 64
         Int disk_size =200
+        String? docker_override
     }
 
     command {
@@ -403,7 +447,7 @@ task MergeSplit {
     }
 
     runtime {
-        docker: "us.gcr.io/tag-public/codec:v1.1.1" 
+        docker: select_first([docker_override, "us.gcr.io/tag-public/codec:v1.1.4"]) 
         disks: "local-disk " + disk_size + " HDD"
         memory: memory + " GB"
     }
@@ -415,6 +459,7 @@ task MergeLogSplit {
         String sample_id
         Int mem = 32
         Int disk_size = 64
+        String? docker_override
     }
 
     command {
@@ -427,9 +472,102 @@ task MergeLogSplit {
     }
 
     runtime {
-        docker: "us.gcr.io/tag-public/codec:v1.1.1" 
+        docker: select_first([docker_override, "us.gcr.io/tag-public/codec:v1.1.4"]) 
         disks: "local-disk " + disk_size + " HDD"
         memory: mem + " GB"
+    }
+}
+
+task CollectSelectionMetrics {
+   input{
+        File reference
+        File reference_index
+        File reference_dict
+        File bam_file
+        File bam_index
+        String sample_id
+        File bait_intervals
+        File target_intervals
+        Int? preemptible_attempts
+        Int memory = 32
+        Int disk_pad = 0
+        Int disk_size = ceil(size(bam_file, "GB") * 2) + disk_pad
+        String? docker_override
+    }
+
+   command {
+
+      java -jar /dependencies/picard.jar CollectHsMetrics \
+        I=~{bam_file} \
+        O=~{sample_id}.selection_metrics \
+        PER_TARGET_COVERAGE=~{sample_id}.per_target_selection_metrics \
+        THEORETICAL_SENSITIVITY_OUTPUT=~{sample_id}.theoretical_sensitivity \
+        BAIT_INTERVALS=~{bait_intervals} \
+        TARGET_INTERVALS=~{target_intervals} \
+        REFERENCE_SEQUENCE=~{reference}
+    }
+
+    output {
+      File output_selection_metrics = "~{sample_id}.selection_metrics"
+      File output_per_target_selection_metrics = "~{sample_id}.per_target_selection_metrics"
+      File output_theoretical_sensitivity = "~{sample_id}.theoretical_sensitivity"
+   }
+
+   runtime {
+      docker: select_first([docker_override, "us.gcr.io/tag-public/codec:v1.1.4"]) 
+      disks: "local-disk " + disk_size + " HDD"
+      memory: memory + " GB"
+      preemptible: select_first([preemptible_attempts, 3])
+   }
+}
+
+task Hs_metrics {
+    input {
+        File output_selection_metrics
+    }
+
+    command <<<
+        python3 <<CODE
+
+        with open("~{output_selection_metrics}", 'r') as file:
+            lines = file.readlines()
+
+        metrics_line = None
+        for i, line in enumerate(lines):
+            if '## METRICS CLASS' in line:
+                metrics_line = lines[i + 2].strip()
+                break
+
+        # Extract the values for PCT_SELECTED_BASES, MEAN_BAIT_COVERAGE, and MEAN_TARGET_COVERAGE
+        if metrics_line:
+            values = metrics_line.split()
+            pct_selected_bases = values[6] 
+            mean_bait_coverage = values[9]
+            mean_target_coverage = values[32]
+
+            with open('pct_selected_bases.txt', 'w') as f:
+                f.write(pct_selected_bases + '\n')
+
+            with open('mean_bait_coverage.txt', 'w') as f:
+                f.write(mean_bait_coverage + '\n')
+
+            with open('mean_target_coverage.txt', 'w') as f:
+                f.write(mean_target_coverage + '\n')
+
+        CODE
+    >>>
+
+    output {
+      Float pct_selected_bases = read_float("pct_selected_bases.txt")     
+      Float mean_bait_coverage = read_float("mean_bait_coverage.txt")
+      Float mean_target_coverage = read_float("mean_target_coverage.txt")
+    }
+
+    runtime {
+        memory: "16 GB"
+        docker: "us.gcr.io/tag-public/metadata_upload" 
+        disks: "local-disk 16 HDD"
+        preemptible: 1
     }
 }
 
@@ -439,6 +577,7 @@ task SortBam {
         String sample_id
         Int mem = 64
         Int disk_size = 200
+        String? docker_override
     }
 
     command {
@@ -450,7 +589,7 @@ task SortBam {
     }
 
     runtime {
-        docker: "us.gcr.io/tag-public/codec:v1.1.1" 
+        docker: select_first([docker_override, "us.gcr.io/tag-public/codec:v1.1.4"]) 
         disks: "local-disk " + disk_size + " HDD"
         memory: mem + " GB"
         preemptible: 2
@@ -464,6 +603,7 @@ task ByProductMetrics {
         String sample_id
         Int mem = 32
         Int disk_size = 100
+        String? docker_override
     }
 
     command {
@@ -476,7 +616,7 @@ task ByProductMetrics {
     }
 
     runtime {
-        docker: "us.gcr.io/tag-public/codec:v1.1.1" 
+        docker: select_first([docker_override, "us.gcr.io/tag-public/codec:v1.1.4"]) 
         disks: "local-disk " + disk_size + " HDD"
         memory: mem + " GB"
     }
@@ -488,6 +628,7 @@ task ReplaceRawReadGroup {
         String sample_id
         Int memory = 64
         Int disk_size = 200
+        String? docker_override
     }
 
     command {
@@ -509,7 +650,7 @@ task ReplaceRawReadGroup {
 
     runtime {
         memory: memory + " GB"
-        docker: "us.gcr.io/tag-public/codec:v1.1.1" 
+        docker: select_first([docker_override, "us.gcr.io/tag-public/codec:v1.1.4"]) 
         disks: "local-disk " + disk_size + " HDD"
     }
 }
@@ -520,6 +661,7 @@ task CollectInsertSizeMetrics {
         String sample_id
         Int memory = 32
         Int disk_size = 200
+        String? docker_override
     }
 
     command {
@@ -537,7 +679,7 @@ task CollectInsertSizeMetrics {
 
     runtime {
         memory: memory + " GB"
-        docker: "us.gcr.io/tag-public/codec:v1.1.1"
+        docker: select_first([docker_override, "us.gcr.io/tag-public/codec:v1.1.4"])
         disks: "local-disk " + disk_size + " HDD"
     }
 }
@@ -549,6 +691,7 @@ task GroupReadByUMI {
         Int memory = 64
         Int? extra_disk
         Int disk_size = ceil(size(input_bam, "GB") * 15) + select_first([extra_disk, 0])
+        String? docker_override
     }
 
     command {
@@ -568,8 +711,105 @@ task GroupReadByUMI {
 
     runtime {
         memory: memory + " GB"
-        docker: "us.gcr.io/tag-public/codec:v1.1.1"
+        docker: select_first([docker_override, "us.gcr.io/tag-public/codec:v1.1.4"])
         disks: "local-disk " + disk_size + " HDD"
+    }
+}
+
+
+task DuplexRecoveryMetrics {
+    input {
+        File groupbyumi_bam 
+        String sample_id
+        File duplex_eval_bed
+        Int memory = 32
+        Int extra_disk = 0
+        Int disk_size = ceil(size(groupbyumi_bam , "GB") * 3) + select_first([extra_disk, 0])
+        String sorted_bam = basename(groupbyumi_bam, ".bam") + ".sorted.bam"
+        String? docker_override
+    }
+
+    command {
+        
+        samtools sort ~{groupbyumi_bam} -o ~{sorted_bam}
+
+        python3 /scripts/collect_duplex_metrics.py \
+            --bam_file ~{sorted_bam} \
+            --output_file ~{sample_id}.duplex_metrics.txt \
+            --interval_list ~{duplex_eval_bed} \
+            --per_target \
+            --is_cds
+    
+    }
+
+    output {
+        File duplex_recovery_metrics = "~{sample_id}.duplex_metrics.txt"
+    }
+
+    runtime {
+        memory: memory + " GB"
+        docker: select_first([docker_override, "us.gcr.io/tag-public/codec:v1.1.4"])
+        disks: "local-disk " + disk_size + " HDD"
+    }
+}
+
+task PlotDuplexRecoveryByTarget {
+    input {
+        File duplex_recovery_metrics
+        String sample_id
+    }
+
+    command <<<
+        python3 <<CODE
+
+        import pandas as pd
+        import matplotlib.pyplot as plt
+        import seaborn as sns
+        from matplotlib.backends.backend_pdf import PdfPages
+
+        file_path = "~{duplex_recovery_metrics}"
+        duplex_metrics = pd.read_csv(file_path, sep="\t")
+
+
+        with PdfPages("~{sample_id}.ds_duplex_plots.pdf") as pdf:
+            # First plot: DS Duplexes vs Read Pairs by Target
+            plt.figure(figsize=(10, 6))
+            for target, group in duplex_metrics.groupby('target'):
+                plt.plot(group['read_pairs'], group['ds_duplexes'], label=target, linewidth = 1)
+            plt.xlabel('Read Pairs')
+            plt.ylabel('DS Duplexes')
+            plt.title('DS Duplexes vs Read Pairs by Target')
+            # plt.legend(title='Target', bbox_to_anchor=(1.05, 1), loc='upper left')
+            plt.tight_layout()
+            pdf.savefig()
+            plt.close()
+
+            # Second plot: Distribution of DS Duplexes for Fraction == 1
+            filtered_duplex_metrics = duplex_metrics[duplex_metrics['fraction'] == 1]
+            plt.figure(figsize=(6, 6))
+            sns.boxplot(data=filtered_duplex_metrics, y='ds_duplexes')
+            plt.xticks([0], ['All Targets'])  # Set a single X-tick labeled "All Targets"
+            plt.xlabel('')
+            plt.ylabel('DS Duplexes')
+            plt.title('Distribution of DS Duplexes(All Targets)')
+            plt.tight_layout()
+            pdf.savefig() 
+            plt.close()
+
+            print("Plots have been saved to '~{sample_id}.ds_duplex_plots.pdf'")
+
+        CODE
+    >>>
+
+
+    output {
+        File ds_duplex_plots = "~{sample_id}.ds_duplex_plots.pdf"
+    }
+
+    runtime {
+        memory: "16 GB"
+        docker: "us.gcr.io/tag-public/python:test"
+        disks: "local-disk 16 HDD"
     }
 }
 
@@ -580,6 +820,7 @@ task FgbioCollapseReadFamilies {
         Int memory = 64
         Int? extra_disk
         Int disk_size = ceil(size(grouped_umi_bam, "GB") * 10) + select_first([extra_disk, 0])
+        String? docker_override
     }
 
     command {
@@ -598,7 +839,7 @@ task FgbioCollapseReadFamilies {
 
     runtime {
         memory: memory + " GB"
-        docker: "us.gcr.io/tag-public/codec:v1.1.1"
+        docker: select_first([docker_override, "us.gcr.io/tag-public/codec:v1.1.4"])
         disks: "local-disk " + disk_size + " HDD"
     }
 }
@@ -619,6 +860,7 @@ task AlignMolecularConsensusReads {
         Int disk_size = 200
         Int threads = 4
         Int cpu_cores = 1
+        String? docker_override
     }
         String output_bam_name = "${sample_id}.mol_consensus.aligned_tmp.bam"
 
@@ -633,7 +875,7 @@ task AlignMolecularConsensusReads {
 
     runtime {
         memory: memory + " GB"
-        docker: "us.gcr.io/tag-public/codec:v1.1.1" 
+        docker: select_first([docker_override, "us.gcr.io/tag-public/codec:v1.1.4"]) 
         disks: "local-disk " + disk_size + " HDD"
         cpu: cpu_cores
         preemptible: 3
@@ -651,6 +893,7 @@ task MergeAndSortMoleculeConsensusReads {
         Int memory = 64
         Int disk_size = 200
         String sort_memory
+        String? docker_override
     }
 
     command {
@@ -670,38 +913,7 @@ task MergeAndSortMoleculeConsensusReads {
 
     runtime {
         memory: memory+ " GB"
-        docker: "us.gcr.io/tag-public/codec:v1.1.1" 
-        disks: "local-disk " + disk_size + " HDD"
-        preemptible: 3
-    }
-}
-
-task CollectWgsMetrics {
-    input {
-        File ConsensusAlignedBam
-        File ConsensusAlignedBai
-        String sample_id
-        File reference_fasta
-        File reference_fasta_index
-        File reference_dict
-        File eval_genome_interval
-        Int memory = 32
-        Int disk_size = 200
-    }
-
-    command {
-        java -jar /dependencies/picard.jar CollectWgsMetrics \
-        I=~{ConsensusAlignedBam} O=~{sample_id}.wgs_metrics.txt R=~{reference_fasta} INTERVALS=~{eval_genome_interval} \
-        COUNT_UNPAIRED=true MINIMUM_BASE_QUALITY=0 MINIMUM_MAPPING_QUALITY=0
-    }
-
-    output {
-        File WgsMetrics = "~{sample_id}.wgs_metrics.txt"
-    }
-
-    runtime {
-        memory: memory + " GB"
-        docker: "us.gcr.io/tag-public/codec:v1.1.1" 
+        docker: select_first([docker_override, "us.gcr.io/tag-public/codec:v1.1.4"]) 
         disks: "local-disk " + disk_size + " HDD"
         preemptible: 3
     }
@@ -721,13 +933,14 @@ task CSS_SFC_ErrorMetrics {
         File reference_ann
         File reference_bwt
         File reference_sa
-        File germline_bam
-        File germline_bam_index
+        File? germline_bam
+        File? germline_bam_index
         File eval_genome_bed
         File population_based_vcf = "gs://gptag/CODEC/alfa_all.freq.breakmulti.hg38.af0001.vcf.gz"
         File population_based_vcf_index = "gs://gptag/CODEC/alfa_all.freq.breakmulti.hg38.af0001.vcf.gz.tbi"
         Int memory = 64
         Int disk_size = 200
+        String? docker_override
     }
 
     command {
@@ -737,7 +950,7 @@ task CSS_SFC_ErrorMetrics {
             -m 60 \
             -q 30 \
             -d 12 \
-            -n ~{germline_bam} \
+            ~{if defined(germline_bam) then "-n " + germline_bam else ""} \
             -V ~{population_based_vcf} \
             -x 6 \
             -c 4 \
@@ -762,7 +975,7 @@ task CSS_SFC_ErrorMetrics {
 
     runtime {
         memory: memory + " GB"
-        docker: "us.gcr.io/tag-public/codec:v1.1.1" 
+        docker: select_first([docker_override, "us.gcr.io/tag-public/codec:v1.1.4"]) 
         disks: "local-disk " + disk_size + " HDD"
         preemptible: 3
     }
@@ -772,7 +985,6 @@ task CSS_SFC_ErrorMetrics {
 task QC_metrics {
     input {
         File byproduct_metrics
-        File WgsMetrics
         File umiHistogram
         File InsertSizeMetrics
         File mutant_metrics
@@ -802,8 +1014,6 @@ task QC_metrics {
         awk 'NR==1 {for (i=1; i<=NF; i++) if ($i=="n_adp_dimer") col=i} NR==2 {print $col}' ~{byproduct_metrics} > n_adp_dimer.txt
         awk 'NR==1 {for (i=1; i<=NF; i++) if ($i=="pct_adp_dimer") col=i} NR==2 {print $col}' ~{byproduct_metrics} > pct_adp_dimer.txt
 
-        cat ~{WgsMetrics} | grep -v "#" | awk 'NR==3 {print $2}' > raw_dedupped_mean_cov.txt
-        cat ~{WgsMetrics} | grep -v "#" | awk 'NR==3 {print $4}' > raw_dedupped_median_cov.txt
         cat ~{InsertSizeMetrics} | grep -v "#" | awk 'NR==3 {print $1}' > median_insert_size.txt
         cat ~{InsertSizeMetrics} | grep -v "#" | awk 'NR==3 {print $6}' > mean_insert_size.txt
 
@@ -827,8 +1037,6 @@ task QC_metrics {
       Float pct_intermol = read_float("pct_intermol.txt")
       Int n_adp_dimer = read_int("n_adp_dimer.txt")
       Float pct_adp_dimer = read_float("pct_adp_dimer.txt")
-      Float raw_dedupped_mean_cov = read_float("raw_dedupped_mean_cov.txt")
-      Int raw_dedupped_median_cov = read_int("raw_dedupped_median_cov.txt")
       Float mean_insert_size = read_float("mean_insert_size.txt")
       Int median_insert_size = read_int("median_insert_size.txt")
       Int n_snv = read_int("n_snv.txt")
@@ -909,6 +1117,38 @@ task CalculateDuplexDepth {
         memory: memory + " GB"
         docker: "us.gcr.io/tag-public/metadata_upload" 
         disks: "local-disk " + disk_size + " HDD"
+        preemptible: 1
+    }
+}
+
+task codec2MAF {
+    input {
+        File variants_called
+        String sample_id
+        String? docker_override
+    }
+
+    command <<<
+
+    # Only run this script when there are variants called.
+
+    if [[ $(wc -l < ~{variants_called}) -gt 2 ]]; then        
+        Rscript /scripts/codec2maf.R --inputmaf ~{variants_called} --outputmaf ~{sample_id}.maf
+    else 
+        echo "Warning: File ~{variants_called} has no variants. Skipping this task and returning empty maf."
+        touch ~{sample_id}.maf
+    fi
+  
+    >>>
+
+    output {
+        File output_maf = "~{sample_id}.maf"
+    }
+
+    runtime{
+        memory: "16G"
+        docker: select_first([docker_override, "us.gcr.io/tag-public/codec2maf_r_docker:v1"])
+        disks: "local-disk 16 HDD"
         preemptible: 1
     }
 }
