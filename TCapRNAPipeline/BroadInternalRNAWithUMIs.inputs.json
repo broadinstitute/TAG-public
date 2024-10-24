@@ -12,7 +12,5 @@
     "BroadInternalRNAWithUMIs.reference_build": "${this.reference_build}",
     "BroadInternalRNAWithUMIs.sample_lsid": "${this.sample_lsid}",
     "BroadInternalRNAWithUMIs.sequencing_center": "${this.sequencing_center}",
-    "BroadInternalRNAWithUMIs.tdr_dataset_uuid": "${}",
-    "BroadInternalRNAWithUMIs.tdr_sample_id": "${}",
     "BroadInternalRNAWithUMIs.vault_token_path": "gs://broad-dsp-gotc-arrays-prod-tokens/arrayswdl.token"
 }
