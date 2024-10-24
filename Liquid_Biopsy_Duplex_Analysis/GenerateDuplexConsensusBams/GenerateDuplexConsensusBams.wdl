@@ -1,5 +1,6 @@
 # Import BaitSetNameCheck task
 import "../../checkBaitSetName/checkBaitSetName.dev.wdl" as checkBaitSetName
+import "../RevertBamAndBwaAln/subworkflows/CopyUmiFromReadName.wdl" as copyUmi
 
 workflow GenerateDuplexConsensusBams {
 
@@ -43,6 +44,8 @@ workflow GenerateDuplexConsensusBams {
    Int? num_clip_bases_three_prime
    Boolean? run_bwa_mem_on_raw
    Boolean run_bwa_mem_on_raw_or_default = select_first([run_bwa_mem_on_raw, false])
+   Boolean? copy_umi_from_readname
+   Boolean copy_umi_or_default = select_first([copy_umi_from_readname, false])
    Int compression_level
 
    # scripts
@@ -65,6 +68,14 @@ workflow GenerateDuplexConsensusBams {
          target_intervals = target_intervals,
          fail_task = fail_on_intervals_mismatch
    }
+   if(copy_umi_or_default){
+      call copyUmi.CopyUmiTask as CopyUmiTask {
+         input: 
+         bam_file = bam_file,
+        	bam_index = bam_index,
+         base_name = base_name
+      }
+   }
    # Get the version of BWA that we are using.
    call GetBwaVersion {
       input:
@@ -77,8 +88,8 @@ workflow GenerateDuplexConsensusBams {
       call DownsampleSam {
          input:
             bloodbiopsydocker = bloodbiopsydocker,
-            bam_file = bam_file,
-            bam_index = bam_index,
+            bam_file = select_first([CopyUmiTask.umi_extracted_bam, bam_file]),
+            bam_index = select_first([CopyUmiTask.umi_extracted_bam_index, bam_index]),
             downsample_probability = downsample_probability,
             base_name = base_name,
             preemptible_attempts = preemptible_attempts,
@@ -91,7 +102,7 @@ workflow GenerateDuplexConsensusBams {
       call QuerySortSam {
          input:
             bloodbiopsydocker = bloodbiopsydocker,
-            input_bam = select_first([DownsampleSam.output_bam, bam_file]),
+            input_bam = select_first([DownsampleSam.output_bam, CopyUmiTask.umi_extracted_bam, bam_file]),
             base_name = base_name,
             preemptible_attempts = preemptible_attempts,
             disk_pad = disk_pad
@@ -117,8 +128,8 @@ workflow GenerateDuplexConsensusBams {
       }
    }
 
-   File preprocessed_raw_bam = select_first([AlignRawBamWithBwaMem.output_bam, DownsampleSam.output_bam, bam_file])
-   File preprocessed_raw_bam_index = select_first([AlignRawBamWithBwaMem.output_bam_index, DownsampleSam.output_bam_index, bam_index])
+   File preprocessed_raw_bam = select_first([AlignRawBamWithBwaMem.output_bam, DownsampleSam.output_bam, CopyUmiTask.umi_extracted_bam, bam_file])
+   File preprocessed_raw_bam_index = select_first([AlignRawBamWithBwaMem.output_bam_index, DownsampleSam.output_bam_index, CopyUmiTask.umi_extracted_bam_index, bam_index])
 
    # Collect HS or Targeted PCR metrics after deduplication by start and stop
    # position (but not incluing UMIs).
