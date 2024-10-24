@@ -22,9 +22,12 @@ task CopyUmiTask {
     command {
         export FGBIO_LOCAL_JAR=${default="/usr/fgbio-2.0.2.jar" fgbio_override}
 
+        ln -vs ${bam_file} ${base_name}_input.bam
+        ln -vs ${bam_index} ${base_name}_input.bai
+
         java -Xmx${compute_mem}m -jar $FGBIO_LOCAL_JAR \
         CopyUmiFromReadName \
-        -i ${bam_file} \
+        -i ${base_name}_input.bam \
         -o ${base_name}.bam \
         --remove-umi ${remove_umi_from_read_name}
     }

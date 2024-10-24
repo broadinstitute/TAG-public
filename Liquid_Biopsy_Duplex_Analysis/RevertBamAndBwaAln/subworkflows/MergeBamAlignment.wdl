@@ -23,10 +23,11 @@ task MergeBamAlignmentTask {
   File ref_dict
   Int? extra_mem
   String? mba_extra_args
-  Int? memGb = 64 + select_first([extra_mem,0])
+  Int memGb = 64 + select_first([extra_mem,0])
   String? sort_order = "coordinate"
 
-  Float disk_size
+  Int? diskgb_buffer
+  Float disk_size = 50 + size(mapped_bam, "GB")*3 + size(unmapped_bam, "GB")*3 + select_first([diskgb_buffer, 0])
   Int compression_level
   Int? preemptible_tries = 1
   String? gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
