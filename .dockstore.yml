@@ -139,3 +139,8 @@ workflows:
    primaryDescriptorPath: /CNV_Array_Prober/cnvArrayProber.wdl
    testParameterFiles:
     - /CNV_Array_Prober/cnvArrayProber.inputs.json
+ - name: RevertBamAndBwaAln
+   subclass: WDL
+   primaryDescriptorPath: /Liquid_Biopsy_Duplex_Analysis/RevertBamAndBwaAln/RevertBamAndBwaAln.wdl
+   testParameterFiles:
+    - /Liquid_Biopsy_Duplex_Analysis/RevertBamAndBwaAln/RevertBamAndBwaAln.inputs.json
