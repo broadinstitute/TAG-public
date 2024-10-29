@@ -43,8 +43,7 @@ workflow Callability_Analysis {
             bai_or_crai_path = paired_data.right,
             chrX_name = chrX_name,
             chrY_name = chrY_name,
-            base_name = sample_name,
-            disk_size = 200
+            base_name = sample_name
       }
       call CalculateCoverage {
           input:
@@ -307,7 +306,8 @@ task DetermineXYCoverage {
         String chrX_name
         String chrY_name
         String base_name
-        Int disk_size = 200
+        Int disk_size = 500
+        Int memory_gb = 64
       }
 
     command <<<
@@ -339,7 +339,7 @@ task DetermineXYCoverage {
     runtime {
           docker: "us.gcr.io/tag-public/samtools_r:v1"
           disks: "local-disk " + disk_size + " HDD"
-          memory: "16 GB"
+          memory: memory_gb + "GB"
        }
 }
 
