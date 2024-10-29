@@ -27,7 +27,7 @@ task MergeBamAlignmentTask {
   String? sort_order = "coordinate"
 
   Int? diskgb_buffer
-  Float disk_size = 50 + size(mapped_bam, "GB")*3 + size(unmapped_bam, "GB")*3 + select_first([diskgb_buffer, 0])
+  Float disk_size = 50 + size(mapped_bam[0], "GB")*length(mapped_bam)*3 + size(unmapped_bam, "GB")*3 + select_first([diskgb_buffer, 0])
   Int compression_level
   Int? preemptible_tries = 1
   String? gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
