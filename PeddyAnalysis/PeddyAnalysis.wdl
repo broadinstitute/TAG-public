@@ -201,13 +201,14 @@ task FilterSingleSampleFamilies {
     }
 
     command <<<
-        echo ~{sep=' ' sample_ids} > sample_ids.txt
-        echo ~{sep=' ' unique_family_ids} > unique_family_ids.txt
-        echo ~{sep=' ' family_ids} > family_ids.txt
-        echo ~{sep=' ' gvcfs} > gvcf_paths.txt
-        echo ~{sep=' ' gvcf_indexes} > gvcf_index_paths.txt
-        echo ~{sep=' ' pedigrees} > pedigrees.txt
-        echo ~{sep=' ' reported_sexes} > reported_sexes.txt
+        echo ~{sep=',' sample_ids} > sample_ids.txt
+        echo ~{sep=',' unique_family_ids} > unique_family_ids.txt
+        echo ~{sep=',' family_ids} > family_ids.txt
+        echo ~{sep=',' gvcfs} > gvcf_paths.txt
+        echo ~{sep=',' gvcf_indexes} > gvcf_index_paths.txt
+        echo ~{sep=',' pedigrees} > pedigrees.txt
+        echo ~{sep=',' reported_sexes} > reported_sexes.txt
+
 
         # Filter out single-sample families and generate the required files
         python3 <<CODE
@@ -215,19 +216,20 @@ task FilterSingleSampleFamilies {
         import os
 
         with open("sample_ids.txt", "r") as f:
-            sample_ids = f.read().strip().split(' ')
+            sample_ids = f.read().strip().split(',')
         with open("unique_family_ids.txt", "r") as f:
-            unique_family_ids = f.read().strip().split(' ')
+            unique_family_ids = f.read().strip().split(',')
         with open("family_ids.txt", "r") as f:
-            family_ids = f.read().strip().split(' ')
+            family_ids = f.read().strip().split(',')
         with open("gvcf_paths.txt", "r") as f:
-            gvcfs = f.read().strip().split(' ')
+            gvcfs = f.read().strip().split(',')
         with open("gvcf_index_paths.txt", "r") as f:
-            gvcf_indexes = f.read().strip().split(' ')
+            gvcf_indexes = f.read().strip().split(',')
         with open("pedigrees.txt", "r") as f:
-            pedigrees = f.read().strip().split(' ')
+            pedigrees = f.read().strip().split(',')
         with open("reported_sexes.txt", "r") as f:
-            reported_sexes = f.read().strip().split(' ')
+            reported_sexes = f.read().strip().split(',')
+
 
         pass_family_ids = []
         excluded_family_ids = []
