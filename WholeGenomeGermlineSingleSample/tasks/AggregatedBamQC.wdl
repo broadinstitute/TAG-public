@@ -15,7 +15,7 @@ version 1.0
 ## page at https://hub.docker.com/r/broadinstitute/genomes-in-the-cloud/ for detailed
 ## licensing information pertaining to the included programs.
 
-import "../tasks/Qc.wdl" as QC
+import "./Qc.wdl" as QC
 import "../structs/DNASeqStructs.wdl"
 
 # WORKFLOW DEFINITION
