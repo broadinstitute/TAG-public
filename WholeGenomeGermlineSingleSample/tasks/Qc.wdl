@@ -20,6 +20,7 @@ task CollectQualityYieldMetrics {
   input {
     File input_bam
     String metrics_filename
+    Int memory = 16
 
     Int preemptible_tries = 3
   }
@@ -36,7 +37,7 @@ task CollectQualityYieldMetrics {
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
     disks: "local-disk " + disk_size + " HDD"
-    memory: "3500 MiB"
+    memory: memory + " GiB"
     preemptible: preemptible_tries
   }
   output {
@@ -50,6 +51,7 @@ task CollectUnsortedReadgroupBamQualityMetrics {
     File input_bam
     String output_bam_prefix
     Int preemptible_tries
+    Int memory = 16
   }
 
   Int disk_size = ceil(size(input_bam, "GiB")) + 20
@@ -73,7 +75,7 @@ task CollectUnsortedReadgroupBamQualityMetrics {
   }
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
-    memory: "7000 MiB"
+    memory: memory + " GiB"
     disks: "local-disk " + disk_size + " HDD"
     preemptible: preemptible_tries
   }
@@ -100,6 +102,7 @@ task CollectReadgroupBamQualityMetrics {
     File ref_fasta_index
     Boolean collect_gc_bias_metrics = true
     Int preemptible_tries
+    Int memory = 16
   }
 
   Float ref_size = size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB")
@@ -125,7 +128,7 @@ task CollectReadgroupBamQualityMetrics {
   }
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
-    memory: "7000 MiB"
+    memory: memory + " GiB"
     disks: "local-disk " + disk_size + " HDD"
     preemptible: preemptible_tries
   }
@@ -148,6 +151,7 @@ task CollectAggregationMetrics {
     File ref_fasta_index
     Boolean collect_gc_bias_metrics = true
     Int preemptible_tries
+    Int memory = 16
   }
 
   Float ref_size = size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB")
@@ -179,7 +183,7 @@ task CollectAggregationMetrics {
   }
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
-    memory: "7000 MiB"
+    memory: memory + " GiB"
     disks: "local-disk " + disk_size + " HDD"
     preemptible: preemptible_tries
   }
@@ -210,6 +214,7 @@ task ConvertSequencingArtifactToOxoG {
     File ref_fasta_index
     Int preemptible_tries
     Int memory_multiplier = 1
+
   }
 
   Float ref_size = size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB")
@@ -250,6 +255,7 @@ task CrossCheckFingerprints {
     Int preemptible_tries
     Float lod_threshold
     String cross_check_by
+    Int memory = 16
   }
 
   Int disk_size = ceil(total_input_size) + 20
@@ -269,7 +275,7 @@ task CrossCheckFingerprints {
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
     preemptible: preemptible_tries
-    memory: "3500 MiB"
+    memory: memory + " GiB"
     disks: "local-disk " + disk_size + " HDD"
   }
   output {
@@ -418,6 +424,7 @@ task ValidateSamFile {
                     + size(ref_fasta, "GiB") 
                     + size(ref_fasta_index, "GiB")
                     + size(ref_dict, "GiB")) + additional_disk
+
   }
 
   Int memory_size = ceil(16000 * memory_multiplier)
@@ -439,7 +446,7 @@ task ValidateSamFile {
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
     preemptible: preemptible_tries
-    memory: "~{memory_size} MiB"
+    memory: memory + " GiB"
     disks: "local-disk " + disk_size + " HDD"
   }
   output {
@@ -457,6 +464,7 @@ task CollectWgsMetrics {
     File ref_fasta_index
     Int read_length = 250
     Int preemptible_tries
+    Int memory = 16
   }
 
   Float ref_size = size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB")
@@ -477,7 +485,7 @@ task CollectWgsMetrics {
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
     preemptible: preemptible_tries
-    memory: "3000 MiB"
+    memory: memory + " GiB"
     disks: "local-disk " + disk_size + " HDD"
   }
   output {
@@ -585,6 +593,7 @@ task CalculateReadGroupChecksum {
     File input_bam_index
     String read_group_md5_filename
     Int preemptible_tries
+    Int memory = 16
   }
 
   Int disk_size = ceil(size(input_bam, "GiB")) + 80
@@ -598,7 +607,7 @@ task CalculateReadGroupChecksum {
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
     preemptible: preemptible_tries
-    memory: "6000 MiB"
+    memory: memory + " GiB"
     disks: "local-disk " + disk_size + " HDD"
   }
   output {
@@ -681,6 +690,7 @@ task CollectVariantCallingMetrics {
     Int preemptible_tries
     #Setting default docker value for workflows that haven't yet been azurized.
     String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
+    Int memory = 16
   }
 
   Int disk_size = ceil(size(input_vcf, "GiB") + size(dbsnp_vcf, "GiB")) + 20
@@ -698,7 +708,7 @@ task CollectVariantCallingMetrics {
   runtime {
     docker: docker
     preemptible: preemptible_tries
-    memory: "3000 MiB"
+    memory: memory + " GiB"
     disks: "local-disk " + disk_size + " HDD"
   }
   output {

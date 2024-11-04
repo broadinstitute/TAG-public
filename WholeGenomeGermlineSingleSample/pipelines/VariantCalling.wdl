@@ -1,10 +1,10 @@
 version 1.0
 
-import "../../../../../tasks/broad/GermlineVariantDiscovery.wdl" as Calling
-import "../../../../../tasks/broad/Qc.wdl" as QC
-import "../../../../../tasks/broad/Utilities.wdl" as Utils
-import "../../../../../tasks/broad/BamProcessing.wdl" as BamProcessing
-import "../../../../../tasks/broad/DragenTasks.wdl" as DragenTasks
+import "../tasks/GermlineVariantDiscovery.wdl" as Calling
+import "../tasks/Qc.wdl" as QC
+import "../tasks/Utilities.wdl" as Utils
+import "../tasks/BamProcessing.wdl" as BamProcessing
+import "../tasks/DragenTasks.wdl" as DragenTasks
 
 workflow VariantCalling {
 

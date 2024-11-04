@@ -28,13 +28,13 @@ version 1.0
 ## page at https://hub.docker.com/r/broadinstitute/genomes-in-the-cloud/ for detailed
 ## licensing information pertaining to the included programs.
 
-import "../../../../../../tasks/broad/UnmappedBamToAlignedBam.wdl" as ToBam
-import "../../../../../../tasks/broad/AggregatedBamQC.wdl" as AggregatedQC
-import "../../../../../../tasks/broad/Qc.wdl" as QC
-import "../../../../../../tasks/broad/BamToCram.wdl" as ToCram
-import "../../../../../../tasks/broad/Utilities.wdl" as Utilities
-import "../../../../../../pipelines/broad/dna_seq/germline/variant_calling/VariantCalling.wdl" as ToGvcf
-import "../../../../../../structs/dna_seq/DNASeqStructs.wdl"
+import "../tasks/UnmappedBamToAlignedBam.wdl" as ToBam
+import "../tasks/AggregatedBamQC.wdl" as AggregatedQC
+import "../tasks/Qc.wdl" as QC
+import "../tasks/BamToCram.wdl" as ToCram
+import "../tasks/Utilities.wdl" as Utilities
+import "../pipelines/VariantCalling.wdl" as ToGvcf
+import "../structs/DNASeqStructs.wdl"
 
 # WORKFLOW DEFINITION
 workflow WholeGenomeGermlineSingleSample {
