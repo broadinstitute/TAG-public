@@ -33,7 +33,6 @@ input {
     File? fingerprint_genotypes_index
     Int CollectReadgroupBamQualityMetrics_mem
     Int CollectAggregationMetrics_mem
-    Int CheckFingerprintTask_mem
     Int CalculateReadGroupChecksum_mem
   }
 
@@ -74,8 +73,7 @@ input {
         expected_sample_alias = sample_name,
         output_basename = base_name,
         haplotype_database_file = haplotype_database_file,
-        preemptible_tries = papi_settings.agg_preemptible_tries,
-        memory = CheckFingerprintTask_mem
+        preemptible_tries = papi_settings.agg_preemptible_tries
 
     }
   }
