@@ -33,7 +33,7 @@ import "../tasks/AggregatedBamQC.wdl" as AggregatedQC
 import "../tasks/Qc.wdl" as QC
 import "../tasks/BamToCram.wdl" as ToCram
 import "../tasks/Utilities.wdl" as Utilities
-import "../pipelines/VariantCalling.wdl" as ToGvcf
+import "./VariantCalling.wdl" as ToGvcf
 import "../structs/DNASeqStructs.wdl"
 
 # WORKFLOW DEFINITION
