@@ -37,6 +37,7 @@ workflow VariantCalling {
     Boolean skip_reblocking = false
     Boolean use_dragen_hard_filtering = false
     String cloud_provider
+    Int? HaplotypeCaller_disk_size_manual
   }
 
   # docker images
@@ -116,7 +117,8 @@ workflow VariantCalling {
           contamination = contamination,
           preemptible_tries = agg_preemptible_tries,
           hc_scatter = hc_divisor,
-          docker = gatk_1_3_docker
+          docker = gatk_1_3_docker,
+          HaplotypeCaller_disk_size_manual = HaplotypeCaller_disk_size_manual
       }
     }
 

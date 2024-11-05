@@ -29,6 +29,7 @@ task HaplotypeCaller_GATK35_GVCF {
     Int hc_scatter
     #Setting default docker value for workflows that haven't yet been azurized.
     String docker = "us.gcr.io/broad-gotc-prod/gatk:1.3.0-4.2.6.1-1649964384"
+    Int? disk_size_manual
   }
 
   parameter_meta {
@@ -38,7 +39,8 @@ task HaplotypeCaller_GATK35_GVCF {
   }
 
   Float ref_size = size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB")
-  Int disk_size = ceil(((size(input_bam, "GiB") + 30) / hc_scatter) + ref_size) + 20
+  Int estimated_disk_size = ceil(((size(input_bam, "GiB") + 30) / hc_scatter) + ref_size) + 50
+  Int disk_size = select_first([disk_size_manual, estimated_disk_size])
 
   # We use interval_padding 500 below to make sure that the HaplotypeCaller has context on both sides around
   # the interval because the assembly uses them.
@@ -101,6 +103,7 @@ task HaplotypeCaller_GATK4_VCF {
     #Setting default docker value for workflows that haven't yet been azurized.
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.0.0"
     Int memory_multiplier = 1
+
   }
   
   Int memory_size_mb = ceil(8000 * memory_multiplier) + 2000

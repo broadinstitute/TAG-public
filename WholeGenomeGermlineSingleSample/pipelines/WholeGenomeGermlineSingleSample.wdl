@@ -70,6 +70,7 @@ workflow WholeGenomeGermlineSingleSample {
     Boolean use_dragen_hard_filtering = false
 
     String cloud_provider
+    Int? HaplotypeCaller_disk_size_manual
   }
 
   if (dragen_functional_equivalence_mode && dragen_maximum_quality_mode) {
@@ -195,7 +196,8 @@ workflow WholeGenomeGermlineSingleSample {
       agg_preemptible_tries = papi_settings.agg_preemptible_tries,
       use_gatk3_haplotype_caller = use_gatk3_haplotype_caller_,
       use_dragen_hard_filtering = use_dragen_hard_filtering_,
-      cloud_provider = cloud_provider
+      cloud_provider = cloud_provider,
+      HaplotypeCaller_disk_size_manual = HaplotypeCaller_disk_size_manual
   }
 
   if (provide_bam_output) {
