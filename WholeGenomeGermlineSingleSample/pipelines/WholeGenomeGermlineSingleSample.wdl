@@ -197,7 +197,7 @@ workflow WholeGenomeGermlineSingleSample {
       use_gatk3_haplotype_caller = use_gatk3_haplotype_caller_,
       use_dragen_hard_filtering = use_dragen_hard_filtering_,
       cloud_provider = cloud_provider,
-      disk_size_manual = HaplotypeCaller_disk_size_manual
+      HaplotypeCaller_disk_size_manual = HaplotypeCaller_disk_size_manual
   }
 
   if (provide_bam_output) {
