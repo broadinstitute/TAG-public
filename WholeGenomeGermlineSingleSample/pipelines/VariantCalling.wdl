@@ -118,7 +118,7 @@ workflow VariantCalling {
           preemptible_tries = agg_preemptible_tries,
           hc_scatter = hc_divisor,
           docker = gatk_1_3_docker,
-          HaplotypeCaller_disk_size_manual = HaplotypeCaller_disk_size_manual
+          disk_size_manual = HaplotypeCaller_disk_size_manual
       }
     }
 
