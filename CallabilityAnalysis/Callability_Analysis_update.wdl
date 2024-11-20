@@ -346,7 +346,7 @@ task DetermineXYCoverage {
 task DetermineSexesByClustering {
 	input {
     	Array[File] inputFiles
-        Int disk_size = 32
+        Int disk_size = 64
     }
 
     command <<<
