@@ -2,7 +2,7 @@ task bundle_plots {
     Array[File] CNA_plots
     File summary_script
     String sample_set_name
-    String docker = "us.gcr.io/tag-team-160914/tag-tools:1.0.0"
+    String docker = "us.gcr.io/tag-public/tag-tools:1.0.0"
     Int? disk_size
 
     command {
