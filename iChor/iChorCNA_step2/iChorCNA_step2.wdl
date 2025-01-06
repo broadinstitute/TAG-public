@@ -2,7 +2,7 @@ task bundle_plots {
     Array[File] CNA_plots
     File summary_script
     String sample_set_name
-
+    String docker = "us.gcr.io/tag-team-160914/tag-tools:1.0.0"
     Int? disk_size
 
     command {
@@ -10,7 +10,7 @@ task bundle_plots {
         pdflatex ${sample_set_name}.tex
     }
     runtime {
-        docker: "us.gcr.io/tag-team-160914/tag-tools:0.0.4"
+        docker: docker
         memory: "2 GB"
         cpu: 1
         disks: "local-disk " + select_first([disk_size, 20]) + " HDD"
