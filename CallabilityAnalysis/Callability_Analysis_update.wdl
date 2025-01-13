@@ -9,7 +9,6 @@ workflow Callability_Analysis {
         Int min_mapping_quality
         Int low_coverage_threshold
         Int sample_fraction
-        File interval_list
         File target_bed
         File ref_dict
         File ref_fasta
@@ -77,8 +76,14 @@ workflow Callability_Analysis {
         low_coverage_threshold = low_coverage_threshold,
         sample_threshold = sample_fraction/100.0
    }
+   call BedToIntervalList as InputBedToInterval {
+        input:
+            bed = target_bed,
+            refDict = ref_dict
 
-   call BedToIntervalList {
+   }
+
+   call BedToIntervalList as UndercoveredBedToInterval {
         input:
             bed = CollectData.bed_file_output,
             refDict = ref_dict
@@ -86,17 +91,17 @@ workflow Callability_Analysis {
     
    call CountBases as CountUndercoveredBases {
         input:
-            intervalListOrVcf = BedToIntervalList.interval_list
+            intervalListOrVcf = UndercoveredBedToInterval.interval_list
     }
 
    call CountBases as CountAllBases {
         input:
-            intervalListOrVcf = interval_list
+            intervalListOrVcf = InputBedToInterval.interval_list
     }
         
     File undercovered_bed = CollectData.bed_file_output
     File coverage_output = CollectData.coverage_output
-    File undercovered_interval_list = BedToIntervalList.interval_list
+    File undercovered_interval_list = UndercoveredBedToInterval.interval_list
     Int bases_undercovered = CountUndercoveredBases.bases
     Float fraction_undercovered =  CountUndercoveredBases.bases/(CountAllBases.bases/one)
     
