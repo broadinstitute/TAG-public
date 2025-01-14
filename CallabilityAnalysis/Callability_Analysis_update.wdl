@@ -611,73 +611,12 @@ task GenerateGeneSummary {
     }
 
     command <<<
-    set -e
 
-    Rscript -<<"EOF"
-    library(dplyr)
-    library(tidyr)
-    library(ggplot2)
-
-    # Read input files
-    coverage <- read.table("~{CoverageFile}", header = TRUE, stringsAsFactors = FALSE, sep = "\t")
-    gene_bed <- read.table("~{gene_bed}", header = FALSE, stringsAsFactors = FALSE)
-    group_by_gene <- read.table("~{group_by_gene}", header = TRUE, stringsAsFactors = FALSE, sep = "\t")
-
-    colnames(gene_bed) <- c("chr", "start", "end", "info")
-    gene_bed <- gene_bed %>% mutate(gene = sapply(strsplit(info, ":"), function(x) x[1]))
-    gene_bed <- gene_bed[gene_bed$gene %in% group_by_gene$gene_name, ]
-
-    frac_callable = coverage %>% pivot_longer(!Locus) %>% group_by(Locus) %>% summarize(frac=sum(value>=20)/n())
-    frac_callable = separate(frac_callable, Locus, c("Chrom", "Position")) 
-
-    # Function to assign gene name based on position
-    assign_gene <- function(chr, position, gene_bed) {
-       gene_names <- c()  
-       for (i in 1:nrow(gene_bed)) {
-         if (chr == gene_bed$chr[i] && position >= gene_bed$start[i] && position <= gene_bed$end[i]) {
-           gene_names <- c(gene_names, gene_bed$gene[i])  
-          }
-       }
-       return(gene_names)  
-    }
-    
-    frac_callable$gene_name <- mapply(assign_gene, frac_callable$Chrom, frac_callable$Position, MoreArgs = list(gene_bed = gene_bed))
-    frac_callable = frac_callable %>% group_by(Chrom) %>% arrange(Chrom, Position) %>% mutate(pos=seq(n()))
-    
-    callable_result_per_gene <- frac_callable %>% 
-           filter(frac <= (1 - ~{sample_fraction}/100 )) %>% 
-           group_by(gene_name) %>% 
-           summarise(undercovered_bases = n())   
-
-    gene_base_counts <- frac_callable %>% group_by(gene_name) %>% summarise(total_bases_per_gene = n())
-
-    callable_result_per_gene$gene_name <- as.character(callable_result_per_gene$gene_name)
-    gene_base_counts$gene_name <- as.character(gene_base_counts$gene_name)
-
-    df_with_uncallable_bases <- group_by_gene %>% left_join(callable_result_per_gene, by = "gene_name") %>% left_join(gene_base_counts, by = "gene_name") 
-    df_with_uncallable_bases <- df_with_uncallable_bases %>% mutate(undercovered_percentage = undercovered_bases / total_bases_per_gene * 100) 
-
-    write.table(df_with_uncallable_bases, file = "gene_base_count.txt", row.names = FALSE, sep = "\t", quote = FALSE)
-
-    selected_genes <- filter(df_with_uncallable_bases, undercovered_percentage > 0 )$gene_name
-    selected_genes <- selected_genes[selected_genes != ""]
-
-    frac_callable <- frac_callable %>%
-      mutate(gene_name = sapply(gene_name, function(x) paste(x, collapse = ", "))) %>%
-      unnest(cols = c(gene_name)) %>%
-      filter(gene_name %in% selected_genes)
-
-    callable_fraction = ggplot(data = frac_callable, aes(x = pos, y = frac)) + geom_line() +
-        facet_wrap(~gene_name, scales = "free_x") + theme_bw() +
-        theme(axis.title.x = element_blank(), 
-            axis.text.x = element_blank(),  
-            axis.ticks.x = element_blank()) +
-        ylab("Fraction of Covered Samples") +
-        geom_hline(yintercept = (1 - ~{sample_fraction}/100), color = "red", linetype = "dotted") 
-
-    ggsave("callable_fraction.png", plot = callable_fraction, width = 10, height = 6, dpi = 300)
-
-    EOF
+        Rscript /script/generate_gene_summary.R \
+            --coverage_file ${CoverageFile} \
+            --gene_bed ${gene_bed} \
+            --group_by_gene ${group_by_gene} \
+            --sample_fraction ${sample_fraction}
 
     >>>
 
