@@ -162,7 +162,8 @@ workflow Callability_Analysis {
             CoverageFile = CollectData.coverage_output,
             gene_bed = gene_bed,
             group_by_gene = GenerateAnnotation.grouped_by_gene,
-            sample_fraction = sample_fraction
+            sample_fraction = sample_fraction,
+            generate_plot = false
      }
      }
   }
@@ -608,7 +609,7 @@ task GenerateGeneSummary {
        Int sample_fraction
        Int memory_gb = 32
        Int disk_size = 32
-       Boolean generate_plot = False
+       Boolean generate_plot
     }
 
     command <<<
@@ -618,7 +619,7 @@ task GenerateGeneSummary {
             --gene_bed ${gene_bed} \
             --grouped_by_gene ${group_by_gene} \
             --sample_fraction ${sample_fraction} \
-            --plot ${generate_plot}
+            --plot ${if generate_plot then "true" else "false"}
 
     >>>
 
