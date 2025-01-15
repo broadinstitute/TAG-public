@@ -608,6 +608,7 @@ task GenerateGeneSummary {
        Int sample_fraction
        Int memory_gb = 32
        Int disk_size = 32
+       Boolean generate_plot = False
     }
 
     command <<<
@@ -615,8 +616,9 @@ task GenerateGeneSummary {
         Rscript /script/generate_gene_summary.R \
             --coverage_file ${CoverageFile} \
             --gene_bed ${gene_bed} \
-            --group_by_gene ${group_by_gene} \
-            --sample_fraction ${sample_fraction}
+            --grouped_by_gene ${group_by_gene} \
+            --sample_fraction ${sample_fraction} \
+            --plot ${generate_plot}
 
     >>>
 
