@@ -26,6 +26,7 @@ workflow Callability_Analysis {
         File exome_bed
         File? gene_list
         Boolean generate_gene_summary
+        Boolean generate_plot = false
     }
     
    Float one = 1.0
@@ -163,7 +164,7 @@ workflow Callability_Analysis {
             gene_bed = gene_bed,
             group_by_gene = GenerateAnnotation.grouped_by_gene,
             sample_fraction = sample_fraction,
-            generate_plot = false
+            generate_plot = generate_plot
      }
      }
   }
@@ -625,7 +626,7 @@ task GenerateGeneSummary {
 
     output {
         File gene_base_count = "gene_base_count.txt"
-        File output_plot = "callable_fraction.png"
+        File? output_plot = "callable_fraction.png"
     }
 
     runtime {
