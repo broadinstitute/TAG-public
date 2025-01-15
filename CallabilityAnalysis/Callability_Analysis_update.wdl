@@ -620,7 +620,7 @@ task GenerateGeneSummary {
             --gene_bed ${gene_bed} \
             --grouped_by_gene ${group_by_gene} \
             --sample_fraction ${sample_fraction} \
-            --plot ${if generate_plot then "true" else "false"}
+            --plot ${generate_plot}
 
     >>>
 
