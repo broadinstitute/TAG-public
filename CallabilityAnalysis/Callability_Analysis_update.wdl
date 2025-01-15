@@ -616,11 +616,11 @@ task GenerateGeneSummary {
     command <<<
 
         Rscript /script/generate_gene_summary.R \
-            --coverage_file ${CoverageFile} \
-            --gene_bed ${gene_bed} \
-            --grouped_by_gene ${group_by_gene} \
-            --sample_fraction ${sample_fraction} \
-            --plot ${generate_plot}
+            --coverage_file ~{CoverageFile} \
+            --gene_bed ~{gene_bed} \
+            --grouped_by_gene ~{group_by_gene} \
+            --sample_fraction ~{sample_fraction} \
+            --plot ~{generate_plot}
 
     >>>
 
