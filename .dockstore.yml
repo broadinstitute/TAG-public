@@ -129,6 +129,11 @@ workflows:
    primaryDescriptorPath: /PECGS-QUICviz/QUICviz.wdl
    testParameterFiles:
     - /PECGS-QUICviz/QUICviz.inputs.json
+ - name: BroadInternalRNAWithUMIs
+   subclass: WDL
+   primaryDescriptorPath: /TCapRNAPipeline/BroadInternalRNAWithUMIs.wdl
+   testParameterFiles:
+    - /TCapRNAPipeline/BroadInternalRNAWithUMIs.inputs.json
  - name: PeddyAnalysis
    subclass: WDL
    primaryDescriptorPath: /PeddyAnalysis/PeddyAnalysis.wdl
