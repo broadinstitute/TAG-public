@@ -1112,14 +1112,14 @@ task CollectDepthOfCoverage {
    Int ref_size = ceil(size(reference, "GB") + size(reference_index, "GB") + size(reference_dict, "GB"))
    Int disk_size = ceil(size(bam_file, "GB") * 2) + ceil(size(bam_index, "GB")) + ref_size + disk_pad
    Int mem = select_first([memory, 15])
-   Int compute_mem = mem * 1000 - 1000
+   Int compute_mem = mem - 10
 
    command <<<
       set -e
 
       # Calculate tumor depth over the panel
       # only count fragments with same base.
-      java -jar /usr/gitc/GATK36.jar -T DepthOfCoverage \
+      java -Xmx${compute_mem}g -jar /usr/gitc/GATK36.jar -T DepthOfCoverage \
          -L ${interval_list} \
          -I ${bam_file} \
          -R ${reference} \
