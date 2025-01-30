@@ -5,11 +5,9 @@ workflow BenchmarkSV{
     input {
         File base_vcf
         File base_vcf_index
-        String base_vcf_sample_name
 
         File query_vcf
         File query_vcf_index
-        String query_vcf_sample_name
 
         File evaluation_intervals
     }
@@ -17,10 +15,8 @@ workflow BenchmarkSV{
         input:
             base_vcf = base_vcf,
             base_vcf_index = base_vcf_index,
-            base_vcf_sample_name = base_vcf_sample_name,
             query_vcf = query_vcf,
             query_vcf_index = query_vcf_index,
-            query_vcf_sample_name = query_vcf_sample_name,
             evaluation_intervals = evaluation_intervals
     }
     output {
@@ -41,14 +37,13 @@ task truvari_bench {
     input {
         File base_vcf
         File base_vcf_index
-        String base_vcf_sample_name
 
         File query_vcf
         File query_vcf_index
-        String query_vcf_sample_name
 
         File evaluation_intervals
         String truvari_docker = "us.gcr.io/tag-public/truvari:v5.0.0"
+        Float pctovl = 0.0
     }
     command <<<
         set -e
@@ -62,9 +57,8 @@ task truvari_bench {
         --refdist=2000 \
         --chunksize=2000 \
         --pctsize=0.7 \
-        --pctovl=0.0 \
+        --pctovl=~{pctovl} \
         --passonly \
-        --minhaplen=50 \
         --sizemin=50 \
         --sizefilt=35 \
         --sizemax=500000000 \
