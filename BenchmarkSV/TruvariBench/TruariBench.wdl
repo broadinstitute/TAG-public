@@ -47,7 +47,6 @@ task truvari_bench {
     }
     command <<<
         set -e
-        mkdir truvari_output
 
         truvari bench \
         -b ~{base_vcf} \
