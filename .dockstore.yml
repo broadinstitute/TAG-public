@@ -144,3 +144,8 @@ workflows:
    primaryDescriptorPath: /CNV_Array_Prober/cnvArrayProber.wdl
    testParameterFiles:
     - /CNV_Array_Prober/cnvArrayProber.inputs.json
+ - name: TruvariBench
+   subclass: WDL
+   primaryDescriptorPath: /BenchmarkSV/TruvariBench/TruariBench.wdl
+   testParameterFiles:
+    - /BenchmarkSV/TruvariBench/TruariBench.inputs.json

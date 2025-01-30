@@ -1,0 +1,11 @@
+{
+  "BenchmarkSV.base_vcf_index": "File",
+  "BenchmarkSV.query_vcf_index": "File",
+  "BenchmarkSV.query_vcf": "File",
+  "BenchmarkSV.evaluation_intervals": "File",
+  "BenchmarkSV.base_vcf": "File",
+  "BenchmarkSV.truvari_bench.truvari_docker": "String (optional, default = \"us.gcr.io/tag-public/truvari:v5.0.0\")",
+  "BenchmarkSV.query_vcf_sample_name": "String",
+  "BenchmarkSV.base_vcf_sample_name": "String"
+}
+
