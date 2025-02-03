@@ -541,6 +541,7 @@ task SplitIntervals {
       File ref_fai
       File ref_dict
       Int scatter_count
+      String intervals_suffix
       String? split_intervals_extra_args
 
       # runtime
@@ -561,7 +562,7 @@ task SplitIntervals {
             -scatter ~{scatter_count} \
             -O interval-files \
             ~{split_intervals_extra_args}
-        cp interval-files/*.interval_list .
+        cp interval-files/*.~{intervals_suffix} .
     }
 
     runtime {
@@ -575,7 +576,7 @@ task SplitIntervals {
     }
 
     output {
-        Array[File] interval_files = glob("*.interval_list")
+        Array[File] interval_files = glob("*.~{intervals_suffix}")
     }
 }
 
