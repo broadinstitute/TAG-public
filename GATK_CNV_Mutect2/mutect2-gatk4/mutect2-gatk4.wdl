@@ -679,6 +679,9 @@ task M2 {
             fi
         fi
 
+        # handle GATK versions without stats output
+        touch ~{output_stats}
+
         # the script only fails if Mutect2 itself fails
         exit $m2_exit_code
     >>>
