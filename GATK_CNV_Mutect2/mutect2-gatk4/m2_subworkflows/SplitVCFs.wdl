@@ -99,7 +99,7 @@ task SplitVCFs {
       echo "$passing_INDEL" > passing_indel.txt
 
       #filtered only INDELs
-      bcftools isec -C -O v -o ${basename}.indel.filtered.vcf -w1 ${basename}.indel.vcf.gz ${basename}.indel.passing.vcf.gz
+      bcftools isec -C -O v -o ~{basename}.indel.filtered.vcf -w1 ~{basename}.indel.vcf.gz ~{basename}.indel.passing.vcf.gz
 
       filtered_INDEL="$(gatk CountVariants -V ~{basename}.indel.filtered.vcf | tail -1)"
       echo "$filtered_INDEL" > filtered_indel.txt
