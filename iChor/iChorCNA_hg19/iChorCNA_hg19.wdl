@@ -103,7 +103,7 @@ task read_counter {
 	}
 
 	runtime {
-		docker: select_first([docker_override, "us.gcr.io/tag-team-160914/bloodbiopsy-hmmcopy:0.0.1"])
+		docker: select_first([docker_override, "us.gcr.io/tag-public/bloodbiopsy-hmmcopy:0.0.1"])
 		disks: "local-disk ${diskGB} HDD"
 		memory: "${memGB}GB"
 		preemptible: "${preemptible}"
@@ -205,7 +205,7 @@ task ichorCNATask {
 	>>>
 
 	runtime {
-		docker: select_first([docker_override, "us.gcr.io/tag-team-160914/bloodbiopsy-ichorcna:0.2.1"])
+		docker: select_first([docker_override, "us.gcr.io/tag-public/bloodbiopsy-ichorcna:0.2.1"])
 		disks: "local-disk " + diskGB + " HDD"
 		memory: memGB + " GB"
 		preemptible: preemptible
@@ -305,7 +305,7 @@ task bundlePerChromosomePlots {
       File output_plot = "${sample_id}_OptimalSolutionPerChrom.pdf"
    }
    runtime {
-      docker: select_first([docker_override, "us.gcr.io/tag-team-160914/tag-tools:1.0.0"])
+      docker: select_first([docker_override, "us.gcr.io/tag-public/tag-tools:1.0.0"])
       memory: memGB + " GB"
       disks: "local-disk " + diskGB + " HDD"
       preemptible: preemptible

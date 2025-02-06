@@ -1,5 +1,8 @@
 {
-"ichorSummaryBundle.CNA_plots":"${this.samples.allGenomeWidePlots}",
-"ichorSummaryBundle.sample_set_name":"${this.sample_set_id}",
-"ichorSummaryBundle.summary_script":"gs://gptag-public/ichorcna/ichorcna_step2/summary_script/ichor_summary.py"
+  "ichorSummaryBundle.sample_set_name": "String",
+  "ichorSummaryBundle.CNA_plots": "Array[File]",
+  "ichorSummaryBundle.summary_script": "File",
+  "ichorSummaryBundle.bundle_plots.disk_size": "Int? (optional)",
+  "ichorSummaryBundle.bundle_plots.docker": "String (optional, default = \"us.gcr.io/tag-team-160914/tag-tools:1.0.0\")"
 }
+
