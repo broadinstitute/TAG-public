@@ -1,20 +1,24 @@
+version 1.0
+
 workflow ichorCNA {
-	File bam_file
-    File bam_index
-	String sample_id
-	String genomeBuild
-	File? normalPanel
-	Int bin_size_kb
-	Int bin_size = bin_size_kb*1000
-	File centromere
-	File gcWig
-	File mapWig
-	String genome_style
-	String chr_counter # All chromosomes for counting reads, as a list
-	String chrs # Autosomal and female chromosome for running ichor, as an R command
-	String chrTrain # Autosomal chromosomes to estimate ichor params, as an R command
-	Float maxFracCNASubclone
-	Float maxFracGenomeSubclone
+	input {
+		File bam_file
+		File bam_index
+		String sample_id
+		String genomeBuild
+		File? normalPanel
+		Int bin_size_kb
+		Int bin_size = bin_size_kb*1000
+		File centromere
+		File gcWig
+		File mapWig
+		String genome_style
+		String chr_counter # All chromosomes for counting reads, as a list
+		String chrs # Autosomal and female chromosome for running ichor, as an R command
+		String chrTrain # Autosomal chromosomes to estimate ichor params, as an R command
+		Float maxFracCNASubclone
+		Float maxFracGenomeSubclone
+	}
 
 	call read_counter {
 		input: bam_file = bam_file,
@@ -81,18 +85,20 @@ workflow ichorCNA {
 }
 
 task read_counter {
-	File bam_file
-	File bam_index
-	String chrs
-	String sample_id
-	Int bin_size
+	input {
+		File bam_file
+		File bam_index
+		String chrs
+		String sample_id
+		Int bin_size
 
-	Int? min_qual = 20
-	Int? memGB = 4
-	Int? diskGB = 50
-	Int? preemptible = 2
-    
-    String? docker_override
+		Int min_qual = 20
+		Int memGB = 4
+		Int diskGB = 50
+		Int preemptible = 2
+
+		String? docker_override
+	}
 
 	command {
 		ln -vs ${bam_index} ${sample_id}.bam.bai
@@ -116,47 +122,49 @@ task read_counter {
 }
 
 task ichorCNATask {
-	File wig_file
-	File? normalPanel
-	String genomeBuild
-	Int bin_size_kb
-    Float? mean_depth
-	String sample_id
-	String ploidy
-	String normal
-	Int maxCN
-	Boolean includeHOMD
-	String chrs
-	String chrTrain
-    String chrNormalize
-	String genomeStyle
-	Boolean estimateNormal
-	Boolean estimatePloidy
-	Boolean estimateClonality
-	String scStates
-	File centromere
-	File? exons
-	Float txnE
-	Int txnStrength
-    Int minSegmentBins
-	Float minMapScore
-	Float fracReadsChrYMale
-	Float maxFracCNASubclone
-	Float maxFracGenomeSubclone
-    Float altFracThreshold
-    Int lambdaScaleHyperParam
-    Int rmCentromereFlankLength
-	String? plotFileType = "pdf"
-	String plotYlim
-	File input_gcWig
-	File input_mapWig
+	input {
+		File wig_file
+		File? normalPanel
+		String genomeBuild
+		Int bin_size_kb
+		Float? mean_depth
+		String sample_id
+		String ploidy
+		String normal
+		Int maxCN
+		Boolean includeHOMD
+		String chrs
+		String chrTrain
+		String chrNormalize
+		String genomeStyle
+		Boolean estimateNormal
+		Boolean estimatePloidy
+		Boolean estimateClonality
+		String scStates
+		File centromere
+		File? exons
+		Float txnE
+		Int txnStrength
+		Int minSegmentBins
+		Float minMapScore
+		Float fracReadsChrYMale
+		Float maxFracCNASubclone
+		Float maxFracGenomeSubclone
+		Float altFracThreshold
+		Int lambdaScaleHyperParam
+		Int rmCentromereFlankLength
+		String plotFileType = "pdf"
+		String plotYlim
+		File input_gcWig
+		File input_mapWig
 
-	Int? memGB = 4
-	Int? diskGB = 50
-	Int? preemptible = 2
-    Int? maxRetries = 1
-    
-    String? docker_override
+		Int memGB = 4
+		Int diskGB = 50
+		Int preemptible = 2
+		Int maxRetries = 1
+
+		String? docker_override
+	}
 
 	command <<<
 
@@ -234,9 +242,11 @@ task ichorCNATask {
 
 
 task extractIchorParams {
-	File params
-    Float maxFracCNASubclone
-	Float maxFracGenomeSubclone
+	input {
+		File params
+		Float maxFracCNASubclone
+		Float maxFracGenomeSubclone
+	}
 
 	command <<<
     	cut -f1,2 ${params} | grep -v ^$ | tr "\t" " " > params_table.txt
@@ -283,15 +293,17 @@ CODE
 }
 
 task bundlePerChromosomePlots {
-   Array[File] chrom_plots
-   String sample_id
-   
-   Int? memGB = 2
-   Int? diskGB = 10
-   Int? preemptible = 3
-   Int? maxRetries = 1
-   
-   String? docker_override
+	input {
+	   Array[File] chrom_plots
+	   String sample_id
+
+	   Int memGB = 2
+	   Int diskGB = 10
+	   Int preemptible = 3
+	   Int maxRetries = 1
+
+	   String? docker_override
+	}
 
    command <<<
       set -e
@@ -312,3 +324,4 @@ task bundlePerChromosomePlots {
       maxRetries: maxRetries
    }
 }
+
