@@ -1,0 +1,1 @@
+{"SigProfiler.GenomeFasta":"${workspace.referenceData_hg38_ref_fasta}","SigProfiler.MutlistFiles":"${this.samples.variants_called}","SigProfiler.mutlist_to_96_contexts.GenomeFastaIndex":"${workspace.referenceData_hg38_ref_fasta_index}"}
