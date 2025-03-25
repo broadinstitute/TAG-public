@@ -215,7 +215,8 @@ task ichorCNATask {
         cp "~{sample_id}/~{sample_id}_genomeWide.pdf" \
             "~{sample_id}.cna.seg" \
             "~{sample_id}.seg.txt" \
-            "~{sample_id}.seg ~{sample_id}.optimalSolution/"
+            "~{sample_id}.seg" \
+            "~{sample_id}.optimalSolution/"
         zip -r "~{sample_id}.optimalSolution.zip" "~{sample_id}.optimalSolution"
 
         # Generate list of out solutions
