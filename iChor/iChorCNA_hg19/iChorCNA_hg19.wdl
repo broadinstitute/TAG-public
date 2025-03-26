@@ -100,7 +100,7 @@ task read_counter {
         Int diskGB = 50
         Int preemptible = 2
 
-        String docker_override = "us.gcr.io/tag-team-160914/bloodbiopsy-hmmcopy:0.0.1"
+        String docker_override = "us.gcr.io/tag-public/bloodbiopsy-hmmcopy:0.0.1"
     }
 
     String wig_file_name = "~{sample_id}.bin~{bin_size}.wig"
@@ -169,7 +169,7 @@ task ichorCNATask {
         Int preemptible = 2
         Int maxRetries = 1
 
-        String docker_override = "us.gcr.io/tag-team-160914/bloodbiopsy-ichorcna:0.2.1"
+        String docker_override = "us.gcr.io/tag-public/bloodbiopsy-ichorcna:0.2.1"
     }
 
     command <<<
@@ -325,7 +325,7 @@ task bundlePerChromosomePlots {
         Int preemptible = 3
         Int maxRetries = 1
 
-        String docker_override = "us.gcr.io/tag-team-160914/tag-tools:1.0.0"
+        String docker_override = "us.gcr.io/tag-public/tag-tools:1.0.0"
     }
 
     command <<<
