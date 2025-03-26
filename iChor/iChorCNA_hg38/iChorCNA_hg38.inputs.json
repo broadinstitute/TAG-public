@@ -36,7 +36,7 @@
     "ichorCNA.mapWig": "gs://gptag/ichorCNA_resources/map_hg38_1000kb.wig",
     "ichorCNA.maxFracCNASubclone": "${0.7}",
     "ichorCNA.maxFracGenomeSubclone": "${0.5}",
-    "ichorCNA.normalPanel": "gs://gptag/ichorCNA_resources/HD_ULP_PoN_hg38_1000kb_median_normAutosome_median.rds",
+    "ichorCNA.normalPanel": "gs://gptag/ichorCNA_resources/Stover_Lennon_UH2_20HD_PON_1X_ULP_median.dragen_aln.rds",
     "ichorCNA.read_counter.diskGB": "${}",
     "ichorCNA.read_counter.memGB": "${}",
     "ichorCNA.read_counter.min_qual": "${}",
