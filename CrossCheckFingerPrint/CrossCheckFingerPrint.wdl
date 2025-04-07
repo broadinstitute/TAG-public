@@ -2,8 +2,9 @@ version 1.0
 
 workflow CrosscheckFingerprintsWorkflow {
     input {
-        File input_bamA
-        File input_bamB
+        Array[File] input_bams
+        Boolean fail_on_mismatch = false
+        Int mismatch_rc = if fail_on_mismatch then 1 else 2
         File hapmap
         File reference_fasta
         String output_name
@@ -12,25 +13,21 @@ workflow CrosscheckFingerprintsWorkflow {
 
     call CrosscheckFingerprints {
         input:
-            input_bamA = input_bamA,
-            input_bamB = input_bamB,
+            input_bams = input_bams,
             hapmap = hapmap,
             reference = reference_fasta,
             output_name = output_name,
-            picard_docker = picard_docker
+            picard_docker = picard_docker,
+            mismatch_rc = mismatch_rc
     }
-#    call FingerprintsResult {
-#        input:
-#            fingerprint_metrics = CrosscheckFingerprints.crosscheckmetrics
-#    }
 
     output {
         File crosscheckmetrics = CrosscheckFingerprints.crosscheckmetrics
-#        Int expected_match = FingerprintsResult.expected_match
+        String crosscheck_results = CrosscheckFingerprints.crosscheck_results
     }
 
     meta {
-        author: "Yueyao Gao"
+        author: "Yueyao Gao, Micah Rickles-Young"
         email: "tag@broadinstitute.org"
         description: "CrossCheck Fingerprints WDL"
     }
@@ -38,12 +35,13 @@ workflow CrosscheckFingerprintsWorkflow {
 
 task CrosscheckFingerprints {
     input {
-        File input_bamA
-        File input_bamB
+        Array[File] input_bams
         File hapmap
         File reference
         String output_name
         String picard_docker
+        Int mismatch_rc
+        String extra_args = ""
         Int disk_gb = 200
         Int memory_gb = 16
     }
@@ -52,57 +50,26 @@ task CrosscheckFingerprints {
         set -e
         mkdir temp_dir
         java -jar /usr/gitc/picard.jar CrosscheckFingerprints \
-        I=~{input_bamA} \
-        I=~{input_bamB} \
+        I=~{sep=' I=' input_bams} \
         HAPLOTYPE_MAP=~{hapmap} \
         CROSSCHECK_BY=SAMPLE \
-        O=~{output_name}.crosscheck_metrics \
+        O=~{output_name}.crosscheck_metrics.txt \
         REFERENCE_SEQUENCE=~{reference} \
+        EXIT_CODE_WHEN_MISMATCH=~{mismatch_rc} \
+        ~{extra_args} \
         TMP_DIR=./temp_dir
     >>>
 
     runtime {
         docker: picard_docker
         disks: "local-disk " + disk_gb + " HDD"
+        continueOnReturnCode: [0, 2]
         memory: memory_gb + "GB"
         cpu: "1"
     }
 
     output {
-        File crosscheckmetrics = "~{output_name}.crosscheck_metrics"
+        File crosscheckmetrics = "~{output_name}.crosscheck_metrics.txt"
+        String crosscheck_results = if read_int("rc") == 0 then "PASS" else "FAIL"
     }
 }
-#
-#task FingerprintsResult{
-#   input{
-#       File fingerprint_metrics
-#       Int disk_gb = 200
-#       Int memory_gb = 16
-#   }
-#   command{
-#      # Extract output from the fingerprint matrix
-#
-#      python3 <<CODE
-#      import pandas as pd
-#
-#      fps_mtx = pd.read_csv("~{fingerprint_metrics}",sep='\t',skiprows=6)
-#      # Get a brief output from crosscheck-result.txt
-#      # if all samples matched with each other
-#      # it means they are very likely from the same individual
-#      with open('crosscheck-result.txt', 'w') as f:
-#         if 'EXPECTED_MISMATCH' in fps_mtx['RESULT'].unique():
-#               f.write('1')
-#         else:
-#               f.write('0')
-#      CODE
-#   }
-#   runtime {
-#       docker: "us.gcr.io/broad-dsde-methods/liquidbiopsy:0.0.4.3"
-#       memory: memory_gb + " GB"
-#       disks: "local-disk " + disk_gb + " HDD"
-#    }
-#   output{
-#       Int expected_match = read_int('crosscheck-result.txt')
-#   }
-#}
-
