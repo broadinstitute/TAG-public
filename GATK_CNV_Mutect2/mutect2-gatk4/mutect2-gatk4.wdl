@@ -132,6 +132,9 @@ workflow Mutect2 {
       String? funcotator_extra_args
       Boolean haplotype_caller_make_vcf = true
       String? funco_default_output_format = "MAF"
+      String? funco_case_name
+      String? funco_control_name
+      String? funco_gatk_jar_override
 
       # runtime
       String gatk_docker
@@ -433,8 +436,8 @@ workflow Mutect2 {
         call Funcotator.Funcotate as Funcotator{
             input:
             output_basename = output_basename,
-            case_name = case_name,
-            control_name = control_name,
+            case_name = funco_case_name,
+            control_name = funco_control_name,
             sequencing_center = sequencing_center,
             sequence_source = sequence_source,
             filter_funcotations = filter_funcotations,
@@ -443,15 +446,15 @@ workflow Mutect2 {
             ref_fasta = ref_fasta,
             ref_fasta_index = ref_fai,
             ref_dict = ref_dict,
-            reference_version = reference_version,
+            reference_version = funco_reference_version,
             output_format = funco_default_output_format,
             compress = compress,
-            interval_list = interval_list,
+            interval_list = intervals,
             data_sources_tar_gz = funco_data_sources_tar_gz,
-            transcript_selection_mode = transcript_selection_mode,
-            transcript_selection_list = transcript_selection_list,
+            transcript_selection_mode = funco_transcript_selection_mode,
+            transcript_selection_list = funco_transcript_selection_list,
             funcotator_extra_args = funcotator_extra_args,
-            gatk_jar_override = gatk_jar_override,
+            gatk_jar_override = funco_gatk_jar_override,
             runtime_params = standard_runtime
         }
 
@@ -503,8 +506,8 @@ workflow Mutect2 {
         Int n_passing_indels = SplitVCFs.passing_INDEL
         Int n_filtered_indels = SplitVCFs.filtered_INDEL
 
-        File? funcotated_file = Funcotate.funcotated_output
-        File? funcotated_file_index = Funcotate.funcotated_output_index
+        File? funcotated_file = Funcotator.funcotated_output
+        File? funcotated_file_index = Funcotator.funcotated_output_index
         File? bamout = MergeBamOuts.merged_bam_out
         File? bamout_index = MergeBamOuts.merged_bam_out_index
         File? maf_segments = CalculateContamination.maf_segments
