@@ -1,5 +1,6 @@
 version 1.0
 import "https://api.firecloud.org/ga4gh/v1/tools/neovax-pipeline:LegoPlotter/versions/1/plain-WDL/descriptor" as LegoPlotter
+import "https://api.firecloud.org/ga4gh/v1/tools/neovax-pipeline:Funcotator/versions/1/plain-WDL/descriptor" as Funcotator
 import "m2_subworkflows/HaplotypeCaller_vcf_gatk4.wdl" as HaplotypeCaller
 import "m2_subworkflows/calculate_mutational_burden.wdl" as calculate_mutational_burden
 import "m2_subworkflows/SplitVCFs.wdl" as SplitVCFs
@@ -122,16 +123,15 @@ workflow Mutect2 {
       Boolean? funco_compress
       Boolean? funco_use_gnomad_AF
       File? funco_data_sources_tar_gz
-      String? funco_transcript_selection_mode
+      String? funco_transcript_selection_mode = "BEST_EFFECT"
       File? funco_transcript_selection_list
       Array[String]? funco_annotation_defaults
       Array[String]? funco_annotation_overrides
       Array[String]? funcotator_excluded_fields
-      Boolean? funco_filter_funcotations
+      Boolean? funco_filter_funcotations = "TRUE"
       String? funcotator_extra_args
       Boolean haplotype_caller_make_vcf = true
-
-      String funco_default_output_format = "MAF"
+      String? funco_default_output_format = "MAF"
 
       # runtime
       String gatk_docker
@@ -429,39 +429,36 @@ workflow Mutect2 {
     if (run_funcotator_or_default) {
         File funcotate_vcf_input = select_first([FilterAlignmentArtifacts.filtered_vcf, Filter.filtered_vcf])
         File funcotate_vcf_input_index = select_first([FilterAlignmentArtifacts.filtered_vcf_idx, Filter.filtered_vcf_idx])
+
         call Funcotate {
             input:
-                ref_fasta = ref_fasta,
-                ref_fai = ref_fai,
-                ref_dict = ref_dict,
-                input_vcf = funcotate_vcf_input,
-                input_vcf_idx = funcotate_vcf_input_index,
-                reference_version = select_first([funco_reference_version, "hg19"]),
-                output_file_base_name = basename(funcotate_vcf_input, ".vcf") + ".annotated",
-                output_format = if defined(funco_output_format) then "" + funco_output_format else funco_default_output_format,
-                compress = if defined(funco_compress) then select_first([funco_compress]) else false,
-                use_gnomad = if defined(funco_use_gnomad_AF) then select_first([funco_use_gnomad_AF]) else false,
-                data_sources_tar_gz = funco_data_sources_tar_gz,
-                case_id = M2.tumor_sample[0],
-                control_id = M2.normal_sample[0],
-                sequencing_center = sequencing_center,
-                sequence_source = sequence_source,
-                transcript_selection_mode = funco_transcript_selection_mode,
-                transcript_selection_list = funco_transcript_selection_list,
-                annotation_defaults = funco_annotation_defaults,
-                annotation_overrides = funco_annotation_overrides,
-                funcotator_excluded_fields = funcotator_excluded_fields,
-                filter_funcotations = filter_funcotations_or_default,
-                extra_args = funcotator_extra_args,
-                runtime_params = standard_runtime,
-                gatk_override = gatk_override,
-                disk_space = ceil(size(funcotate_vcf_input, "GB") * large_input_to_output_multiplier)  + funco_tar_size + disk_pad
+            output_basename = output_basename,
+            case_name = case_name,
+            control_name = control_name,
+            sequencing_center = sequencing_center,
+            sequence_source = sequence_source,
+            filter_funcotations = filter_funcotations,
+            input_vcf = funcotate_vcf_input,
+            input_vcf_index = funcotate_vcf_input_index,
+            ref_fasta = ref_fasta,
+            ref_fasta_index = ref_fai,
+            ref_dict = ref_dict,
+            reference_version = reference_version,
+            output_format = funco_default_output_format,
+            compress = compress,
+            interval_list = interval_list,
+            data_sources_tar_gz = funco_data_sources_tar_gz,
+            transcript_selection_mode = transcript_selection_mode,
+            transcript_selection_list = transcript_selection_list,
+            funcotator_extra_args = funcotator_extra_args,
+            gatk_jar_override = gatk_jar_override,
+            runtime_params = standard_runtime
         }
 
         if (funco_default_output_format == "MAF"){
             call LegoPlotter.LegoPlotter as LegoPlotter {
                 input:
-                    maf_file = Funcotate.funcotated_output_file,
+                    maf_file = Funcotate.funcotated_output,
 			        pair_name = output_basename
             }
 
@@ -475,7 +472,7 @@ workflow Mutect2 {
                     normal_reads = normal_reads,
                     normal_reads_index = normal_reads_index,
                     intervals = intervals,
-                    input_maf = Funcotate.funcotated_output_file,
+                    input_maf = Funcotate.funcotated_output,
                     disk_pad = disk_pad,
                     tag_tools_docker = tag_tools_docker,
                     output_basename = output_basename,
@@ -506,8 +503,8 @@ workflow Mutect2 {
         Int n_passing_indels = SplitVCFs.passing_INDEL
         Int n_filtered_indels = SplitVCFs.filtered_INDEL
 
-        File? funcotated_file = Funcotate.funcotated_output_file
-        File? funcotated_file_index = Funcotate.funcotated_output_file_index
+        File? funcotated_file = Funcotate.funcotated_output
+        File? funcotated_file_index = Funcotate.funcotated_output_index
         File? bamout = MergeBamOuts.merged_bam_out
         File? bamout_index = MergeBamOuts.merged_bam_out_index
         File? maf_segments = CalculateContamination.maf_segments
@@ -1066,140 +1063,6 @@ task FilterAlignmentArtifacts {
     }
 }
 
-task Funcotate {
-     input {
-       File ref_fasta
-       File ref_fai
-       File ref_dict
-       File input_vcf
-       File input_vcf_idx
-       String reference_version
-       String output_file_base_name
-       String output_format
-       Boolean compress
-       Boolean use_gnomad
-       # This should be updated when a new version of the data sources is released
-       # TODO: Make this dynamically chosen in the command.
-       File? data_sources_tar_gz = "gs://broad-public-datasets/funcotator/funcotator_dataSources.v1.7.20200521s.tar.gz"
-       String? control_id
-       String? case_id
-       String? sequencing_center
-       String? sequence_source
-       String? transcript_selection_mode
-       File? transcript_selection_list
-       Array[String]? annotation_defaults
-       Array[String]? annotation_overrides
-       Array[String]? funcotator_excluded_fields
-       Boolean? filter_funcotations
-       File? interval_list
-
-       String? extra_args
-
-       # ==============
-       Runtime runtime_params
-       Int? disk_space   #override to request more disk than default small task params
-       File? gatk_override
-
-       # You may have to change the following two parameter values depending on the task requirements
-       Int default_ram_mb = 3000
-       # WARNING: In the workflow, you should calculate the disk space as an input to this task (disk_space_gb).  Please see [TODO: Link from Jose] for examples.
-       Int default_disk_space_gb = 100
-     }
-
-     # ==============
-     # Process input args:
-     String output_maf = output_file_base_name + ".maf"
-     String output_maf_index = output_maf + ".idx"
-     String output_vcf = output_file_base_name + if compress then ".vcf.gz" else ".vcf"
-     String output_vcf_idx = output_vcf +  if compress then ".tbi" else ".idx"
-     String output_file = if output_format == "MAF" then output_maf else output_vcf
-     String output_file_index = if output_format == "MAF" then output_maf_index else output_vcf_idx
-     String transcript_selection_arg = if defined(transcript_selection_list) then " --transcript-list " else ""
-     String annotation_def_arg = if defined(annotation_defaults) then " --annotation-default " else ""
-     String annotation_over_arg = if defined(annotation_overrides) then " --annotation-override " else ""
-     String filter_funcotations_args = if defined(filter_funcotations) && (filter_funcotations) then " --remove-filtered-variants " else ""
-     String excluded_fields_args = if defined(funcotator_excluded_fields) then " --exclude-field " else ""
-     String interval_list_arg = if defined(interval_list) then " -L " else ""
-     String extra_args_arg = select_first([extra_args, ""])
-
-     String dollar = "$"
-
-     Int command_mem = runtime_params.mem - 500
-
-     parameter_meta{
-      ref_fasta: {localization_optional: true}
-      ref_fai: {localization_optional: true}
-      ref_dict: {localization_optional: true}
-      input_vcf: {localization_optional: true}
-      input_vcf_idx: {localization_optional: true}
-     }
-
-     command <<<
-         set -e
-         export GATK_LOCAL_JAR=~{default="/root/gatk.jar" gatk_override}
-
-         # Extract our data sources:
-         echo "Extracting data sources zip file..."
-         mkdir datasources_dir
-         tar zxvf ~{data_sources_tar_gz} -C datasources_dir --strip-components 1
-         DATA_SOURCES_FOLDER="$PWD/datasources_dir"
-
-         # Handle gnomAD:
-         if ~{use_gnomad} ; then
-             echo "Enabling gnomAD..."
-             for potential_gnomad_gz in gnomAD_exome.tar.gz gnomAD_genome.tar.gz ; do
-                 if [[ -f ~{dollar}{DATA_SOURCES_FOLDER}/~{dollar}{potential_gnomad_gz} ]] ; then
-                     cd ~{dollar}{DATA_SOURCES_FOLDER}
-                     tar -zvxf ~{dollar}{potential_gnomad_gz}
-                     cd -
-                 else
-                     echo "ERROR: Cannot find gnomAD folder: ~{dollar}{potential_gnomad_gz}" 1>&2
-                     false
-                 fi
-             done
-         fi
-
-         # Run Funcotator:
-         gatk --java-options "-Xmx~{command_mem}m" Funcotator \
-             --data-sources-path $DATA_SOURCES_FOLDER \
-             --ref-version ~{reference_version} \
-             --output-file-format ~{output_format} \
-             -R ~{ref_fasta} \
-             -V ~{input_vcf} \
-             -O ~{output_file} \
-             ~{interval_list_arg} ~{default="" interval_list} \
-             --annotation-default normal_barcode:~{default="Unknown" control_id} \
-             --annotation-default tumor_barcode:~{default="Unknown" case_id} \
-             --annotation-default Center:~{default="Unknown" sequencing_center} \
-             --annotation-default source:~{default="Unknown" sequence_source} \
-             ~{"--transcript-selection-mode " + transcript_selection_mode} \
-             ~{transcript_selection_arg}~{default="" sep=" --transcript-list " transcript_selection_list} \
-             ~{annotation_def_arg}~{default="" sep=" --annotation-default " annotation_defaults} \
-             ~{annotation_over_arg}~{default="" sep=" --annotation-override " annotation_overrides} \
-             ~{excluded_fields_args}~{default="" sep=" --exclude-field " funcotator_excluded_fields} \
-             ~{filter_funcotations_args} \
-             ~{extra_args_arg}
-         # Make sure we have a placeholder index for MAF files so this workflow doesn't fail:
-         if [[ "~{output_format}" == "MAF" ]] ; then
-            touch ~{output_maf_index}
-         fi
-     >>>
-
-    runtime {
-        docker: runtime_params.docker
-        bootDiskSizeGb: runtime_params.boot_disk_size
-        memory: runtime_params.mem + " MB"
-        disks: "local-disk " + select_first([disk_space, runtime_params.initial_disk_size]) + " HDD"
-        preemptible: runtime_params.preemptible
-        maxRetries: runtime_params.max_retries
-        cpu: runtime_params.cpu
-    }
-
-     output {
-         File funcotated_output_file = "~{output_file}"
-         File funcotated_output_file_index = "~{output_file_index}"
-     }
-}
 
 task ExtractContamination {
    input{
