@@ -201,9 +201,27 @@ workflow Mutect2 {
     Int tumor_cram_to_bam_disk = ceil(tumor_reads_size * cram_to_bam_multiplier)
     Int normal_cram_to_bam_disk = ceil(normal_reads_size * cram_to_bam_multiplier)
 
+
+    # Funcotator runtime parameters
+    Int funco_preemptible = 2
+    Int funco_max_retries = 1
+    Int funco_additional_disk = 50
+    Int funco_boot_disk_size = 15
+    Int funco_mem = 16
+    Int funco_cpu = 1
+    String funco_docker = select_first([gatk_docker, "us.gcr.io/tag-public/neovax-tag-gatk:v1"])
+
     Runtime standard_runtime = {"docker": gatk_docker,
             "max_retries": max_retries_or_default, "preemptible": preemptible_or_default, "cpu": small_task_cpu,
             "mem": small_task_mem * 1000, "initial_disk_size": small_task_disk + disk_pad, "boot_disk_size": boot_disk_size}
+
+    Runtime funcotator_runtime = { "preemptible": funco_preemptible,
+                                "max_retries": funco_max_retries,
+                                "mem": funco_mem,
+                                "cpu": funco_cpu,
+                                "docker": funco_docker,
+                                "boot_disk_size": funco_boot_disk_size,
+                                "initial_disk_size": funco_additional_disk }
 
 
     Int tumor_reads_size = ceil(size(tumor_reads, "GB") + size(tumor_reads_index, "GB"))
@@ -455,7 +473,7 @@ workflow Mutect2 {
             transcript_selection_list = funco_transcript_selection_list,
             funcotator_extra_args = funcotator_extra_args,
             gatk_jar_override = funco_gatk_jar_override,
-            runtime_params = standard_runtime
+            runtime_params = funcotator_runtime
         }
 
         if (funco_output_format == "MAF"){
