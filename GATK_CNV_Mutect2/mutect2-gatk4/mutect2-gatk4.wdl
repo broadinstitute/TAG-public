@@ -430,7 +430,7 @@ workflow Mutect2 {
         File funcotate_vcf_input = select_first([FilterAlignmentArtifacts.filtered_vcf, Filter.filtered_vcf])
         File funcotate_vcf_input_index = select_first([FilterAlignmentArtifacts.filtered_vcf_idx, Filter.filtered_vcf_idx])
 
-        call Funcotate {
+        call Funcotator.Funcotate as Funcotator{
             input:
             output_basename = output_basename,
             case_name = case_name,
@@ -458,7 +458,7 @@ workflow Mutect2 {
         if (funco_default_output_format == "MAF"){
             call LegoPlotter.LegoPlotter as LegoPlotter {
                 input:
-                    maf_file = Funcotate.funcotated_output,
+                    maf_file = Funcotator.funcotated_output,
 			        pair_name = output_basename
             }
 
@@ -472,7 +472,7 @@ workflow Mutect2 {
                     normal_reads = normal_reads,
                     normal_reads_index = normal_reads_index,
                     intervals = intervals,
-                    input_maf = Funcotate.funcotated_output,
+                    input_maf = Funcotator.funcotated_output,
                     disk_pad = disk_pad,
                     tag_tools_docker = tag_tools_docker,
                     output_basename = output_basename,
