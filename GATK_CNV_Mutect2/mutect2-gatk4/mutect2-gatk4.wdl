@@ -122,6 +122,7 @@ workflow Mutect2 {
       String funco_output_format = "MAF"
       Boolean? funco_compress
       Boolean? funco_use_gnomad_AF
+      Boolean? filter_funcotations
       File funco_data_sources_tar_gz
       String funco_transcript_selection_mode = "BEST_EFFECT"
       File? funco_transcript_selection_list
@@ -133,6 +134,7 @@ workflow Mutect2 {
       String? funco_case_name
       String? funco_control_name
       String? funco_gatk_jar_override
+    
 
       # runtime
       String gatk_docker
@@ -456,7 +458,7 @@ workflow Mutect2 {
             runtime_params = standard_runtime
         }
 
-        if (funco_default_output_format == "MAF"){
+        if (funco_output_format == "MAF"){
             call LegoPlotter.LegoPlotter as LegoPlotter {
                 input:
                     maf_file = Funcotator.funcotated_output,
