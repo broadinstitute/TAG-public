@@ -118,20 +118,18 @@ workflow Mutect2 {
       Boolean run_funcotator = true
       String? sequencing_center
       String? sequence_source
-      String? funco_reference_version
-      String? funco_output_format
+      String funco_reference_version = "hg19"
+      String funco_output_format = "MAF"
       Boolean? funco_compress
       Boolean? funco_use_gnomad_AF
-      File? funco_data_sources_tar_gz
-      String? funco_transcript_selection_mode = "BEST_EFFECT"
+      File funco_data_sources_tar_gz
+      String funco_transcript_selection_mode = "BEST_EFFECT"
       File? funco_transcript_selection_list
       Array[String]? funco_annotation_defaults
       Array[String]? funco_annotation_overrides
       Array[String]? funcotator_excluded_fields
-      Boolean? funco_filter_funcotations = "TRUE"
       String? funcotator_extra_args
       Boolean haplotype_caller_make_vcf = true
-      String? funco_default_output_format = "MAF"
       String? funco_case_name
       String? funco_control_name
       String? funco_gatk_jar_override
@@ -143,7 +141,7 @@ workflow Mutect2 {
       File? gatk_override
       String gatk_path = "/gatk/gatk"
       String basic_bash_docker = "ubuntu:16.04"
-      Boolean? filter_funcotations
+
 
       Int? preemptible
       Int? max_retries
@@ -183,7 +181,7 @@ workflow Mutect2 {
     String hc_output_suffix = if haplotype_caller_make_vcf then ".vcf.gz" else ".g.vcf.gz"
 
     # If no tar is provided, the task downloads one from broads ftp server
-    Int funco_tar_size = if defined(funco_data_sources_tar_gz) then ceil(size(funco_data_sources_tar_gz, "GB") * 3) else 100
+    # Int funco_tar_size = if defined(funco_data_sources_tar_gz) then ceil(size(funco_data_sources_tar_gz, "GB") * 3) else 100
     Int gatk_override_size = if defined(gatk_override) then ceil(size(gatk_override, "GB")) else 0
 
     # This is added to every task as padding, should increase if systematically you need more disk for every call
@@ -440,14 +438,14 @@ workflow Mutect2 {
             control_name = funco_control_name,
             sequencing_center = sequencing_center,
             sequence_source = sequence_source,
-            filter_funcotations = filter_funcotations,
+            filter_funcotations = filter_funcotations_or_default,
             input_vcf = funcotate_vcf_input,
             input_vcf_index = funcotate_vcf_input_index,
             ref_fasta = ref_fasta,
             ref_fasta_index = ref_fai,
             ref_dict = ref_dict,
             reference_version = funco_reference_version,
-            output_format = funco_default_output_format,
+            output_format = funco_output_format,
             compress = compress,
             interval_list = intervals,
             data_sources_tar_gz = funco_data_sources_tar_gz,
