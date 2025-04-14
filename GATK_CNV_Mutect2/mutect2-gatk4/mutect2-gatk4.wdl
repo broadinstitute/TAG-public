@@ -209,7 +209,7 @@ workflow Mutect2 {
     Int funco_boot_disk_size = 15
     Int funco_mem = 16
     Int funco_cpu = 1
-    String funco_docker = select_first([gatk_docker, "us.gcr.io/tag-public/neovax-tag-gatk:v1"])
+    String funco_docker = "us.gcr.io/tag-public/neovax-tag-gatk:v1"
 
     Runtime standard_runtime = {"docker": gatk_docker,
             "max_retries": max_retries_or_default, "preemptible": preemptible_or_default, "cpu": small_task_cpu,
