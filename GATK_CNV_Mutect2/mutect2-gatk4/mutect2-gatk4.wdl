@@ -450,7 +450,7 @@ workflow Mutect2 {
     if (defined(normal_reads)){
             call GetSampleName as GetNormalSampleName {
                 input:
-                bam = normal_reads
+                bam = select_first([normal_reads])
             }
         }
 
