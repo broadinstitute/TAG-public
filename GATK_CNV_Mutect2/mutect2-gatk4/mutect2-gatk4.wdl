@@ -4,6 +4,7 @@ import "https://api.firecloud.org/ga4gh/v1/tools/neovax-pipeline:Funcotator/vers
 import "m2_subworkflows/HaplotypeCaller_vcf_gatk4.wdl" as HaplotypeCaller
 import "m2_subworkflows/calculate_mutational_burden.wdl" as calculate_mutational_burden
 import "m2_subworkflows/SplitVCFs.wdl" as SplitVCFs
+import "TCapRNAPipeline/subworkflows/RNAWithUMIsTasks.wdl" as tasks
 
 
 ## Copyright Broad Institute, 2017
@@ -274,6 +275,20 @@ workflow Mutect2 {
                 disk_space = m2_per_scatter_size
         }
 
+
+        if (defined(normal_reads)){
+            call tasks.GetSampleName as GetNormalSampleName {
+                input:
+                bam = select_first([normal_reads, "NO_NORMAL_GIVEN"])
+            }
+        }
+
+        call tasks.GetSampleName as GetTumorSampleName {
+                input:
+                bam = tumor_reads
+        }
+
+
         if (defined(normal_reads)) {
             call HaplotypeCaller.HaplotypeCaller as HaplotypeCaller {
                 input:
@@ -454,8 +469,8 @@ workflow Mutect2 {
         call Funcotator.Funcotate as Funcotator{
             input:
             output_basename = output_basename,
-            case_name = funco_case_name,
-            control_name = funco_control_name,
+            case_name = GetTumorSampleName.sample_name,
+            control_name = GetNormalSampleName.sample_name,
             sequencing_center = sequencing_center,
             sequence_source = sequence_source,
             filter_funcotations = filter_funcotations_or_default,
