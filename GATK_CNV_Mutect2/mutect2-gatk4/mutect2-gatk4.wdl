@@ -4,7 +4,6 @@ import "https://api.firecloud.org/ga4gh/v1/tools/neovax-pipeline:Funcotator/vers
 import "m2_subworkflows/HaplotypeCaller_vcf_gatk4.wdl" as HaplotypeCaller
 import "m2_subworkflows/calculate_mutational_burden.wdl" as calculate_mutational_burden
 import "m2_subworkflows/SplitVCFs.wdl" as SplitVCFs
-import "TCapRNAPipeline/subworkflows/RNAWithUMIsTasks.wdl" as tasks
 
 
 ## Copyright Broad Institute, 2017
@@ -275,15 +274,14 @@ workflow Mutect2 {
                 disk_space = m2_per_scatter_size
         }
 
-
         if (defined(normal_reads)){
-            call tasks.GetSampleName as GetNormalSampleName {
+            call GetSampleName as GetNormalSampleName {
                 input:
-                bam = select_first([normal_reads, "NO_NORMAL_GIVEN"])
+                bam = normal_reads
             }
         }
 
-        call tasks.GetSampleName as GetTumorSampleName {
+        call GetSampleName as GetTumorSampleName {
                 input:
                 bam = tumor_reads
         }
@@ -1118,4 +1116,36 @@ task ExtractContamination {
    output {
       Float contam_frac = read_float("contam.txt")
    }
+}
+
+task GetSampleName {
+  input {
+    File bam
+
+    String docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
+    Int cpu = 1
+    Int memory_mb = 1000
+    Int disk_size_gb = ceil(2.0 * size(bam, "GiB")) + 10
+  }
+
+  parameter_meta {
+    bam: {
+      localization_optional: true
+    }
+  }
+
+  command <<<
+    gatk GetSampleName -I ~{bam} -O sample_name.txt
+  >>>
+
+  runtime {
+    docker: docker
+    cpu: cpu
+    memory: "~{memory_mb} MiB"
+    disks: "local-disk ~{disk_size_gb} HDD"
+  }
+
+  output {
+    String sample_name = read_string("sample_name.txt")
+  }
 }
