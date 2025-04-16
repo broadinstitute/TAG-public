@@ -273,18 +273,6 @@ workflow Mutect2 {
                 disk_space = m2_per_scatter_size
         }
 
-        if (defined(normal_reads)){
-            call GetSampleName as GetNormalSampleName {
-                input:
-                bam = normal_reads
-            }
-        }
-
-        call GetSampleName as GetTumorSampleName {
-                input:
-                bam = tumor_reads
-        }
-
         if (defined(normal_reads)) {
             call HaplotypeCaller.HaplotypeCaller as HaplotypeCaller {
                 input:
@@ -308,6 +296,7 @@ workflow Mutect2 {
 
     Int merged_germline_vcf_size = if (defined(normal_reads)) then ceil(size(HaplotypeCaller.output_vcf, "GB")) else 0
     Int merged_germline_bamout_size = if (defined(normal_reads)) then ceil(size(HaplotypeCaller.bamout, "GB")) else 0
+
 
     if (run_ob_filter) {
         call LearnReadOrientationModel {
@@ -457,6 +446,18 @@ workflow Mutect2 {
             basename = filtered_name,
             splitvcf_docker = splitvcf_docker
     }
+
+    if (defined(normal_reads)){
+            call GetSampleName as GetNormalSampleName {
+                input:
+                bam = normal_reads
+            }
+        }
+
+    call GetSampleName as GetTumorSampleName {
+            input:
+                bam = tumor_reads
+        }
 
     if (run_funcotator_or_default) {
         File funcotate_vcf_input = select_first([FilterAlignmentArtifacts.filtered_vcf, Filter.filtered_vcf])
