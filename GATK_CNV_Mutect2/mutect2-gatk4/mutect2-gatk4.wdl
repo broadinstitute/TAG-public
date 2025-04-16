@@ -131,8 +131,6 @@ workflow Mutect2 {
       Array[String]? funcotator_excluded_fields
       String? funcotator_extra_args
       Boolean haplotype_caller_make_vcf = true
-      String? funco_case_name
-      String? funco_control_name
       String? funco_gatk_jar_override
     
 
@@ -211,6 +209,7 @@ workflow Mutect2 {
     Int funco_cpu = 1
     String funco_docker = "us.gcr.io/tag-public/neovax-tag-gatk:v1"
 
+
     Runtime standard_runtime = {"docker": gatk_docker,
             "max_retries": max_retries_or_default, "preemptible": preemptible_or_default, "cpu": small_task_cpu,
             "mem": small_task_mem * 1000, "initial_disk_size": small_task_disk + disk_pad, "boot_disk_size": boot_disk_size}
@@ -285,7 +284,6 @@ workflow Mutect2 {
                 input:
                 bam = tumor_reads
         }
-
 
         if (defined(normal_reads)) {
             call HaplotypeCaller.HaplotypeCaller as HaplotypeCaller {
@@ -463,12 +461,14 @@ workflow Mutect2 {
     if (run_funcotator_or_default) {
         File funcotate_vcf_input = select_first([FilterAlignmentArtifacts.filtered_vcf, Filter.filtered_vcf])
         File funcotate_vcf_input_index = select_first([FilterAlignmentArtifacts.filtered_vcf_idx, Filter.filtered_vcf_idx])
+        String funco_case_name = GetTumorSampleName.sample_name
+        String? funco_control_name = GetNormalSampleName.sample_name
 
         call Funcotator.Funcotate as Funcotator{
             input:
             output_basename = output_basename,
-            case_name = GetTumorSampleName.sample_name,
-            control_name = GetNormalSampleName.sample_name,
+            case_name = funco_case_name,
+            control_name = funco_control_name,
             sequencing_center = sequencing_center,
             sequence_source = sequence_source,
             filter_funcotations = filter_funcotations_or_default,
