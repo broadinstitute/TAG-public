@@ -790,9 +790,10 @@ task MergeBamOuts {
       Runtime runtime_params
       File? gatk_override
       Int? disk_space   #override to request more disk than default small task params
+      Int? memory_scaler = 1
     }
 
-    Int command_mem = runtime_params.mem - 500
+    Int command_mem = ceil((runtime_params.mem - 500) * memory_scaler) 
 
     command <<<
         # This command block assumes that there is at least one file in bam_outs.
