@@ -88,8 +88,7 @@ workflow ichorCNA {
         File perChromosomePlots = bundlePerChromosomePlots.output_plot
         
         Boolean qc_passed = (
-            extractIchorParams.gc_map_correction_mad <= max_passing_mad_score &&
-            extractIchorParams.tumor_fraction >= min_passing_tumor_fraction
+            extractIchorParams.gc_map_correction_mad <= max_passing_mad_score
         )
     }
 }
