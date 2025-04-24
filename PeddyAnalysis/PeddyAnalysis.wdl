@@ -562,8 +562,17 @@ task UpdateFamFile {
                     info = sample_info[sample_id]
                     fam_file_df.at[i, 'FamilyID'] = info['sidr_family_id']
                     if info['pedigree'] == 'Proband':
-                        father_id_row = known_trio_info_df[(known_trio_info_df['sidr_family_id'] == info['sidr_family_id']) & (known_trio_info_df['pedigree'] == 'Father')]
-                        mother_id_row = known_trio_info_df[(known_trio_info_df['sidr_family_id'] == info['sidr_family_id']) & (known_trio_info_df['pedigree'] == 'Mother')]
+                        # father_id_row = known_trio_info_df[(known_trio_info_df['sidr_family_id'] == info['sidr_family_id']) & (known_trio_info_df['pedigree'] == 'Father')]
+                        # mother_id_row = known_trio_info_df[(known_trio_info_df['sidr_family_id'] == info['sidr_family_id']) & (known_trio_info_df['pedigree'] == 'Mother')]
+                        # This is to handle cases like "Biological Father/Mother"
+                        father_id_row = known_trio_info_df[
+                            (known_trio_info_df['sidr_family_id'] == info['sidr_family_id']) &
+                            (known_trio_info_df['pedigree'].str.contains('Father', case=False, na=False))
+                        ]
+                        mother_id_row = known_trio_info_df[
+                            (known_trio_info_df['sidr_family_id'] == info['sidr_family_id']) &
+                            (known_trio_info_df['pedigree'].str.contains('Mother', case=False, na=False))
+                        ]
                         # This is to handle if only one parent present
                         father_id = '0'
                         mother_id = '0'                
