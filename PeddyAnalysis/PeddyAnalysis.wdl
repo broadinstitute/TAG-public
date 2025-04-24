@@ -606,13 +606,13 @@ task RunPeddy {
         File merged_gvcf
         File merged_gvcf_index
         File fam_file
-        String reference_genome = "hg38"
+        String? reference_genome
         Int memory = 16
         Int disk_size = 16
         String? docker_override
     }
     command <<<        
-        peddy -p 4 --plot --prefix ~{prefix} ~{merged_gvcf} ~{fam_file} --sites ~{reference_genome}
+        peddy -p 4 --plot --prefix ~{prefix} ~{merged_gvcf} ~{fam_file}  ~{if defined(reference_genome) then "--sites " + reference_genome else ""}
 
     >>>
     output {
