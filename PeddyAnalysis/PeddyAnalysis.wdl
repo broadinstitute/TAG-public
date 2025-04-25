@@ -206,7 +206,7 @@ task FilterSingleSampleFamilies {
         echo ~{sep=' ' family_ids} > family_ids.txt
         echo ~{sep=' ' gvcfs} > gvcf_paths.txt
         echo ~{sep=' ' gvcf_indexes} > gvcf_index_paths.txt
-        echo ~{sep='|' pedigrees} > pedigrees.txt
+        echo ~{sep=',' pedigrees} > pedigrees.txt
         echo ~{sep=' ' reported_sexes} > reported_sexes.txt
 
         # Filter out single-sample families and generate the required files
@@ -225,7 +225,7 @@ task FilterSingleSampleFamilies {
         with open("gvcf_index_paths.txt", "r") as f:
             gvcf_indexes = f.read().strip().split(' ')
         with open("pedigrees.txt", "r") as f:
-            pedigrees = f.read().strip().split('|')
+            pedigrees = f.read().strip().split(',')
         with open("reported_sexes.txt", "r") as f:
             reported_sexes = f.read().strip().split(' ')
 
