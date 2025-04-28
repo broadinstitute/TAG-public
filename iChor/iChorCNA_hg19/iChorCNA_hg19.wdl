@@ -71,6 +71,7 @@ workflow ichorCNA {
         File rdata = ichorCNATask.rdata
 
         Float tumor_fraction = extractIchorParams.tumor_fraction
+        Float coverage = extractIchorParams.coverage
         Float ploidy = extractIchorParams.ploidy
         String subclone_fraction = extractIchorParams.subclone_fraction
         String fraction_genome_subclonal = extractIchorParams.fraction_genome_subclonal
@@ -286,6 +287,8 @@ params = [x.rstrip("\n").split(": ") for x in params if ":" in x]
 param_dict = {a: b for a, b in params}
 with open("tumor_fraction", "w") as p:
     p.write(param_dict["Tumor Fraction"])
+with open("coverage", "w") as p:
+    p.write(param_dict["Complete"])
 with open("ploidy", "w") as p:
     p.write(param_dict["Ploidy"])
 with open("subclone_fraction", "w") as p:
@@ -312,6 +315,7 @@ CODE
 
     output {
         Float tumor_fraction = read_float("tumor_fraction")
+        Float coverage = read_float("coverage")
         Float ploidy = read_float("ploidy")
         String subclone_fraction = read_string("subclone_fraction")
         String fraction_genome_subclonal = read_string("fraction_genome_subclonal")
