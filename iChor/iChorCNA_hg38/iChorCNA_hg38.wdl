@@ -19,6 +19,7 @@ workflow ichorCNA {
         Float maxFracGenomeSubclone
         Float max_passing_mad_score = 0.3
         Float min_passing_tumor_fraction = 0.1
+        Float max_passing_coverage = 0.1
     }
 
     Int bin_size = bin_size_kb * 1000
@@ -71,6 +72,7 @@ workflow ichorCNA {
         File rdata = ichorCNATask.rdata
 
         Float tumor_fraction = extractIchorParams.tumor_fraction
+        Float coverage = extractIchorParams.coverage
         Float ploidy = extractIchorParams.ploidy
         String subclone_fraction = extractIchorParams.subclone_fraction
         String fraction_genome_subclonal = extractIchorParams.fraction_genome_subclonal
@@ -89,6 +91,8 @@ workflow ichorCNA {
         
         Boolean qc_passed = (
             extractIchorParams.gc_map_correction_mad <= max_passing_mad_score
+        ) && (
+            extractIchorParams.coverage <= max_passing_coverage
         )
     }
 }
@@ -286,6 +290,8 @@ params = [x.rstrip("\n").split(": ") for x in params if ":" in x]
 param_dict = {a: b for a, b in params}
 with open("tumor_fraction", "w") as p:
     p.write(param_dict["Tumor Fraction"])
+with open("coverage", "w") as p:
+    p.write(param_dict["Coverage"])
 with open("ploidy", "w") as p:
     p.write(param_dict["Ploidy"])
 with open("subclone_fraction", "w") as p:
@@ -312,6 +318,7 @@ CODE
 
     output {
         Float tumor_fraction = read_float("tumor_fraction")
+        Float coverage = read_float("coverage")
         Float ploidy = read_float("ploidy")
         String subclone_fraction = read_string("subclone_fraction")
         String fraction_genome_subclonal = read_string("fraction_genome_subclonal")
