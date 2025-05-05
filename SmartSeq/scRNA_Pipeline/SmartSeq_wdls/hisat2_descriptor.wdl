@@ -112,6 +112,7 @@ task HISAT2PE {
   Int disk_size
   Float memory
   Int threads
+  Int preemptible
   command {
     # Note that files MUST be gzipped or the module will not function properly
     # This will be addressed in the future either by a change in how Hisat2 functions or a more
@@ -157,7 +158,7 @@ task HISAT2PE {
     memory: memory + " GB"
     disks: "local-disk " + disk_size + " HDD"
     cpu: threads
-    preemptible: 5
+    preemptible: select_first([preemptible, 1])
   }
   output {
 	#Boolean reads_aligned = read_boolean(stdout())
