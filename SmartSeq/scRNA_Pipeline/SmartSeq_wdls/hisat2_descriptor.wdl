@@ -112,7 +112,7 @@ task HISAT2PE {
   Int disk_size
   Float memory
   Int threads
-  Int preemptible
+  Int? preemptible
   command {
     # Note that files MUST be gzipped or the module will not function properly
     # This will be addressed in the future either by a change in how Hisat2 functions or a more
