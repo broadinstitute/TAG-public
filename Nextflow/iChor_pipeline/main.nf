@@ -139,7 +139,6 @@ process ichor_cna {
             --estimateScPrevalence ${estimateClonality} \
             --scStates "${scStates}" \
             --centromere ${centromere} \
-            --exons.bed ${exons} \
             --txnE ${txnE} \
             --txnStrength ${txnStrength} \
             --minSegmentBins ${minSegmentBins} \
