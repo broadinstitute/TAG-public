@@ -77,7 +77,6 @@ process read_counter {
 //                 process: ichor_cna
 //-----------------------------------------------------
 process ichor_cna {
-
     tag { sample_id }
     container '079623148045.dkr.ecr.us-east-1.amazonaws.com/cp-prod/b9c33152-acf1-4294-9f8e-ba2ba22da04d:latest'
     cpus 4
@@ -88,8 +87,8 @@ process ichor_cna {
     input:
     path wig_file                                    // from read_counter
     val  sample_id
-    val  gcWig
-    val  mapWig
+    val  input_gcWig
+    val  input_mapWig
     val  centromere
     val  normalPanel
     val  genomeBuild
@@ -122,12 +121,11 @@ process ichor_cna {
         Rscript /runIchorCNA.R --id "${sample_id}" \
             --outDir ./ --libdir /ichorCNA \
             --WIG "${wig_file}" \
-            --gcWig  "${gcWig}" \
-            --mapWig "${mapWig}" \
+            --gcWig  "${input_gcWig}" \
+            --mapWig "${input_mapWig}" \
             --normalPanel "${normalPanel}" \
             --ploidy "${ploidy}" \
             --normal "${normal}" \
-            --coverage + ${mean_depth} \
             --maxCN ${maxCN} \
             --includeHOMD ${includeHOMD} \
             --chrs "${chrs}" \
