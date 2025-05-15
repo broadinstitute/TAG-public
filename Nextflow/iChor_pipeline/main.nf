@@ -99,6 +99,7 @@ process ichor_cna {
     val  normal
     val  maxCN
     val  includeHOMD
+    val  chrs
     val  estimateNormal
     val  estimatePloidy
     val  estimateClonality
@@ -201,6 +202,7 @@ workflow {
     Channel.value(params.maxFracGenomeSubclone) .set { maxFracGenomeSubclone_ch }
     Channel.value(params.altFracThreshold)      .set { altFracThreshold_ch }
     Channel.value(params.lambdaScaleHyperParam) .set { lambdaScaleHyperParam_ch }
+    Channel.value(params.chrs) .set { chrs_ch }
 
     /* run ichor_cna */
     ichor_cna(
@@ -218,6 +220,7 @@ workflow {
         normal_ch,
         maxCN_ch,
         includeHOMD_ch,
+        chrs_ch,
         estimateNormal_ch,
         estimatePloidy_ch,
         estimateClonality_ch,
