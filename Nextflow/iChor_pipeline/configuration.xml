@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<pd:pipeline xmlns:pd="xsd://www.illumina.com/ica/cp/pipelinedefinition" code="ichorCNA" version="1.0">
+  <pd:dataInputs>
+    <pd:dataInput code="bam_file" format="BAM" type="FILE" required="true" multiValue="false">
+      <pd:label>BAM File</pd:label>
+      <pd:description>Input BAM file</pd:description>
+    </pd:dataInput>
+    <pd:dataInput code="bam_index" format="BAI" type="FILE" required="true" multiValue="false">
+      <pd:label>BAM Index</pd:label>
+      <pd:description>BAM index (.bai) file</pd:description>
+    </pd:dataInput>
+    <pd:dataInput code="normalPanel" format="UNKNOWN" type="FILE" required="false" multiValue="false">
+      <pd:label>Normal Panel</pd:label>
+      <pd:description>Normal panel file (optional)</pd:description>
+    </pd:dataInput>
+    <pd:dataInput code="centromere" format="BED" type="FILE" required="true" multiValue="false">
+      <pd:label>Centromere BED</pd:label>
+      <pd:description>Centromere positions BED file</pd:description>
+    </pd:dataInput>
+    <pd:dataInput code="gcWig" format="UNKNOWN" type="FILE" required="true" multiValue="false">
+      <pd:label>GC content WIG</pd:label>
+      <pd:description>GC content wig file</pd:description>
+    </pd:dataInput>
+    <pd:dataInput code="mapWig" format="UNKNOWN" type="FILE" required="true" multiValue="false">
+      <pd:label>Mapability WIG</pd:label>
+      <pd:description>Mapability wig file</pd:description>
+    </pd:dataInput>
+  </pd:dataInputs>
+
+  <pd:steps>
+    <pd:step execution="MANDATORY" code="General">
+      <pd:label>General</pd:label>
+      <pd:description>Pipeline parameters</pd:description>
+      <pd:tool code="general">
+        <pd:label>General</pd:label>
+        <pd:description>General parameters</pd:description>
+        <pd:parameter code="sample_id" minValues="1" maxValues="1" classification="USER">
+          <pd:label>Sample ID</pd:label>
+          <pd:description>Sample identifier</pd:description>
+          <pd:stringType/>
+          <pd:value></pd:value>
+        </pd:parameter>
+        <pd:parameter code="genomeBuild" minValues="1" maxValues="1" classification="USER">
+          <pd:label>Genome Build</pd:label>
+          <pd:description>Genome build (e.g., hg38)</pd:description>
+          <pd:stringType/>
+          <pd:value>hg19</pd:value>
+        </pd:parameter>
+        <pd:parameter code="bin_size" minValues="1" maxValues="1" classification="USER">
+          <pd:label>Bin Size (kb)</pd:label>
+          <pd:description>Bin size in kilobases</pd:description>
+          <pd:integerType minimumValue="1" maximumValue="10000"/>
+          <pd:value>1000</pd:value>
+        </pd:parameter>
+        <pd:parameter code="genome_style" minValues="1" maxValues="1" classification="USER">
+          <pd:label>Genome Style</pd:label>
+          <pd:description>Genome style string (e.g., UCSC)</pd:description>
+          <pd:stringType/>
+          <pd:value>NCBI</pd:value>
+        </pd:parameter>
+        <pd:parameter code="chr_counter" minValues="1" maxValues="1" classification="USER">
+          <pd:label>Chromosomes for Counting</pd:label>
+          <pd:description>List of chromosomes for read counting (comma-separated)</pd:description>
+          <pd:stringType/>
+          <pd:value>1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,X,Y</pd:value>
+        </pd:parameter>
+        <pd:parameter code="chrs" minValues="1" maxValues="1" classification="USER">
+          <pd:label>Chromosomes for IchorCNA</pd:label>
+          <pd:description>R command for autosomal/female chromosomes</pd:description>
+          <pd:stringType/>
+          <pd:value>"1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22"</pd:value>
+        </pd:parameter>
+        <pd:parameter code="chrTrain" minValues="1" maxValues="1" classification="USER">
+          <pd:label>Chromosomes for Training</pd:label>
+          <pd:description>R command for training chromosomes</pd:description>
+          <pd:stringType/>
+          <pd:value>"1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,18,19,20,21,22"</pd:value>
+        </pd:parameter>
+        <pd:parameter code="maxFracCNASubclone" minValues="1" maxValues="1" classification="USER">
+          <pd:label>Max CNA Subclone Fraction</pd:label>
+          <pd:description>Maximum fraction of CNA subclone</pd:description>
+          <pd:stringType/>
+          <pd:value>0.7</pd:value>
+        </pd:parameter>
+        <pd:parameter code="maxFracGenomeSubclone" minValues="1" maxValues="1" classification="USER">
+          <pd:label>Max Genome Subclone Fraction</pd:label>
+          <pd:description>Maximum fraction of genome subclone</pd:description>
+          <pd:stringType/>
+          <pd:value>0.5</pd:value>
+        </pd:parameter>
+      </pd:tool>
+    </pd:step>
+  </pd:steps>
+</pd:pipeline>
+
+
