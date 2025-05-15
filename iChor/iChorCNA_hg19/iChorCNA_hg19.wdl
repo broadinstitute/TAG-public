@@ -17,6 +17,9 @@ workflow ichorCNA {
         String chrTrain # Autosomal chromosomes to estimate ichor params, as an R command
         Float maxFracCNASubclone
         Float maxFracGenomeSubclone
+        Float max_passing_mad_score = 0.3
+        Float min_passing_tumor_fraction = 0.1
+        Float min_passing_coverage = 0.1
     }
 
     Int bin_size = bin_size_kb * 1000
@@ -69,11 +72,12 @@ workflow ichorCNA {
         File rdata = ichorCNATask.rdata
 
         Float tumor_fraction = extractIchorParams.tumor_fraction
+        Float coverage = extractIchorParams.coverage
         Float ploidy = extractIchorParams.ploidy
         String subclone_fraction = extractIchorParams.subclone_fraction
         String fraction_genome_subclonal = extractIchorParams.fraction_genome_subclonal
         String fraction_cna_subclonal = extractIchorParams.fraction_cna_subclonal
-        String gc_map_correction_mad = extractIchorParams.gc_map_correction_mad
+        Float gc_map_correction_mad = extractIchorParams.gc_map_correction_mad
         Int top_solution_log_likelihood = extractIchorParams.top_solution_log_likelihood
 
         File bias = ichorCNATask.bias
@@ -84,6 +88,12 @@ workflow ichorCNA {
         File optimalSolution = ichorCNATask.optimalSolution
         File outSolutions = ichorCNATask.outSolutions
         File perChromosomePlots = bundlePerChromosomePlots.output_plot
+        
+        Boolean qc_passed = (
+            extractIchorParams.gc_map_correction_mad <= max_passing_mad_score
+        ) && (
+            extractIchorParams.coverage >= min_passing_coverage
+        )
     }
 }
 
@@ -280,6 +290,8 @@ params = [x.rstrip("\n").split(": ") for x in params if ":" in x]
 param_dict = {a: b for a, b in params}
 with open("tumor_fraction", "w") as p:
     p.write(param_dict["Tumor Fraction"])
+with open("coverage", "w") as p:
+    p.write(param_dict["Coverage"])
 with open("ploidy", "w") as p:
     p.write(param_dict["Ploidy"])
 with open("subclone_fraction", "w") as p:
@@ -306,11 +318,12 @@ CODE
 
     output {
         Float tumor_fraction = read_float("tumor_fraction")
+        Float coverage = read_float("coverage")
         Float ploidy = read_float("ploidy")
         String subclone_fraction = read_string("subclone_fraction")
         String fraction_genome_subclonal = read_string("fraction_genome_subclonal")
         String fraction_cna_subclonal = read_string("fraction_cna_subclonal")
-        String gc_map_correction_mad = read_string("gc-map_correction_mad")
+        Float gc_map_correction_mad = read_float("gc-map_correction_mad")
         Int top_solution_log_likelihood = read_int("top_solution_log_likelihood")
     }
 }
