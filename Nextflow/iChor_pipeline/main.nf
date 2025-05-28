@@ -36,6 +36,7 @@ params.maxFracCNASubclone       = 0.7
 params.maxFracGenomeSubclone    = 0.5
 params.altFracThreshold         = 0.7
 params.lambdaScaleHyperParam    = 3
+params.rmCentromereFlankLength  = 100000
 // any other params from the JSON may be appended here
 //-----------------------------------------------------
 
@@ -113,6 +114,7 @@ process ichor_cna {
     val  maxFracGenomeSubclone
     val  altFracThreshold
     val  lambdaScaleHyperParam
+    val  rmCentromereFlankLength
 
     output:
     path "${sample_id}_segments.txt", emit: segments_txt
@@ -201,6 +203,7 @@ workflow {
     Channel.value(params.maxFracGenomeSubclone) .set { maxFracGenomeSubclone_ch }
     Channel.value(params.altFracThreshold)      .set { altFracThreshold_ch }
     Channel.value(params.lambdaScaleHyperParam) .set { lambdaScaleHyperParam_ch }
+    Channel.value(params.rmCentromereFlankLength) .set { rmCentromereFlankLength_ch }
     Channel.value(params.chrs) .set { chrs_ch }
 
     /* run ichor_cna */
@@ -232,7 +235,8 @@ workflow {
         maxFracCNASubclone_ch,
         maxFracGenomeSubclone_ch,
         altFracThreshold_ch,
-        lambdaScaleHyperParam_ch
+        lambdaScaleHyperParam_ch,
+        rmCentromereFlankLength_ch
     )
 }
 
