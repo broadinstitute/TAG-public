@@ -16,10 +16,10 @@ params.centromere               = 'gs://gptag/ichorCNA_resources/GRCh37.p13_cent
 params.normalPanel              = 'gs://gptag/ichorCNA_resources/Stover_Lennon_UH2_20HD_PON_1X_ULP_median.rds'
 params.genomeBuild              = 'hg19'
 params.genomeStyle              = 'NCBI'
-params.chrs                     = '1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,18,19,20,21,22'
-params.chrTrain                 = '1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,18,20,21,22'
-params.chrNormalize             = '1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,18,19,20,21,22'
-params.ploidy                   = '2,3,4'
+params.chrs                     = 'c(1:22)'
+params.chrTrain                 = 'c(1:18, 20:22)'
+params.chrNormalize             = 'c(1:22)'
+params.ploidy                   = 'c(2,3,4)'
 params.normal                   = 'c(0.35,0.45,0.55,0.65,0.75,0.85,0.95)'
 params.maxCN                    = 7
 params.includeHOMD              = false
@@ -172,11 +172,11 @@ workflow {
 
     /* run read_counter */
     read_counter_out = read_counter(
-        bam_file_ch,
-        bam_index_ch,
-        sample_id_ch,
-        chrs_ch,
-        bin_size_ch
+            bam_file_ch,
+            bam_index_ch,
+            sample_id_ch,
+            chrs_ch,
+            bin_size_ch
     )
 
     /* ---------- channels for ichor_cna ---------- */
@@ -212,37 +212,37 @@ workflow {
 
     /* run ichor_cna */
     ichor_cna(
-        read_counter_out.wig_file,
-        sample_id_ch,
-        gcWig_ch,
-        mapWig_ch,
-        centromere_ch,
-        normalPanel_ch,
-        genomeBuild_ch,
-        genomeStyle_ch,
-        chrTrain_ch,
-        chrNormalize_ch,
-        ploidy_ch,
-        normal_ch,
-        maxCN_ch,
-        includeHOMD_ch,
-        chrs_ch,
-        estimateNormal_ch,
-        estimatePloidy_ch,
-        estimateClonality_ch,
-        scStates_ch,
-        txnE_ch,
-        txnStrength_ch,
-        minSegmentBins_ch,
-        minMapScore_ch,
-        fracReadsChrYMale_ch,
-        maxFracCNASubclone_ch,
-        maxFracGenomeSubclone_ch,
-        altFracThreshold_ch,
-        lambdaScaleHyperParam_ch,
-        rmCentromereFlankLength_ch,
-        plotFileType_ch,
-        plotYLim_ch
+            read_counter_out.wig_file,
+            sample_id_ch,
+            gcWig_ch,
+            mapWig_ch,
+            centromere_ch,
+            normalPanel_ch,
+            genomeBuild_ch,
+            genomeStyle_ch,
+            chrTrain_ch,
+            chrNormalize_ch,
+            ploidy_ch,
+            normal_ch,
+            maxCN_ch,
+            includeHOMD_ch,
+            chrs_ch,
+            estimateNormal_ch,
+            estimatePloidy_ch,
+            estimateClonality_ch,
+            scStates_ch,
+            txnE_ch,
+            txnStrength_ch,
+            minSegmentBins_ch,
+            minMapScore_ch,
+            fracReadsChrYMale_ch,
+            maxFracCNASubclone_ch,
+            maxFracGenomeSubclone_ch,
+            altFracThreshold_ch,
+            lambdaScaleHyperParam_ch,
+            rmCentromereFlankLength_ch,
+            plotFileType_ch,
+            plotYLim_ch
     )
 }
 
