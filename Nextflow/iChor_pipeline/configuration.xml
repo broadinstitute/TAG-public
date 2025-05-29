@@ -68,13 +68,13 @@
           <pd:label>Chromosomes for IchorCNA</pd:label>
           <pd:description>R command for autosomal/female chromosomes</pd:description>
           <pd:stringType/>
-          <pd:value>1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22</pd:value>
+          <pd:value>c(1:22)</pd:value>
         </pd:parameter>
         <pd:parameter code="chrTrain" minValues="1" maxValues="1" classification="USER">
           <pd:label>Chromosomes for Training</pd:label>
           <pd:description>R command for training chromosomes</pd:description>
           <pd:stringType/>
-          <pd:value>1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,18,19,20,21,22</pd:value>
+          <pd:value>c(1:22)</pd:value>
         </pd:parameter>
         <pd:parameter code="maxFracCNASubclone" minValues="1" maxValues="1" classification="USER">
           <pd:label>Max CNA Subclone Fraction</pd:label>
