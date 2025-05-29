@@ -66,9 +66,7 @@ process read_counter {
 
     script:
     """
-    ln -vs ${bam_index} ${sample_id}.bam.bai
-    ln -vs ${bam_file}  ${sample_id}.bam
-    /HMMcopy/bin/readCounter ${sample_id}.bam \
+    /HMMcopy/bin/readCounter ${bam_file} \
         -c '${chrs}' -w ${bin_size} -q ${params.min_qual ?: 0} \
         > ${sample_id}.bin${bin_size}.wig
     """
