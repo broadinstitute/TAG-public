@@ -27,6 +27,7 @@ workflow BroadInternalRNAWithUMIs {
     String platform_unit
     String read_group_name
     String sequencing_center = "BI"
+    Boolean read_fingerprint_from_mercury = true
 
     # Terra Data Repo dataset information
     String? tdr_dataset_uuid
@@ -109,7 +110,7 @@ workflow BroadInternalRNAWithUMIs {
       ref_fasta = ref,
       ref_fasta_index = refIndex,
       ref_dict = refDict,
-      read_fingerprint_from_mercury = true,
+      read_fingerprint_from_mercury = read_fingerprint_from_mercury,
       haplotype_database_file = haplotype_database_file,
       environment = environment,
       vault_token_path = vault_token_path,
