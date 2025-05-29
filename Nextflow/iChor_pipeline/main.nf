@@ -37,6 +37,8 @@ params.maxFracGenomeSubclone    = 0.5
 params.altFracThreshold         = 0.7
 params.lambdaScaleHyperParam    = 3
 params.rmCentromereFlankLength  = 100000
+params.plotFileType             = 'pdf'
+params.plotYLim                 = 'c(-2,2)'
 // any other params from the JSON may be appended here
 //-----------------------------------------------------
 
@@ -113,6 +115,8 @@ process ichor_cna {
     val  altFracThreshold
     val  lambdaScaleHyperParam
     val  rmCentromereFlankLength
+    val plotFileType
+    val plotYLim
 
     output:
     path "${sample_id}_segments.txt", emit: segments_txt
@@ -150,7 +154,7 @@ process ichor_cna {
             --maxFracCNASubclone ${maxFracCNASubclone} \
             --rmCentromereFlankLength ${rmCentromereFlankLength} \
             --plotFileType ${plotFileType} \
-            --plotYLim "${plotYlim}"
+            --plotYLim "${plotYLim}"
     """
 }
 
@@ -202,6 +206,8 @@ workflow {
     Channel.value(params.altFracThreshold)      .set { altFracThreshold_ch }
     Channel.value(params.lambdaScaleHyperParam) .set { lambdaScaleHyperParam_ch }
     Channel.value(params.rmCentromereFlankLength) .set { rmCentromereFlankLength_ch }
+    Channel.value(params.plotFileType) .set { plotFileType_ch }
+    Channel.value(params.plotYLim) .set { plotYLim_ch }
     Channel.value(params.chrs) .set { chrs_ch }
 
     /* run ichor_cna */
@@ -234,7 +240,9 @@ workflow {
         maxFracGenomeSubclone_ch,
         altFracThreshold_ch,
         lambdaScaleHyperParam_ch,
-        rmCentromereFlankLength_ch
+        rmCentromereFlankLength_ch,
+        plotFileType_ch,
+        plotYLim_ch
     )
 }
 
