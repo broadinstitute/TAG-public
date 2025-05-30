@@ -91,7 +91,7 @@ process ichor_cna {
     val  sample_id
     val  input_gcWig
     val  input_mapWig
-    val  centromere
+    path  centromere
     val  normalPanel
     val  genomeBuild
     val  genomeStyle
