@@ -89,10 +89,10 @@ process ichor_cna {
     input:
     path wig_file                                    // from read_counter
     val  sample_id
-    val  input_gcWig
-    val  input_mapWig
+    path  input_gcWig
+    path  input_mapWig
     path  centromere
-    val  normalPanel
+    path  normalPanel
     val  genomeBuild
     val  genomeStyle
     val  chrTrain
@@ -182,10 +182,10 @@ workflow {
     )
 
     /* ---------- channels for ichor_cna ---------- */
-    Channel.value(params.gcWig)                 .set { gcWig_ch }
-    Channel.value(params.mapWig)                .set { mapWig_ch }
-    Channel.fromPath(params.centromere)            .set { centromere_ch }
-    Channel.value(params.normalPanel)           .set { normalPanel_ch }
+    Channel.fromPath(params.gcWig)              .set { gcWig_ch }
+    Channel.fromPath(params.mapWig)             .set { mapWig_ch }
+    Channel.fromPath(params.centromere)         .set { centromere_ch }
+    Channel.fromPath(params.normalPanel)        .set { normalPanel_ch }
     Channel.value(params.genomeBuild)           .set { genomeBuild_ch }
     Channel.value(params.genomeStyle)           .set { genomeStyle_ch }
     Channel.value(params.chrTrain)              .set { chrTrain_ch }
