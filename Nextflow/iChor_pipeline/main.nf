@@ -17,6 +17,7 @@ params.normalPanel              = 'gs://gptag/ichorCNA_resources/Stover_Lennon_U
 params.genomeBuild              = 'hg19'
 params.genomeStyle              = 'NCBI'
 params.chrs                     = 'c(1:22)'
+params.chromosome_list          = '1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,X,Y'
 params.chrTrain                 = 'c(1:18, 20:22)'
 params.chrNormalize             = 'c(1:22)'
 params.ploidy                   = 'c(2,3,4)'
@@ -168,6 +169,7 @@ workflow {
     Channel.fromPath(params.bam_index) .set { bam_index_ch }
     Channel.value(params.sample_id)    .set { sample_id_ch }
     Channel.value(params.chrs)         .set { chrs_ch }
+    Channel.value(params.chromosome_list).set { chromosome_list_ch }
     Channel.value(params.bin_size)     .set { bin_size_ch }
 
     /* run read_counter */
@@ -175,7 +177,7 @@ workflow {
             bam_file_ch,
             bam_index_ch,
             sample_id_ch,
-            chrs_ch,
+            chromosome_list_ch,
             bin_size_ch
     )
 
