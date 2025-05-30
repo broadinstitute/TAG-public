@@ -184,7 +184,7 @@ workflow {
     /* ---------- channels for ichor_cna ---------- */
     Channel.value(params.gcWig)                 .set { gcWig_ch }
     Channel.value(params.mapWig)                .set { mapWig_ch }
-    Channel.value(params.centromere)            .set { centromere_ch }
+    Channel.fromPath(params.centromere)            .set { centromere_ch }
     Channel.value(params.normalPanel)           .set { normalPanel_ch }
     Channel.value(params.genomeBuild)           .set { genomeBuild_ch }
     Channel.value(params.genomeStyle)           .set { genomeStyle_ch }
