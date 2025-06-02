@@ -47,10 +47,10 @@
           <pd:value>hg19</pd:value>
         </pd:parameter>
         <pd:parameter code="bin_size" minValues="1" maxValues="1" classification="USER">
-          <pd:label>Bin Size (kb)</pd:label>
-          <pd:description>Bin size in kilobases</pd:description>
-          <pd:integerType minimumValue="1" maximumValue="10000"/>
-          <pd:value>1000</pd:value>
+          <pd:label>Bin Size</pd:label>
+          <pd:description>Bin size in bases</pd:description>
+          <pd:integerType minimumValue="1" maximumValue="10000000"/>
+          <pd:value>1000000</pd:value>
         </pd:parameter>
         <pd:parameter code="genome_style" minValues="1" maxValues="1" classification="USER">
           <pd:label>Genome Style</pd:label>
@@ -68,7 +68,7 @@
           <pd:label>Chromosomes for IchorCNA</pd:label>
           <pd:description>R command for autosomal/female chromosomes</pd:description>
           <pd:stringType/>
-          <pd:value>c(1:22)</pd:value>
+          <pd:value>c(1:22, 'X')</pd:value>
         </pd:parameter>
         <pd:parameter code="chrTrain" minValues="1" maxValues="1" classification="USER">
           <pd:label>Chromosomes for Training</pd:label>
