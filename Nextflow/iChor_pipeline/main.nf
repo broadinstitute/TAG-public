@@ -40,6 +40,7 @@ params.lambdaScaleHyperParam    = 3
 params.rmCentromereFlankLength  = 100000
 params.plotFileType             = 'pdf'
 params.plotYLim                 = 'c(-2,2)'
+params.min_qual                 = 20
 // any other params from the JSON may be appended here
 //-----------------------------------------------------
 
