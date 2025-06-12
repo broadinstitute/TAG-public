@@ -27,6 +27,12 @@ workflow humanwgs_singleton {
     ref_map_file: {
       name: "TSV containing reference genome file paths; must match backend"
     }
+    deepvariant_version: {
+      name: "DeepVariant version"
+    }
+    custom_deepvariant_model_tar: {
+      name: "Custom DeepVariant model tarball"
+    }
     pharmcat_min_coverage: {
       name: "Minimum coverage for PharmCAT"
     }
@@ -65,6 +71,12 @@ workflow humanwgs_singleton {
 
     File ref_map_file
 
+    # These options are only intended for testing purposes.
+    # There is no guarantee that the pipeline will work with
+    # other version of DeepVariant or with custom models.
+    String deepvariant_version = "1.6.1"
+    File? custom_deepvariant_model_tar
+
     Int pharmcat_min_coverage = 10
 
     String phenotypes = "HP:0000001"
@@ -97,6 +109,8 @@ workflow humanwgs_singleton {
       sex                          = sex,
       hifi_reads                   = hifi_reads,
       ref_map_file                 = ref_map_file,
+      deepvariant_version          = deepvariant_version,
+      custom_deepvariant_model_tar = custom_deepvariant_model_tar,
       single_sample                = true,
       gpu                          = gpu,
       default_runtime_attributes   = default_runtime_attributes

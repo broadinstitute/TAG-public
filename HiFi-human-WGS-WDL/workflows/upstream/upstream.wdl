@@ -48,6 +48,9 @@ workflow upstream {
 
     File ref_map_file
 
+    String deepvariant_version
+    File? custom_deepvariant_model_tar
+
     Boolean single_sample = false
 
     Boolean gpu
@@ -108,6 +111,8 @@ workflow upstream {
       ref_fasta                    = ref_map["fasta"],             # !FileCoercion
       ref_index                    = ref_map["fasta_index"],       # !FileCoercion
       ref_name                     = ref_map["name"],
+      deepvariant_version          = deepvariant_version,
+      custom_deepvariant_model_tar = custom_deepvariant_model_tar,
       gpu                          = gpu,
       default_runtime_attributes   = default_runtime_attributes
   }
