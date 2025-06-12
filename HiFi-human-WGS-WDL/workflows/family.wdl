@@ -42,9 +42,6 @@ workflow humanwgs_family {
       name: "Backend where the workflow will be executed",
       choices: ["GCP", "Azure", "AWS-HealthOmics", "HPC"]
     }
-    zones: {
-      name: "Zones where compute will take place; required if backend is set to 'GCP'"
-    }
     gpuType: {
       name: "GPU type to use; required if gpu is set to `true` for cloud backends; must match backend"
     }
@@ -75,7 +72,6 @@ workflow humanwgs_family {
 
     # Backend configuration
     String backend
-    String? zones
     String? gpuType
     String? container_registry
 
@@ -87,7 +83,6 @@ workflow humanwgs_family {
   call BackendConfiguration.backend_configuration {
     input:
       backend            = backend,
-      zones              = zones,
       gpuType            = gpuType,
       container_registry = container_registry
   }

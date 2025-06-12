@@ -8,8 +8,6 @@ struct RuntimeAttributes {
   # The number of times to retry a task that fails due a to nonzero return code
   Int max_retries
 
-  String zones
-
   String gpuType
 
   String container_registry
