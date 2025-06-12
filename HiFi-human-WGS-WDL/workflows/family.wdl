@@ -23,6 +23,9 @@ workflow humanwgs_family {
     ref_map_file: {
       name: "TSV containing reference genome file paths; must match backend"
     }
+    pharmcat_version: {
+      name: "PharmCAT version"
+    }
     pharmcat_min_coverage: {
       name: "Minimum coverage for PharmCAT"
     }
@@ -61,6 +64,7 @@ workflow humanwgs_family {
 
     File ref_map_file
 
+    String pharmcat_version = "2.15.4"
     Int pharmcat_min_coverage = 10
 
     String phenotypes = "HP:0000001"
@@ -155,6 +159,7 @@ workflow humanwgs_family {
         trgt_vcf_index             = upstream.trgt_vcf_index[sample_index],
         aligned_bam                = upstream.out_bam[sample_index],
         aligned_bam_index          = upstream.out_bam_index[sample_index],
+        pharmcat_version           = pharmcat_version,
         pharmcat_min_coverage      = pharmcat_min_coverage,
         ref_map_file               = ref_map_file,
         default_runtime_attributes = default_runtime_attributes
