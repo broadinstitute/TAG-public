@@ -146,6 +146,6 @@ workflows:
     - /CNV_Array_Prober/cnvArrayProber.inputs.json
  - name: HiFi-human-WGS-WDL-singleton
    subclass: WDL
-   primaryDescriptorPath: /HiFi-human-WGS-WDL/singleton.wdl
+   primaryDescriptorPath: /HiFi-human-WGS-WDL/workflows/singleton.wdl
    testParameterFiles:
-    - /HiFi-human-WGS-WDL/singleton.inputs.json
+    - /HiFi-human-WGS-WDL/workflows/singleton.inputs.json
