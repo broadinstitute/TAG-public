@@ -39,9 +39,14 @@ task sawfish_discover {
     File ref_index
 
     String out_prefix
+    String sex
+    File expected_male_bed
+    File expected_female_bed
 
     RuntimeAttributes runtime_attributes
   }
+
+  File expected_cn_bed = if sex == "MALE" then expected_male_bed else expected_female_bed
 
   Int threads   = 16
   Int mem_gb    = threads * 8
@@ -61,6 +66,7 @@ task sawfish_discover {
     sawfish discover \
       --threads ~{threads} \
       --disable-path-canonicalization \
+      --expected-cn ~{expected_cn_bed} \
       --ref ~{basename(ref_fasta)} \
       --bam ~{basename(aligned_bam)} \
       --output-dir ~{out_prefix}

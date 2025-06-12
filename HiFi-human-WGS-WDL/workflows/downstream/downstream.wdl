@@ -190,7 +190,6 @@ workflow downstream {
     String stat_sv_DEL_count    = sv_stats.stat_sv_DEL_count
     String stat_sv_INS_count    = sv_stats.stat_sv_INS_count
     String stat_sv_INV_count    = sv_stats.stat_sv_INV_count
-    String stat_sv_INVBND_count = sv_stats.stat_sv_INVBND_count
     String stat_sv_BND_count    = sv_stats.stat_sv_BND_count
 
     # cpg_pileup outputs
