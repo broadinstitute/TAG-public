@@ -213,8 +213,6 @@ task pharmcat_preprocess {
     disks: "local-disk " + disk_size + " HDD"
     preemptible: runtime_attributes.preemptible_tries
     maxRetries: runtime_attributes.max_retries
-    awsBatchRetryAttempts: runtime_attributes.max_retries  # !UnknownRuntimeKey
-    zones: runtime_attributes.zones
   }
 }
 
@@ -323,8 +321,6 @@ task filter_preprocessed_vcf {
     disks: "local-disk " + disk_size + " HDD"
     preemptible: runtime_attributes.preemptible_tries
     maxRetries: runtime_attributes.max_retries
-    awsBatchRetryAttempts: runtime_attributes.max_retries  # !UnknownRuntimeKey
-    zones: runtime_attributes.zones
   }
 }
 
@@ -414,7 +410,5 @@ task run_pharmcat {
     disks: "local-disk " + disk_size + " HDD"
     preemptible: runtime_attributes.preemptible_tries
     maxRetries: runtime_attributes.max_retries
-    awsBatchRetryAttempts: runtime_attributes.max_retries  # !UnknownRuntimeKey
-    zones: runtime_attributes.zones
   }
 }

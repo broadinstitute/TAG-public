@@ -267,8 +267,6 @@ task deepvariant_make_examples {
     disks: "local-disk " + disk_size + " HDD"
     preemptible: runtime_attributes.preemptible_tries
     maxRetries: runtime_attributes.max_retries
-    awsBatchRetryAttempts: runtime_attributes.max_retries  # !UnknownRuntimeKey
-    zones: runtime_attributes.zones
   }
 }
 
@@ -363,8 +361,6 @@ task deepvariant_call_variants_cpu {
     disks: "local-disk " + disk_size + " HDD"
     preemptible: runtime_attributes.preemptible_tries
     maxRetries: runtime_attributes.max_retries
-    awsBatchRetryAttempts: runtime_attributes.max_retries  # !UnknownRuntimeKey
-    zones: runtime_attributes.zones
   }
 }
 
@@ -460,13 +456,9 @@ task deepvariant_call_variants_gpu {
     bootDiskSizeGb: 30  # !UnknownRuntimeKey
     preemptible: runtime_attributes.preemptible_tries
     maxRetries: runtime_attributes.max_retries
-    awsBatchRetryAttempts: runtime_attributes.max_retries  # !UnknownRuntimeKey
     gpu: true
     gpuCount: 1
     gpuType: runtime_attributes.gpuType
-    acceleratorCount: 1  # !UnknownRuntimeKey
-    acceleratorType: runtime_attributes.gpuType  # !UnknownRuntimeKey
-    zones: runtime_attributes.zones
   }
 }
 
@@ -588,7 +580,5 @@ task deepvariant_postprocess_variants {
     disks: "local-disk " + disk_size + " HDD"
     preemptible: runtime_attributes.preemptible_tries
     maxRetries: runtime_attributes.max_retries
-    awsBatchRetryAttempts: runtime_attributes.max_retries  # !UnknownRuntimeKey
-    zones: runtime_attributes.zones
   }
 }

@@ -14,9 +14,6 @@ workflow backend_configuration {
       help: "Backend where the workflow will be executed",
       choices: ["GCP", "Azure", "AWS-HealthOmics", "HPC"]
     }
-    zones: {
-      help: "Zones where compute will take place; required if backend is set to 'AWS' or 'GCP'"
-    }
     gpuType: {
       help: "Type of GPU/Accelerator to use"
     }
@@ -27,7 +24,6 @@ workflow backend_configuration {
 
   input {
     String backend
-    String? zones
     String? gpuType
     String? container_registry
   }
@@ -47,7 +43,6 @@ workflow backend_configuration {
       "backend": "GCP",
       "preemptible_tries": 3,
       "max_retries": 3,
-      "zones": select_first([zones]),
       "gpuType": select_first([gpuType, ""]),
       "container_registry": select_first([container_registry, default_container_registry])
     }
@@ -56,7 +51,6 @@ workflow backend_configuration {
       "backend": "GCP",
       "preemptible_tries": 0,
       "max_retries": 0,
-      "zones": select_first([zones]),
       "gpuType": select_first([gpuType, ""]),
       "container_registry": select_first([container_registry, default_container_registry])
     }
@@ -71,7 +65,6 @@ workflow backend_configuration {
       "backend": "Azure",
       "preemptible_tries": 3,
       "max_retries": 3,
-      "zones": "",
       "gpuType": "",
       "container_registry": select_first([container_registry, default_container_registry])
     }
@@ -80,7 +73,6 @@ workflow backend_configuration {
       "backend": "Azure",
       "preemptible_tries": 0,
       "max_retries": 0,
-      "zones": "",
       "gpuType": "",
       "container_registry": select_first([container_registry, default_container_registry])
     }
@@ -100,7 +92,6 @@ workflow backend_configuration {
       "backend": "AWS-HealthOmics",
       "preemptible_tries": 0,
       "max_retries": 0,
-      "zones": "",
       "gpuType": select_first([gpuType, ""]),
       "container_registry": select_first([container_registry])
     }
@@ -113,7 +104,6 @@ workflow backend_configuration {
       "backend": "HPC",
       "preemptible_tries": 0,
       "max_retries": 3,
-      "zones": "",
       "gpuType": select_first([gpuType, ""]),
       "container_registry": select_first([container_registry, default_container_registry])
     }

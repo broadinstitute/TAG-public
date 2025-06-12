@@ -142,8 +142,6 @@ task trgt {
     disks: "local-disk " + disk_size + " HDD"
     preemptible: runtime_attributes.preemptible_tries
     maxRetries: runtime_attributes.max_retries
-    awsBatchRetryAttempts: runtime_attributes.max_retries  # !UnknownRuntimeKey
-    zones: runtime_attributes.zones
   }
 }
 
@@ -224,8 +222,6 @@ task trgt_merge {
     disks: "local-disk " + disk_size + " HDD"
     preemptible: runtime_attributes.preemptible_tries
     maxRetries: runtime_attributes.max_retries
-    awsBatchRetryAttempts: runtime_attributes.max_retries  # !UnknownRuntimeKey
-    zones: runtime_attributes.zones
   }
 }
 
@@ -292,7 +288,5 @@ task coverage_dropouts {
     disks: "local-disk " + disk_size + " HDD"
     preemptible: runtime_attributes.preemptible_tries
     maxRetries: runtime_attributes.max_retries
-    awsBatchRetryAttempts: runtime_attributes.max_retries
-    zones: runtime_attributes.zones
   }
 }

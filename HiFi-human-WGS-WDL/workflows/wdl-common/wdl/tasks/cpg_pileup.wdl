@@ -139,7 +139,5 @@ task cpg_pileup {
     disks: "local-disk " + disk_size + " HDD"
     preemptible: runtime_attributes.preemptible_tries
     maxRetries: runtime_attributes.max_retries
-    awsBatchRetryAttempts: runtime_attributes.max_retries  # !UnknownRuntimeKey
-    zones: runtime_attributes.zones
   }
 }

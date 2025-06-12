@@ -449,8 +449,6 @@ task slivar_small_variant {
     disks: "local-disk " + disk_size + " HDD"
     preemptible: runtime_attributes.preemptible_tries
     maxRetries: runtime_attributes.max_retries
-    awsBatchRetryAttempts: runtime_attributes.max_retries
-    zones: runtime_attributes.zones
   }
 }
 
@@ -548,8 +546,6 @@ task svpack_filter_annotated {
     disks: "local-disk " + disk_size + " HDD"
     preemptible: runtime_attributes.preemptible_tries
     maxRetries: runtime_attributes.max_retries
-    awsBatchRetryAttempts: runtime_attributes.max_retries
-    zones: runtime_attributes.zones
   }
 }
 
@@ -639,7 +635,5 @@ task slivar_svpack_tsv {
     disks: "local-disk " + disk_size + " HDD"
     preemptible: runtime_attributes.preemptible_tries
     maxRetries: runtime_attributes.max_retries
-    awsBatchRetryAttempts: runtime_attributes.max_retries
-    zones: runtime_attributes.zones
   }
 }

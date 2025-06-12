@@ -224,9 +224,7 @@ task bcftools_stats_roh_small_variants {
     disks: "local-disk " + disk_size + " HDD"
     preemptible: runtime_attributes.preemptible_tries
     maxRetries: runtime_attributes.max_retries
-    awsBatchRetryAttempts: runtime_attributes.max_retries  # !UnknownRuntimeKey
-    zones: runtime_attributes.zones
-    cpuPlatform: runtime_attributes.cpuPlatform
+    
   }
 }
 
@@ -303,9 +301,7 @@ task concat_pbsv_vcf {
     disks: "local-disk " + disk_size + " HDD"
     preemptible: runtime_attributes.preemptible_tries
     maxRetries: runtime_attributes.max_retries
-    awsBatchRetryAttempts: runtime_attributes.max_retries  # !UnknownRuntimeKey
-    zones: runtime_attributes.zones
-    cpuPlatform: runtime_attributes.cpuPlatform
+    
   }
 }
 
@@ -393,9 +389,7 @@ task split_vcf_by_sample {
     disks: "local-disk " + disk_size + " HDD"
     preemptible: runtime_attributes.preemptible_tries
     maxRetries: runtime_attributes.max_retries
-    awsBatchRetryAttempts: runtime_attributes.max_retries  # !UnknownRuntimeKey
-    zones: runtime_attributes.zones
-    cpuPlatform: runtime_attributes.cpuPlatform
+    
   }
 }
 
@@ -464,9 +458,7 @@ task bcftools_merge {
     disks: "local-disk " + disk_size + " HDD"
     preemptible: runtime_attributes.preemptible_tries
     maxRetries: runtime_attributes.max_retries
-    awsBatchRetryAttempts: runtime_attributes.max_retries  # !UnknownRuntimeKey
-    zones: runtime_attributes.zones
-    cpuPlatform: runtime_attributes.cpuPlatform
+    
   }
 }
 
@@ -575,8 +567,6 @@ task sv_stats {
     disks: "local-disk " + disk_size + " HDD"
     preemptible: runtime_attributes.preemptible_tries
     maxRetries: runtime_attributes.max_retries
-    awsBatchRetryAttempts: runtime_attributes.max_retries  # !UnknownRuntimeKey
-    zones: runtime_attributes.zones
-    cpuPlatform: runtime_attributes.cpuPlatform
+    
   }
 }

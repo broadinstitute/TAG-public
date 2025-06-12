@@ -108,7 +108,5 @@ task merge_bam_stats {
     disks: "local-disk " + disk_size + " HDD"
     preemptible: runtime_attributes.preemptible_tries
     maxRetries: runtime_attributes.max_retries
-    awsBatchRetryAttempts: runtime_attributes.max_retries
-    zones: runtime_attributes.zones
   }
 }
