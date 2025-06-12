@@ -5,6 +5,7 @@
     "backend": "String",
     "preemptible_tries": "Int",
     "zones": "String",
+    "cpuPlatform": "String",
     "container_namespace": "String? (optional)",
     "max_retries": "Int"
   },

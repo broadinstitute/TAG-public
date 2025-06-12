@@ -34,7 +34,7 @@ task samtools_merge {
   }
 
   Int threads   = 8
-  Int mem_gb    = 4
+  Int mem_gb    = 16
   Int disk_size = ceil(size(bams, "GB") * 2 + 20)
 
   command <<<
@@ -44,6 +44,7 @@ task samtools_merge {
 
     samtools merge \
       ~{if threads > 1 then "--threads " + (threads - 1) else ""} \
+      -c -p \
       -o ~{out_prefix}.bam \
       ~{sep=' ' bams}
 
@@ -58,13 +59,14 @@ task samtools_merge {
   runtime {
     docker: "~{runtime_attributes.container_registry}/pb_wdl_base@sha256:4b889a1f21a6a7fecf18820613cf610103966a93218de772caba126ab70a8e87"
     cpu: threads
-    memory: mem_gb + " GB"
+    memory: mem_gb + " GiB"
     disk: disk_size + " GB"
     disks: "local-disk " + disk_size + " HDD"
     preemptible: runtime_attributes.preemptible_tries
     maxRetries: runtime_attributes.max_retries
     awsBatchRetryAttempts: runtime_attributes.max_retries  # !UnknownRuntimeKey
     zones: runtime_attributes.zones
+    cpuPlatform: runtime_attributes.cpuPlatform
   }
 }
 
@@ -92,7 +94,7 @@ task samtools_fasta {
   }
 
   Int threads   = 2
-  Int mem_gb    = 4
+  Int mem_gb    = 16
   Int disk_size = ceil(size(bam, "GB") * 3.5 + 20)
 
   String out_prefix = basename(bam, ".bam")
@@ -115,13 +117,14 @@ task samtools_fasta {
   runtime {
     docker: "~{runtime_attributes.container_registry}/pb_wdl_base@sha256:4b889a1f21a6a7fecf18820613cf610103966a93218de772caba126ab70a8e87"
     cpu: threads
-    memory: mem_gb + " GB"
+    memory: mem_gb + " GiB"
     disk: disk_size + " GB"
     disks: "local-disk " + disk_size + " HDD"
     preemptible: runtime_attributes.preemptible_tries
     maxRetries: runtime_attributes.max_retries
     awsBatchRetryAttempts: runtime_attributes.max_retries  # !UnknownRuntimeKey
     zones: runtime_attributes.zones
+    cpuPlatform: runtime_attributes.cpuPlatform
   }
 }
 
@@ -183,12 +186,13 @@ task samtools_reset {
   runtime {
     docker: "~{runtime_attributes.container_registry}/pb_wdl_base@sha256:4b889a1f21a6a7fecf18820613cf610103966a93218de772caba126ab70a8e87"
     cpu: threads
-    memory: mem_gb + " GB"
+    memory: mem_gb + " GiB"
     disk: disk_size + " GB"
     disks: "local-disk " + disk_size + " HDD"
     preemptible: runtime_attributes.preemptible_tries
     maxRetries: runtime_attributes.max_retries
     awsBatchRetryAttempts: runtime_attributes.max_retries
     zones: runtime_attributes.zones
+    cpuPlatform: runtime_attributes.cpuPlatform
   }
 }

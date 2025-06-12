@@ -33,6 +33,9 @@ task trgt {
     out_prefix: {
       name: "Output prefix"
     }
+    max_depth: {
+      name: "Maximum locus depth"
+    }
     runtime_attributes: {
       name: "Runtime attribute structure"
     }
@@ -47,6 +50,15 @@ task trgt {
     }
     vcf_index: {
       name: "TRGT repeats VCF index"
+    }
+    stat_genotyped_count: {
+      name: "Number of genotyped loci"
+    }
+    stat_uncalled_count: {
+      name: "Number of uncalled loci"
+    }
+    msg: {
+      name: "Array of messages"
     }
   }
 
@@ -64,19 +76,27 @@ task trgt {
 
     String out_prefix
 
+    Int max_depth = 50
+
     RuntimeAttributes runtime_attributes
   }
 
   Int threads   = 32
-  Int mem_gb    = 16
+  Int mem_gb    = 64
   Int disk_size = ceil((size(aligned_bam, "GB") + size(ref_fasta, "GB")) * 2 + 20)
+
+  Int samtools_sort_threads = 8
 
   String karyotype = if select_first([sex, "FEMALE"]) == "MALE" then "XY" else "XX"
 
   command <<<
     set -euo pipefail
 
-    echo ~{if defined(sex) then "" else "Sex is not defined for ~{sample_id}.  Defaulting to karyotype XX for TRGT."}
+    touch messages.txt
+
+    if [ "~{defined(sex)}" != "true" ]; then
+      echo "Sex is not defined for ~{sample_id}.  Defaulting to karyotype XX for TRGT."} >> messages.txt
+    fi
 
     trgt --version
 
@@ -86,6 +106,7 @@ task trgt {
       --genome ~{ref_fasta} \
       --repeats ~{trgt_bed} \
       --reads ~{aligned_bam} \
+      --max-depth ~{max_depth} \
       --output-prefix ~{out_prefix}.trgt
 
     bcftools --version
@@ -102,11 +123,9 @@ task trgt {
 
     samtools --version
 
-    # default memory is 768 MB/thread, but we typically resource
-    # this task with 0.5 GB/thread, so we need to set memory option
     samtools sort \
-      ~{if threads > 1 then "--threads " + (threads - 1) else ""} \
-      -m 400M \
+      --threads ~{samtools_sort_threads} \
+      -m 800M \
       -o ~{out_prefix}.trgt.spanning.sorted.bam \
       ~{out_prefix}.trgt.spanning.bam
 
@@ -132,18 +151,20 @@ task trgt {
     File   vcf_index            = "~{out_prefix}.trgt.sorted.vcf.gz.tbi"
     String stat_genotyped_count = read_string("genotyped_count.txt")
     String stat_uncalled_count  = read_string("uncalled_count.txt")
+    Array[String] msg           = read_lines("messages.txt")
   }
 
   runtime {
-    docker: "~{runtime_attributes.container_registry}/trgt@sha256:0284ff5756f8d47d9d81b515b8b1a6c81fac862ae5a7b4fe89f65235c3e5e0c9"
+    docker: "~{runtime_attributes.container_registry}/trgt@sha256:301fd3f8c0174213e82dbf942e6f2259aab31a66a7dc3355a3dfc8fcd4286284"
     cpu: threads
-    memory: mem_gb + " GB"
+    memory: mem_gb + " GiB"
     disk: disk_size + " GB"
     disks: "local-disk " + disk_size + " HDD"
     preemptible: runtime_attributes.preemptible_tries
     maxRetries: runtime_attributes.max_retries
     awsBatchRetryAttempts: runtime_attributes.max_retries  # !UnknownRuntimeKey
     zones: runtime_attributes.zones
+    cpuPlatform: runtime_attributes.cpuPlatform
   }
 }
 
@@ -217,15 +238,16 @@ task trgt_merge {
   }
 
   runtime {
-    docker: "~{runtime_attributes.container_registry}/trgt@sha256:0284ff5756f8d47d9d81b515b8b1a6c81fac862ae5a7b4fe89f65235c3e5e0c9"
+    docker: "~{runtime_attributes.container_registry}/trgt@sha256:301fd3f8c0174213e82dbf942e6f2259aab31a66a7dc3355a3dfc8fcd4286284"
     cpu: threads
-    memory: mem_gb + " GB"
+    memory: mem_gb + " GiB"
     disk: disk_size + " GB"
     disks: "local-disk " + disk_size + " HDD"
     preemptible: runtime_attributes.preemptible_tries
     maxRetries: runtime_attributes.max_retries
     awsBatchRetryAttempts: runtime_attributes.max_retries  # !UnknownRuntimeKey
     zones: runtime_attributes.zones
+    cpuPlatform: runtime_attributes.cpuPlatform
   }
 }
 
@@ -285,14 +307,15 @@ task coverage_dropouts {
   }
 
   runtime {
-    docker: "~{runtime_attributes.container_registry}/trgt@sha256:0284ff5756f8d47d9d81b515b8b1a6c81fac862ae5a7b4fe89f65235c3e5e0c9"
+    docker: "~{runtime_attributes.container_registry}/trgt@sha256:301fd3f8c0174213e82dbf942e6f2259aab31a66a7dc3355a3dfc8fcd4286284"
     cpu: threads
-    memory: mem_gb + " GB"
+    memory: mem_gb + " GiB"
     disk: disk_size + " GB"
     disks: "local-disk " + disk_size + " HDD"
     preemptible: runtime_attributes.preemptible_tries
     maxRetries: runtime_attributes.max_retries
     awsBatchRetryAttempts: runtime_attributes.max_retries
     zones: runtime_attributes.zones
+    cpuPlatform: runtime_attributes.cpuPlatform
   }
 }

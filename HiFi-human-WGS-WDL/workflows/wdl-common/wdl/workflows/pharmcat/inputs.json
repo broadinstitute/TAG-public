@@ -5,7 +5,7 @@
   "pharmcat.phased_vcf_index": "File",
   "pharmcat.ref_fasta": "File",
   "pharmcat.ref_index": "File",
-  "pharmcat.pharmcat_version": "String",
+  "pharmcat.pharmcat_version": "String (optional, default = \"2.15.4\")",
   "pharmcat.pharmcat_positions": "File",
   "pharmcat.pharmcat_positions_index": "File",
   "pharmcat.pharmcat_min_coverage": "Int",
@@ -15,6 +15,7 @@
     "gpuType": "String",
     "backend": "String",
     "preemptible_tries": "Int",
-    "zones": "String"
+    "zones": "String",
+    "cpuPlatform": "String"
   }
 }

@@ -40,12 +40,12 @@ task glnexus {
 
     File? regions_bed
 
-    Int mem_gb = 30
+    Int mem_gb = 60
 
     RuntimeAttributes runtime_attributes
   }
 
-  Int threads   = 24
+  Int threads   = 32
   Int disk_size = ceil(size(gvcfs, "GB") * 2 + 100)
 
   command <<<
@@ -136,12 +136,13 @@ task glnexus {
   runtime {
     docker: "~{runtime_attributes.container_registry}/glnexus@sha256:ce6fecf59dddc6089a8100b31c29c1e6ed50a0cf123da9f2bc589ee4b0c69c8e"
     cpu: threads
-    memory: mem_gb + " GB"
+    memory: mem_gb + " GiB"
     disk: disk_size + " GB"
     disks: "local-disk " + disk_size + " HDD"
     preemptible: runtime_attributes.preemptible_tries
     maxRetries: runtime_attributes.max_retries
     awsBatchRetryAttempts: runtime_attributes.max_retries  # !UnknownRuntimeKey
     zones: runtime_attributes.zones
+    cpuPlatform: runtime_attributes.cpuPlatform
   }
 }

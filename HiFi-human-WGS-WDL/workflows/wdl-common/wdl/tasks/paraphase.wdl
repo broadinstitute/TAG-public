@@ -53,7 +53,7 @@ task paraphase {
   }
 
   Int threads   = 8
-  Int mem_gb    = threads * 2
+  Int mem_gb    = 16
   Int disk_size = ceil(size(aligned_bam, "GB") +size(ref_fasta, "GB") + 20)
 
   command <<<
@@ -81,14 +81,15 @@ task paraphase {
   }
 
   runtime {
-    docker: "~{runtime_attributes.container_registry}/paraphase@sha256:a114ac5b9a682d7dc0fdf25c92cfb36f80c07ab4f1fb76b2e58092521b123a4d"
+    docker: "~{runtime_attributes.container_registry}/paraphase@sha256:bf15a5f977fa6ee34f335e5a695d5f9c73fb7b7092703fbf3c94594949ea50d7"
     cpu: threads
-    memory: mem_gb + " GB"
+    memory: mem_gb + " GiB"
     disk: disk_size + " GB"
     disks: "local-disk " + disk_size + " HDD"
     preemptible: runtime_attributes.preemptible_tries
     maxRetries: runtime_attributes.max_retries
     awsBatchRetryAttempts: runtime_attributes.max_retries  # !UnknownRuntimeKey
     zones: runtime_attributes.zones
+    cpuPlatform: runtime_attributes.cpuPlatform
   }
 }
