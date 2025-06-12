@@ -34,11 +34,11 @@ workflow get_pbsv_splits {
   }
 
   if (default_runtime_attributes.backend != "AWS-HealthOmics") {
-    Array[Array[String]] native_splits = read_json(pbsv_splits_file)
+    Object native_splits = read_json(pbsv_splits_file)
   }
 
   output {
-    Array[Array[String]] pbsv_splits = select_first([read_pbsv_splits.splits, native_splits])
+    Object pbsv_splits = select_first([read_pbsv_splits.splits, native_splits])
   }
 }
 
@@ -74,7 +74,7 @@ task read_pbsv_splits {
   >>>
 
   output {
-    Array[Array[String]] splits = read_json("out.json")
+    Object splits = read_json("out.json")
   }
 
   runtime {

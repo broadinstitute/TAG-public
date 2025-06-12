@@ -185,7 +185,6 @@ workflow humanwgs_family {
     'sv_DEL_count': downstream.stat_sv_DEL_count,
     'sv_INS_count': downstream.stat_sv_INS_count,
     'sv_INV_count': downstream.stat_sv_INV_count,
-    'sv_INVBND_count': downstream.stat_sv_INVBND_count,
     'sv_BND_count': downstream.stat_sv_BND_count,
     'cnv_DUP_count': upstream.stat_cnv_DUP_count,
     'cnv_DEL_count': upstream.stat_cnv_DEL_count,
@@ -308,7 +307,6 @@ workflow humanwgs_family {
     Array[String] stat_sv_DEL_count    = downstream.stat_sv_DEL_count
     Array[String] stat_sv_INS_count    = downstream.stat_sv_INS_count
     Array[String] stat_sv_INV_count    = downstream.stat_sv_INV_count
-    Array[String] stat_sv_INVBND_count = downstream.stat_sv_INVBND_count
     Array[String] stat_sv_BND_count    = downstream.stat_sv_BND_count
 
     # small variant outputs
