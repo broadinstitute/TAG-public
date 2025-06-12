@@ -78,9 +78,6 @@ task hificnv {
     stat_DEL_sum: {
       name: "Total length of passing deletions (Mbp)"
     }
-    msg: {
-      name: "Array of messages"
-    }
   }
 
   input {
@@ -109,17 +106,13 @@ task hificnv {
   File expected_bed = if select_first([sex, "FEMALE"]) == "MALE" then expected_male_bed else expected_female_bed
 
   Int threads   = 8
-  Int mem_gb    = 16
+  Int mem_gb    = threads * 2
   Int disk_size = ceil((size(aligned_bam, "GB") + size(ref_fasta, "GB")) + 20)
 
   command <<<
     set -euo pipefail
 
-    touch messages.txt
-
-    if [ "~{defined(sex)}" != "true" ]; then
-      echo "Sex is not defined for ~{sample_id}.  Defaulting to karyotype XX for HiFiCNV."} >> messages.txt
-    fi
+    echo ~{if defined(sex) then "" else "Sex is not defined for ~{sample_id}.  Defaulting to karyotype XX for HiFiCNV."}
 
     hificnv --version
     bcftools --version
@@ -185,19 +178,17 @@ task hificnv {
     String stat_DUP_sum     = read_string("stat_DUP_sum.txt")
     String stat_DEL_count   = read_string("stat_DEL_count.txt")
     String stat_DEL_sum     = read_string("stat_DEL_sum.txt")
-    Array[String] msg       = read_lines("messages.txt")
   }
 
   runtime {
     docker: "~{runtime_attributes.container_registry}/hificnv@sha256:c4764a70c8c2028edb1cdb4352997269947c5076ddd1aeaeef6c5076c630304d"
     cpu: threads
-    memory: mem_gb + " GiB"
+    memory: mem_gb + " GB"
     disk: disk_size + " GB"
     disks: "local-disk " + disk_size + " HDD"
     preemptible: runtime_attributes.preemptible_tries
     maxRetries: runtime_attributes.max_retries
     awsBatchRetryAttempts: runtime_attributes.max_retries  # !UnknownRuntimeKey
     zones: runtime_attributes.zones
-    cpuPlatform: runtime_attributes.cpuPlatform
   }
 }

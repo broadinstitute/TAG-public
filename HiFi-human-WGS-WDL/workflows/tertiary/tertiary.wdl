@@ -1,7 +1,7 @@
 version 1.0
 
 import "../humanwgs_structs.wdl"
-import "../wdl-common/wdl/tasks/write_ped_phrank.wdl" as Write_phrank
+import "../wdl-common/wdl/tasks/write_phrank.wdl" as Write_phrank
 import "../wdl-common/wdl/tasks/utilities.wdl" as Utilities
 
 workflow tertiary_analysis {

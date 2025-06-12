@@ -44,14 +44,13 @@ task split_string {
   runtime {
     docker: "~{runtime_attributes.container_registry}/pb_wdl_base@sha256:4b889a1f21a6a7fecf18820613cf610103966a93218de772caba126ab70a8e87"
     cpu: threads
-    memory: mem_gb + " GiB"
+    memory: "~{mem_gb} GB"
     disk: "~{disk} GB"
     disks: "local-disk ~{disk} HDD"
     preemptible: runtime_attributes.preemptible_tries
     maxRetries: runtime_attributes.max_retries
     awsBatchRetryAttempts: runtime_attributes.max_retries  # !UnknownRuntimeKey
     zones: runtime_attributes.zones
-    cpuPlatform: runtime_attributes.cpuPlatform
   }
 }
 
@@ -67,17 +66,11 @@ task consolidate_stats {
     stats: {
       name: "Stats"
     }
-    msg_array: {
-      name: "Array of messages"
-    }
     runtime_attributes: {
       name: "Runtime attribute structure"
     }
     output_tsv: {
       name: "Output TSV"
-    }
-    messages: {
-      name: "Messages TXT"
     }
   }
 
@@ -85,7 +78,6 @@ task consolidate_stats {
     String id
 
     Map[String, Array[String]] stats
-    Array[String] msg_array
 
     RuntimeAttributes runtime_attributes
   }
@@ -114,25 +106,21 @@ task consolidate_stats {
     jq -cr 'to_entries[] | [.key, (.value | flatten[])] | @tsv' < ~{write_json(stats)} \
     | python3 ./transpose.py \
     > ~{id}.stats.txt
-
-    sed '/^[[:space:]]*$/d' ~{write_lines(msg_array)} > ~{id}.messages.txt
   >>>
 
   output {
     File output_tsv = "~{id}.stats.txt"
-    File messages   = "~{id}.messages.txt"
   }
 
   runtime {
     docker: "~{runtime_attributes.container_registry}/pb_wdl_base@sha256:4b889a1f21a6a7fecf18820613cf610103966a93218de772caba126ab70a8e87"
     cpu: threads
-    memory: mem_gb + " GiB"
+    memory: "~{mem_gb} GB"
     disk: "~{disk} GB"
     disks: "local-disk ~{disk} HDD"
     preemptible: runtime_attributes.preemptible_tries
     maxRetries: runtime_attributes.max_retries
     awsBatchRetryAttempts: runtime_attributes.max_retries  # !UnknownRuntimeKey
     zones: runtime_attributes.zones
-    cpuPlatform: runtime_attributes.cpuPlatform
   }
 }

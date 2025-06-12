@@ -9,7 +9,6 @@ struct RuntimeAttributes {
   Int max_retries
 
   String zones
-  String cpuPlatform
 
   String gpuType
 

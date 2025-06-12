@@ -11,17 +11,11 @@ task pbstarphase_diplotype {
     sample_id: {
       name: "Sample ID"
     }
-    phased_small_variant_vcf: {
-      name: "Phased small variant VCF file"
+    phased_vcf: {
+      name: "Phased VCF file"
     }
-    phased_small_variant_vcf_index: {
-      name: "Phased small variant VCF index file"
-    }
-    phased_structural_variant_vcf: {
-      name: "Phased structural variant VCF file"
-    }
-    phased_structural_variant_vcf_index: {
-      name: "Phased structural variant VCF index file"
+    phased_vcf_index: {
+      name: "Phased VCF index file"
     }
     aligned_bam: {
       name: "Aligned BAM file"
@@ -49,11 +43,8 @@ task pbstarphase_diplotype {
   input {
     String sample_id
 
-    File phased_small_variant_vcf
-    File phased_small_variant_vcf_index
-
-    File phased_structural_variant_vcf
-    File phased_structural_variant_vcf_index
+    File phased_vcf
+    File phased_vcf_index
 
     File aligned_bam
     File aligned_bam_index
@@ -66,7 +57,7 @@ task pbstarphase_diplotype {
 
   Int threads   = 2
   Int mem_gb    = 16
-  Int disk_size = ceil(size(phased_small_variant_vcf, "GB") + size(phased_structural_variant_vcf, "GB") + size(aligned_bam, "GB") + size(ref_fasta, "GB") + 50)
+  Int disk_size = ceil(size(phased_vcf, "GB") * 2 + size(aligned_bam, "GB") + size(ref_fasta, "GB") + 50)
 
   command <<<
     set -euo pipefail
@@ -76,8 +67,7 @@ task pbstarphase_diplotype {
     pbstarphase diplotype \
       --database /opt/pbstarphase_db.json.gz \
       --reference ~{ref_fasta} \
-      --vcf ~{phased_small_variant_vcf} \
-      --sv-vcf ~{phased_structural_variant_vcf} \
+      --vcf ~{phased_vcf} \
       --bam ~{aligned_bam} \
       --output-calls ~{sample_id}.pbstarphase.json \
       --pharmcat-tsv ~{sample_id}.pharmcat.tsv
@@ -89,15 +79,14 @@ task pbstarphase_diplotype {
   }
 
   runtime {
-    docker: "~{runtime_attributes.container_registry}/pbstarphase@sha256:f7bbbe3814ef318a5ee89dca7263d1afda00da501642604c193629303a2ada3b"
+    docker: "~{runtime_attributes.container_registry}/pbstarphase@sha256:6954d6f7e462c9cec7aaf7ebb66efaf13d448239aab76a3c947c1dfe24859686"
     cpu: threads
-    memory: mem_gb + " GiB"
+    memory: mem_gb + " GB"
     disk: disk_size + " GB"
     disks: "local-disk " + disk_size + " HDD"
     preemptible: runtime_attributes.preemptible_tries
     maxRetries: runtime_attributes.max_retries
     awsBatchRetryAttempts: runtime_attributes.max_retries  # !UnknownRuntimeKey
     zones: runtime_attributes.zones
-    cpuPlatform: runtime_attributes.cpuPlatform
   }
 }

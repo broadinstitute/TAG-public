@@ -47,6 +47,12 @@ workflow pharmcat {
     default_runtime_attributes: {
       name: "Runtime attribute structure"
     }
+    pharmcat_missing_pgx_vcf: {
+      name: "PharmCAT missing PGx VCF"
+    }
+    pharmcat_preprocessed_filtered_vcf: {
+      name: "PharmCAT preprocessed filtered VCF"
+    }
     pharmcat_match_json: {
       name: "PharmCAT match JSON"
     }
@@ -72,7 +78,7 @@ workflow pharmcat {
     File ref_fasta
     File ref_index
 
-    String pharmcat_version = "2.15.4"
+    String pharmcat_version
     File pharmcat_positions
     File pharmcat_positions_index
     Int pharmcat_min_coverage
@@ -104,22 +110,23 @@ workflow pharmcat {
       runtime_attributes    = default_runtime_attributes
   }
 
-  if (defined(filter_preprocessed_vcf.filtered_vcf)) {
-    call run_pharmcat {
-      input:
-        preprocessed_filtered_vcf = select_first([filter_preprocessed_vcf.filtered_vcf]),
-        input_tsvs                = input_tsvs,
-        pharmcat_docker           = pharmcat_docker,
-        out_prefix                = "~{sample_id}.pharmcat",
-        runtime_attributes        = default_runtime_attributes
-    }
+  call run_pharmcat {
+    input:
+      preprocessed_filtered_vcf = filter_preprocessed_vcf.filtered_vcf,
+      input_tsvs                = input_tsvs,
+      pharmcat_docker           = pharmcat_docker,
+      out_prefix                = "~{sample_id}.pharmcat",
+      runtime_attributes        = default_runtime_attributes
   }
 
   output {
-    File? pharmcat_match_json     = run_pharmcat.pharmcat_match_json
-    File? pharmcat_phenotype_json = run_pharmcat.pharmcat_phenotype_json
-    File? pharmcat_report_html    = run_pharmcat.pharmcat_report_html
-    File? pharmcat_report_json    = run_pharmcat.pharmcat_report_json
+    File? pharmcat_missing_pgx_vcf           = pharmcat_preprocess.missing_pgx_vcf
+    File  pharmcat_preprocessed_filtered_vcf = filter_preprocessed_vcf.filtered_vcf
+
+    File pharmcat_match_json     = run_pharmcat.pharmcat_match_json
+    File pharmcat_phenotype_json = run_pharmcat.pharmcat_phenotype_json
+    File pharmcat_report_html    = run_pharmcat.pharmcat_report_html
+    File pharmcat_report_json    = run_pharmcat.pharmcat_report_json
   }
 }
 
@@ -201,14 +208,13 @@ task pharmcat_preprocess {
   runtime {
     docker: pharmcat_docker
     cpu: threads
-    memory: mem_gb + " GiB"
+    memory: mem_gb + " GB"
     disk: disk_size + " GB"
     disks: "local-disk " + disk_size + " HDD"
     preemptible: runtime_attributes.preemptible_tries
     maxRetries: runtime_attributes.max_retries
     awsBatchRetryAttempts: runtime_attributes.max_retries  # !UnknownRuntimeKey
     zones: runtime_attributes.zones
-    cpuPlatform: runtime_attributes.cpuPlatform
   }
 }
 
@@ -256,7 +262,7 @@ task filter_preprocessed_vcf {
   }
 
   Int threads   = 4
-  Int mem_gb    = 8
+  Int mem_gb    = 4
   Int disk_size = ceil((size(preprocessed_vcf, "GB") + size(haplotagged_bam, "GB")) + 20)
 
   String preprocessed_vcf_basename = basename(preprocessed_vcf)
@@ -298,30 +304,27 @@ task filter_preprocessed_vcf {
     python3 ./filter.py > targeted_regions.sufficient_depth.bed
 
     # filter the vcf for regions >= min_coverage
-    if [ -s targeted_regions.sufficient_depth.bed ]; then
-      bcftools view \
-        --regions-file targeted_regions.sufficient_depth.bed \
-        --output-type v \
-        --output ~{out_prefix}.filtered.vcf \
-        ~{preprocessed_vcf_basename}
-    fi
+    bcftools view \
+      --regions-file targeted_regions.sufficient_depth.bed \
+      --output-type v \
+      --output ~{out_prefix}.filtered.vcf \
+      ~{preprocessed_vcf_basename}
   >>>
 
   output {
-    File? filtered_vcf = "~{out_prefix}.filtered.vcf"
+    File filtered_vcf = "~{out_prefix}.filtered.vcf"
   }
 
   runtime {
     docker: "~{runtime_attributes.container_registry}/mosdepth@sha256:63f7a5d1a4a17b71e66d755d3301a951e50f6b63777d34dab3ee9e182fd7acb1"
     cpu: threads
-    memory: mem_gb + " GiB"
+    memory: mem_gb + " GB"
     disk: disk_size + " GB"
     disks: "local-disk " + disk_size + " HDD"
     preemptible: runtime_attributes.preemptible_tries
     maxRetries: runtime_attributes.max_retries
     awsBatchRetryAttempts: runtime_attributes.max_retries  # !UnknownRuntimeKey
     zones: runtime_attributes.zones
-    cpuPlatform: runtime_attributes.cpuPlatform
   }
 }
 
@@ -378,12 +381,9 @@ task run_pharmcat {
   String pharmcat_basename = basename(preprocessed_filtered_vcf, ".vcf")
 
   command <<<
-    set -eu
+    set -euo pipefail
 
-    sort -k1,1 < ~{sep=" " input_tsvs} \
-    | grep -Ev 'NO_READS|NO_MATCH' \
-    > merged.tsv \
-    || touch merged.tsv
+    sort -k1,1 < ~{sep=" " input_tsvs} > merged.tsv || touch merged.tsv
 
     # Run pharmcat
     /pharmcat/pharmcat \
@@ -409,13 +409,12 @@ task run_pharmcat {
   runtime {
     docker: pharmcat_docker
     cpu: threads
-    memory: mem_gb + " GiB"
+    memory: mem_gb + " GB"
     disk: disk_size + " GB"
     disks: "local-disk " + disk_size + " HDD"
     preemptible: runtime_attributes.preemptible_tries
     maxRetries: runtime_attributes.max_retries
     awsBatchRetryAttempts: runtime_attributes.max_retries  # !UnknownRuntimeKey
     zones: runtime_attributes.zones
-    cpuPlatform: runtime_attributes.cpuPlatform
   }
 }

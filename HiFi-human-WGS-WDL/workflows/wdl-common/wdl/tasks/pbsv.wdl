@@ -35,7 +35,7 @@ task pbsv_discover {
   }
 
   Int threads   = 2
-  Int mem_gb    = 16
+  Int mem_gb    = 10
   Int disk_size = ceil((size(aligned_bam, "GB") + size(trf_bed, "GB")) * 2 + 20)
 
   String out_prefix = basename(aligned_bam, ".bam")
@@ -60,14 +60,13 @@ task pbsv_discover {
   runtime {
     docker: "~{runtime_attributes.container_registry}/pbsv@sha256:3a8529853c1e214809dcdaacac0079de70d0c037b41b43bb8ba7c3fc5f783e26"
     cpu: threads
-    memory: mem_gb + " GiB"
+    memory: mem_gb + " GB"
     disk: disk_size + " GB"
     disks: "local-disk " + disk_size + " HDD"
     preemptible: runtime_attributes.preemptible_tries
     maxRetries: runtime_attributes.max_retries
     awsBatchRetryAttempts: runtime_attributes.max_retries  # !UnknownRuntimeKey
     zones: runtime_attributes.zones
-    cpuPlatform: runtime_attributes.cpuPlatform
   }
 }
 
@@ -150,7 +149,7 @@ task pbsv_call {
     # This is brittle and likely to break if pbsv discover changes output format.
     # Build a pattern to match; we want headers (e.g., '^#') and signature
     #   records where third column matches the chromosome (e.g., '^.\t.\tchr1\t').
-      pattern=$(echo ~{sep=" " select_first([regions, []])} \
+      pattern=$(echo ~{sep=" " select_first([regions])} \
         | sed 's/^/^.\\t.\\t/; s/ /\\t\|^.\\t.\\t/g; s/$/\\t/' \
         | echo "^#|""$(</dev/stdin)")
 
@@ -193,13 +192,12 @@ task pbsv_call {
   runtime {
     docker: "~{runtime_attributes.container_registry}/pbsv@sha256:3a8529853c1e214809dcdaacac0079de70d0c037b41b43bb8ba7c3fc5f783e26"
     cpu: threads
-    memory: mem_gb + " GiB"
+    memory: "~{mem_gb} GB"
     disk: disk_size + " GB"
     disks: "local-disk " + disk_size + " HDD"
     preemptible: runtime_attributes.preemptible_tries
     maxRetries: runtime_attributes.max_retries
     awsBatchRetryAttempts: runtime_attributes.max_retries  # !UnknownRuntimeKey
     zones: runtime_attributes.zones
-    cpuPlatform: runtime_attributes.cpuPlatform
   }
 }

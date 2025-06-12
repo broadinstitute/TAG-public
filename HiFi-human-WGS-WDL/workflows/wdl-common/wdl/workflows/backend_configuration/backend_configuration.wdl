@@ -17,9 +17,6 @@ workflow backend_configuration {
     zones: {
       help: "Zones where compute will take place; required if backend is set to 'AWS' or 'GCP'"
     }
-    cpuPlatform: {
-      help: "Optional minimum CPU platform to use for tasks on GCP"
-    }
     gpuType: {
       help: "Type of GPU/Accelerator to use"
     }
@@ -31,7 +28,6 @@ workflow backend_configuration {
   input {
     String backend
     String? zones
-    String? cpuPlatform
     String? gpuType
     String? container_registry
   }
@@ -40,7 +36,6 @@ workflow backend_configuration {
 
   if (backend == "GCP") {
     # zones must be defined
-    # cpuPlatform may be defined
 
     # preemptible_tries applies to failures due to preemption only
     # max_retries applies to failures due to a nonzero rc
@@ -53,7 +48,6 @@ workflow backend_configuration {
       "preemptible_tries": 3,
       "max_retries": 3,
       "zones": select_first([zones]),
-      "cpuPlatform": select_first([cpuPlatform, ""]),
       "gpuType": select_first([gpuType, ""]),
       "container_registry": select_first([container_registry, default_container_registry])
     }
@@ -63,7 +57,6 @@ workflow backend_configuration {
       "preemptible_tries": 0,
       "max_retries": 0,
       "zones": select_first([zones]),
-      "cpuPlatform": select_first([cpuPlatform, ""]),
       "gpuType": select_first([gpuType, ""]),
       "container_registry": select_first([container_registry, default_container_registry])
     }
@@ -79,7 +72,6 @@ workflow backend_configuration {
       "preemptible_tries": 3,
       "max_retries": 3,
       "zones": "",
-      "cpuPlatform": "",
       "gpuType": "",
       "container_registry": select_first([container_registry, default_container_registry])
     }
@@ -89,7 +81,6 @@ workflow backend_configuration {
       "preemptible_tries": 0,
       "max_retries": 0,
       "zones": "",
-      "cpuPlatform": "",
       "gpuType": "",
       "container_registry": select_first([container_registry, default_container_registry])
     }
@@ -110,7 +101,6 @@ workflow backend_configuration {
       "preemptible_tries": 0,
       "max_retries": 0,
       "zones": "",
-      "cpuPlatform": "",
       "gpuType": select_first([gpuType, ""]),
       "container_registry": select_first([container_registry])
     }
@@ -124,7 +114,6 @@ workflow backend_configuration {
       "preemptible_tries": 0,
       "max_retries": 3,
       "zones": "",
-      "cpuPlatform": "",
       "gpuType": select_first([gpuType, ""]),
       "container_registry": select_first([container_registry, default_container_registry])
     }
