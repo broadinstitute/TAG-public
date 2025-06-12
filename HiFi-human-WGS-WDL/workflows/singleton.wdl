@@ -1,11 +1,11 @@
 version 1.0
 
-import "humanwgs_structs.wdl"
-import "wdl-common/wdl/workflows/backend_configuration/backend_configuration.wdl" as BackendConfiguration
-import "upstream/upstream.wdl" as Upstream
-import "downstream/downstream.wdl" as Downstream
-import "tertiary/tertiary.wdl" as TertiaryAnalysis
-import "wdl-common/wdl/tasks/utilities.wdl" as Utilities
+import "./humanwgs_structs.wdl"
+import "./wdl-common/wdl/workflows/backend_configuration/backend_configuration.wdl" as BackendConfiguration
+import "./upstream/upstream.wdl" as Upstream
+import "./downstream/downstream.wdl" as Downstream
+import "./tertiary/tertiary.wdl" as TertiaryAnalysis
+import "./wdl-common/wdl/tasks/utilities.wdl" as Utilities
 
 
 workflow humanwgs_singleton {
