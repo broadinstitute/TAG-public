@@ -1,7 +1,7 @@
 version 1.0
 
-import "../wdl-common/wdl/tasks/sawfish.wdl" as Sawfish
-import "../wdl-common/wdl/structs.wdl"
+import "./wdl-common/wdl/tasks/sawfish.wdl" as Sawfish
+import "./wdl-common/wdl/structs.wdl"
 
 workflow run_sawfish {
   meta {
