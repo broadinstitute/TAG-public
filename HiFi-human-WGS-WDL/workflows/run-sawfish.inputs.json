@@ -1,0 +1,15 @@
+{
+  "run_sawfish.sample_id": "String",
+  "run_sawfish.sex": "String",
+  "run_sawfish.aligned_bam_data": "File",
+  "run_sawfish.aligned_bam_index": "File",
+  "run_sawfish.ref_map_file": "File",
+  "run_sawfish.gpu": "Boolean (optional, default = false)",
+  "run_sawfish.backend": "String",
+  "run_sawfish.zones": "String? (optional)",
+  "run_sawfish.gpuType": "String? (optional)",
+  "run_sawfish.container_registry": "String? (optional)",
+  "run_sawfish.container_namespace": "String? (optional)",
+  "run_sawfish.preemptible": "Boolean",
+  "run_sawfish.debug_version": "String? (optional)"
+}

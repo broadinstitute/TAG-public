@@ -149,3 +149,8 @@ workflows:
    primaryDescriptorPath: /HiFi-human-WGS-WDL/workflows/singleton.wdl
    testParameterFiles:
     - /HiFi-human-WGS-WDL/workflows/singleton.inputs.json
+ - name: HiFi-sawfish
+   subclass: WDL
+   primaryDescriptorPath: /HiFi-human-WGS-WDL/workflows/run-sawfish.wdl
+   testParameterFiles:
+    - /HiFi-human-WGS-WDL/workflows/run-sawfish.inputs.json
