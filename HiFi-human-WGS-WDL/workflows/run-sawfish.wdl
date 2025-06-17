@@ -53,14 +53,6 @@ workflow run_sawfish {
   }
 
   output {
-    # mosdepth outputs
-    File   mosdepth_summary                 = mosdepth.summary
-    File   mosdepth_region_bed              = mosdepth.region_bed
-    File   mosdepth_region_bed_index        = mosdepth.region_bed_index
-    File   mosdepth_depth_distribution_plot = mosdepth.depth_distribution_plot
-    String inferred_sex                     = mosdepth.inferred_sex
-    String stat_mean_depth                  = mosdepth.stat_mean_depth
-
     # per sample sv signatures
     File discover_tar = sawfish_discover.discover_tar
 
