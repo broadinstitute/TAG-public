@@ -2,6 +2,7 @@ version 1.0
 
 import "./wdl-common/wdl/tasks/sawfish.wdl" as Sawfish
 import "./wdl-common/wdl/structs.wdl"
+import "./wdl-common/wdl/workflows/backend_configuration/backend_configuration.wdl" as BackendConfiguration
 
 workflow run_sawfish {
   meta {
@@ -13,15 +14,17 @@ workflow run_sawfish {
     String sex
     File aligned_bam_data
     File aligned_bam_index
-
     File ref_map_file
-
     Boolean single_sample = true
-
-    Boolean gpu
-
-    RuntimeAttributes default_runtime_attributes
   }
+
+  call BackendConfiguration.backend_configuration {
+    input:
+      backend            = "GCP",
+      container_registry = "quay.io/pacbio"
+  }
+
+  RuntimeAttributes default_runtime_attributes = backend_configuration.on_demand_runtime_attributes
 
   Map[String, String] ref_map = read_map(ref_map_file)
 
