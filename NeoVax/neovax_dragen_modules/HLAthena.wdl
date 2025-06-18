@@ -46,13 +46,16 @@ workflow HLAthena {
     Int boot_disk_size = 15
     Int mem = 16
     Int cpu = 1
+    String? docker_override
   }
+
+  String hlathena_docker = select_first([docker_override, "us.gcr.io/tag-public/neovax-tag-hlathena:v1"])
 
   Runtime standard_runtime = { "preemptible": preemptible,
                                 "max_retries": max_retries,
                                 "mem": mem,
                                 "cpu": cpu,
-                                "docker": "us.gcr.io/tag-public/neovax-tag-hlathena:v1",
+                                "docker": hlathena_docker,
                                 "boot_disk_size": boot_disk_size,
                                 "initial_disk_size": additional_disk }
 
