@@ -253,7 +253,7 @@ task ParseAlleles {
     set -e
 
     dos2unix ~{alleles_file}
-    awk '{gsub("HLA-|*","")}1' ~{alleles_file} | \
+    awk '{gsub("^HLA-","")}1' ~{alleles_file} | \
     tr -d ":" | sort -u > parsed_alleles.txt
 
     python <<CODE
