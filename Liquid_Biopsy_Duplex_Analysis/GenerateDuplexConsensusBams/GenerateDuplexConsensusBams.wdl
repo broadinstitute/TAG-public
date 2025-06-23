@@ -504,7 +504,7 @@ task QuerySortSam {
   }
   runtime {
       docker: bloodbiopsydocker
-      disks: "local-disk " + disk_size + " HDD, /cromwell_root/tmp 500 HDD"
+      disks: "local-disk " + disk_size + " HDD"
       memory: mem + " GB"
   }
 }
@@ -713,7 +713,7 @@ task FilterConsensusReads {
    }
    runtime {
       docker: bloodbiopsydocker
-      disks: "local-disk " + disk_size + " HDD, /cromwell_root/tmp 100 HDD"
+      disks: "local-disk " + disk_size + " HDD"
       memory: mem + " GB"
       maxRetries: 3
       preemptible: select_first([preemptible_attempts, 10])
@@ -914,7 +914,7 @@ task CallDuplexConsensusReads {
    }
    runtime {
       docker: bloodbiopsydocker
-      disks: "local-disk " + disk_size + " HDD, /cromwell_root/tmp 100 HDD"
+      disks: "local-disk " + disk_size + " HDD"
       memory: mem + " GB"
       maxRetries: 3
       preemptible: select_first([preemptible_attempts, 10])
