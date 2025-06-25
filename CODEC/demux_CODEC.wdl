@@ -172,7 +172,7 @@ task GroupFastqFiles {
     done
     
     for txt_file in *.txt; do
-    sed -i 's|/mnt/disks||g' "$txt_file"
+    sed -i 's|/mnt/disks/cromwell_root/|gs://|g' "$txt_file"
     done
   >>>
 
