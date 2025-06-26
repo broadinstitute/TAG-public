@@ -1093,7 +1093,7 @@ task CalculateDuplexDepth {
         eval_genome_bases = int("~{eval_genome_bases}")
         n_bases_eval = int("~{n_bases_eval}")
         n_total_fastq = int("~{n_total_fastq}")
-        read_length = int("~{read_length")
+        read_length = int("~{read_length}")
 
         duplex_depth = round (n_bases_eval / eval_genome_bases, 2)
         duplex_efficiency = round (n_bases_eval / (n_total_fastq * read_length * 2) , 4)
