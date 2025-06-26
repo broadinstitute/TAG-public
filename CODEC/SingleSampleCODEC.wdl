@@ -205,7 +205,6 @@ workflow SingleSampleCODEC_targeted {
              input: 
               eval_genome_bases = EvalGenomeBases.eval_genome_bases,
               n_bases_eval = QC_metrics.n_bases_eval,
-              mean_insert_size = QC_metrics.mean_insert_size,
               n_total_fastq = QC_metrics.n_total_fastq
         }
 
@@ -1082,7 +1081,7 @@ task CalculateDuplexDepth {
     input {
         String eval_genome_bases
         String n_bases_eval
-        Float mean_insert_size
+        Int read_length = 161
         Int n_total_fastq
         Int memory = 32
         Int disk_size = 64
@@ -1093,12 +1092,11 @@ task CalculateDuplexDepth {
         
         eval_genome_bases = int("~{eval_genome_bases}")
         n_bases_eval = int("~{n_bases_eval}")
-        mean_insert_size = float("~{mean_insert_size}")
         n_total_fastq = int("~{n_total_fastq}")
+        read_length = int("~{read_length")
 
-        raw_read_depth = round (n_total_fastq * mean_insert_size / eval_genome_bases, 2)
         duplex_depth = round (n_bases_eval / eval_genome_bases, 2)
-        duplex_efficiency = round (duplex_depth / raw_read_depth , 4)
+        duplex_efficiency = round (n_bases_eval / (n_total_fastq * read_length * 2) , 4)
 
         with open('duplex_depth.txt', 'w') as f:
             f.write(str(duplex_depth))
