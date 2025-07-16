@@ -576,6 +576,7 @@ task SortBam {
         Int mem = 64
         Int disk_size = 200
         String? docker_override
+        Int? preemptible_attempts
     }
 
     command {
@@ -590,7 +591,7 @@ task SortBam {
         docker: select_first([docker_override, "us.gcr.io/tag-public/codec:v1.1.4"]) 
         disks: "local-disk " + disk_size + " HDD"
         memory: mem + " GB"
-        preemptible: 2
+        preemptible: select_first([preemptible_attempts, 0])
     }
 }
 
@@ -690,6 +691,7 @@ task GroupReadByUMI {
         Int? extra_disk
         Int disk_size = ceil(size(input_bam, "GB") * 15) + select_first([extra_disk, 0])
         String? docker_override
+        Int? preemptible_attempts
     }
 
     command {
@@ -711,6 +713,7 @@ task GroupReadByUMI {
         memory: memory + " GB"
         docker: select_first([docker_override, "us.gcr.io/tag-public/codec:v1.1.4"])
         disks: "local-disk " + disk_size + " HDD"
+        preemptible: select_first([preemptible_attempts, 0])
     }
 }
 
@@ -819,6 +822,7 @@ task FgbioCollapseReadFamilies {
         Int? extra_disk
         Int disk_size = ceil(size(grouped_umi_bam, "GB") * 10) + select_first([extra_disk, 0])
         String? docker_override
+        Int? preemptible_attempts        
     }
 
     command {
@@ -839,6 +843,7 @@ task FgbioCollapseReadFamilies {
         memory: memory + " GB"
         docker: select_first([docker_override, "us.gcr.io/tag-public/codec:v1.1.4"])
         disks: "local-disk " + disk_size + " HDD"
+        preemptible: select_first([preemptible_attempts, 0])
     }
 }
 
@@ -859,6 +864,7 @@ task AlignMolecularConsensusReads {
         Int threads = 4
         Int cpu_cores = 1
         String? docker_override
+        Int? preemptible_attempts
     }
         String output_bam_name = "${sample_id}.mol_consensus.aligned_tmp.bam"
 
@@ -876,7 +882,7 @@ task AlignMolecularConsensusReads {
         docker: select_first([docker_override, "us.gcr.io/tag-public/codec:v1.1.4"]) 
         disks: "local-disk " + disk_size + " HDD"
         cpu: cpu_cores
-        preemptible: 3
+        preemptible: select_first([preemptible_attempts, 0])
     }
 }
 
@@ -892,6 +898,7 @@ task MergeAndSortMoleculeConsensusReads {
         Int disk_size = 200
         String sort_memory
         String? docker_override
+        Int? preemptible_attempts
     }
 
     command {
@@ -913,7 +920,7 @@ task MergeAndSortMoleculeConsensusReads {
         memory: memory+ " GB"
         docker: select_first([docker_override, "us.gcr.io/tag-public/codec:v1.1.4"]) 
         disks: "local-disk " + disk_size + " HDD"
-        preemptible: 3
+        preemptible: select_first([preemptible_attempts, 0])
     }
 }
 
@@ -939,6 +946,7 @@ task CSS_SFC_ErrorMetrics {
         Int memory = 64
         Int disk_size = 200
         String? docker_override
+        Int? preemptible_attempts
     }
 
     command {
@@ -975,7 +983,7 @@ task CSS_SFC_ErrorMetrics {
         memory: memory + " GB"
         docker: select_first([docker_override, "us.gcr.io/tag-public/codec:v1.1.4"]) 
         disks: "local-disk " + disk_size + " HDD"
-        preemptible: 3
+        preemptible: select_first([preemptible_attempts, 0])
     }
 }
 
