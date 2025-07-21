@@ -90,6 +90,8 @@ workflow Mutect2 {
       File tumor_reads_index
       File? normal_reads
       File? normal_reads_index
+      File? forcecall_vcf
+      File? forcecall_vcf_idx
       File? pon
       File? pon_idx
       Int scatter_count
@@ -255,6 +257,8 @@ workflow Mutect2 {
                 tumor_bai = tumor_bai,
                 normal_bam = normal_bam,
                 normal_bai = normal_bai,
+                forcecall_vcf = forcecall_vcf,
+                forcecall_vcf_idx = forcecall_vcf_idx,
                 pon = pon,
                 pon_idx = pon_idx,
                 gnomad = gnomad,
@@ -517,6 +521,8 @@ task M2 {
       File tumor_bai
       File? normal_bam
       File? normal_bai
+      File? forcecall_vcf
+      File? forcecall_vcf_idx
       File? pon
       File? pon_idx
       File? gnomad
@@ -600,6 +606,7 @@ task M2 {
             -O "~{output_vcf}" \
             ~{true='--bam-output bamout.bam' false='' make_bamout} \
             ~{true='--f1r2-tar-gz f1r2.tar.gz' false='' run_ob_filter} \
+            ~{'--alleles ' + forcecall_vcf} \
             ~{m2_extra_args}
 
         m2_exit_code=$?

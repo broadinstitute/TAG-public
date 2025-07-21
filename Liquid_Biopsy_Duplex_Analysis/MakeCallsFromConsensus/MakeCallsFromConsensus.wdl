@@ -24,6 +24,8 @@ workflow MakeCallsFromConsensus {
       File? raw_tumor_bam_idx
       File? raw_normal_bam
       File? raw_normal_bam_idx
+      File? m2_forcecall_vcf
+      File? m2_forcecall_vcf_idx
 
       File target_intervals
       Boolean fail_on_intervals_mismatch
@@ -154,6 +156,8 @@ workflow MakeCallsFromConsensus {
           tumor_reads_index = tumor_bam_idx,
           normal_reads = normal_bam,
           normal_reads_index = normal_bam_idx,
+          forcecall_vcf = m2_forcecall_vcf,
+          forcecall_vcf_idx = m2_forcecall_vcf_idx,
           pon = pon_to_use,
           pon_idx = pon_to_use_idx,
           scatter_count = scatter_count,
