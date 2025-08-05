@@ -46,6 +46,7 @@ task GetWorkspaceInfo {
         String namespace
         String workspace
         Boolean remove_partially_fail
+        Array[String]? allowed_submitters
     }
     command <<<
         source activate NeoVax-Input-Parser
@@ -55,21 +56,30 @@ task GetWorkspaceInfo {
 
         namespace = "~{namespace}"
         workspace = "~{workspace}"
+        remove_partially_fail = '~{remove_partially_fail}' == 'true'
+        allowed_submitters = ~{sep(",", default=[]) allowed_submitters}
 
-        if '~{remove_partially_fail}' == 'true':
-            with open('failed_submissions.txt','w') as file:
-                for submission in fapi.list_submissions(namespace, workspace).json():
-                    if 'Failed' in submission['workflowStatuses'].keys() or 'Aborted' in submission['workflowStatuses'].keys():
-                        file.write(submission['submissionId'] + '\n')
-        else:
-            with open('failed_submissions.txt','w') as file:
-                    for submission in fapi.list_submissions(namespace, workspace).json():
-                        if 'Failed' in submission['workflowStatuses'].keys() or 'Aborted' in submission['workflowStatuses'].keys():
-                            if 'Failed' and 'Succeeded' not in submission['workflowStatuses'].keys():
-                                file.write(submission['submissionId'] + '\n')
+        def is_allowed(submitter):
+            return (not allowed_submitters) or (submitter in allowed_submitters)
 
-        with open("workspace_bucket.txt", "w") as file:
-            file.write(fapi.get_workspace(namespace, workspace).json()['workspace']['bucketName'])
+        failed_ids = []
+        for submission in fapi.list_submissions(namespace, workspace).json():
+            if not is_allowed(submission.get("submitter", "")):
+                continue
+            statuses = submission.get('workflowStatuses', {})
+            if remove_partially_fail:
+                if 'Failed' in statuses or 'Aborted' in statuses:
+                    failed_ids.append(submission['submissionId'])
+            else:
+                if ('Failed' in statuses or 'Aborted' in statuses) and 'Succeeded' not in statuses:
+                    failed_ids.append(submission['submissionId'])
+
+        with open('failed_submissions.txt','w') as f:
+            for sid in failed_ids:
+                f.write(sid + '\n')
+
+        with open("workspace_bucket.txt", "w") as f:
+            f.write(fapi.get_workspace(namespace, workspace).json()['workspace']['bucketName'])
 
         CODE
         >>>
@@ -80,9 +90,9 @@ task GetWorkspaceInfo {
     output {
         Array[String] failed_submissions = read_lines("failed_submissions.txt")
         String workspace_bucket = read_string("workspace_bucket.txt")
-
     }
 }
+
 
 task CleanupAFolder {
     input {
