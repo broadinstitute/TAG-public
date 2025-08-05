@@ -46,11 +46,12 @@ task GetWorkspaceInfo {
         String namespace
         String workspace
         Boolean remove_partially_fail
-        Array[String]? allowed_submitters
+        String? allowed_submitters
     }
     command <<<
         source activate NeoVax-Input-Parser
-        export ALLOWED_SUBMITTERS="~{if defined(allowed_submitters) then sep(",", allowed_submitters) else ""}"
+        export ALLOWED_SUBMITTERS="~{default("", allowed_submitters)}"
+
         python3 <<CODE
 
         import os
