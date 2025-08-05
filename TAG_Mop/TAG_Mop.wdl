@@ -165,51 +165,49 @@ workflow CleanupWithOptionalMop {
         }
     }
 
-    task mop {
-        input {
-            String namespace
-            String workspaceName
-            String mopDocker
-            Int sysfiles
-            File? submission_ids_file
-        }
-
-        command <<<
-            source activate NeoVax-Input-Parser
-
-            echo "System Files Deleted: ~{sysfiles}"
-
-            if [[ -n "~{submission_ids_file}" && -f "~{submission_ids_file}" ]]; then
-                SUB_IDS=$(paste -sd " " ~{submission_ids_file})
-                fissfc mop -w ~{workspaceName} -p ~{namespace} --dry-run --submission-ids $SUB_IDS > mop_dry_run.txt
-            else
-                fissfc mop -w ~{workspaceName} -p ~{namespace} --dry-run > mop_dry_run.txt
-            fi
-
-            echo Files to mop: $(cat mop_dry_run.txt | wc -l)
-            cat mop_dry_run.txt | grep "gs:" | wc -l > num_of_files_to_mop.txt
-            cat mop_dry_run.txt | grep Total | awk '{print $3 $4}' > total_size_to_mop.txt
-
-            if [ $(cat mop_dry_run.txt | wc -l) -eq 0 ]; then
-                echo "No files to mop"
-            else
-                if [[ -f "~{submission_ids_file}" ]]; then
-                    fissfc --yes mop -w ~{workspaceName} -p ~{namespace} --submission-ids $SUB_IDS
-                else
-                    fissfc --yes mop -w ~{workspaceName} -p ~{namespace}
-                fi
-            fi
-        >>>
-
-        output {
-            File mopped_files = "mop_dry_run.txt"
-            Int num_of_files_to_mop = read_int("num_of_files_to_mop.txt")
-            String total_size_to_mop = read_string("total_size_to_mop.txt")
-        }
-
-        runtime {
-            docker: mopDocker
-            memory: "4 GiB"
-            cpu: 1
-        }
+task FilterSubmissionIdsBySubmitter {
+    input {
+        String namespace
+        String workspaceName
+        String? allowed_submitters
+        String mopDocker
     }
+
+    command <<<
+        export NAMESPACE="~{namespace}"
+        export WORKSPACE="~{workspaceName}"
+        export ALLOWED_SUBMITTERS="~{select_first([allowed_submitters, ""])}"
+
+        python3 <<CODE
+import os
+import firecloud.api as fapi
+
+namespace = os.environ["NAMESPACE"]
+workspace = os.environ["WORKSPACE"]
+allowed_raw = os.environ.get("ALLOWED_SUBMITTERS", "")
+allowed_submitters = [s.strip() for s in allowed_raw.split(",") if s.strip()]
+
+submissions = fapi.list_submissions(namespace, workspace).json()
+
+filtered_ids = [
+    s["submissionId"]
+    for s in submissions
+    if not allowed_submitters or s.get("submitter", "") in allowed_submitters
+]
+
+with open("filtered_submission_ids.txt", "w") as f:
+    for sid in filtered_ids:
+        f.write(sid + "\\n")
+CODE
+    >>>
+
+    output {
+        File filtered_submission_ids = "filtered_submission_ids.txt"
+    }
+
+    runtime {
+        docker: mopDocker
+        memory: "2 GiB"
+        cpu: 1
+    }
+}
