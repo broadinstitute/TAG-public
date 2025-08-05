@@ -50,7 +50,7 @@ task GetWorkspaceInfo {
     }
     command <<<
         source activate NeoVax-Input-Parser
-        export ALLOWED_SUBMITTERS="~{default("", allowed_submitters)}"
+        export ALLOWED_SUBMITTERS="~{select_first([allowed_submitters, ""])}"
 
         python3 <<CODE
 
