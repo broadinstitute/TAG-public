@@ -4,7 +4,7 @@ workflow CleanupWithOptionalMop {
     input {
         String namespace
         String workspaceName
-        String mopDocker
+        String mopDocker = "us.gcr.io/tag-team-160914/neovax-parsley:2.2.1.0"
         String? allowed_submitters
     }
     call rmSysfiles {
