@@ -50,14 +50,19 @@ task GetWorkspaceInfo {
     }
     command <<<
         source activate NeoVax-Input-Parser
+        export ALLOWED_SUBMITTERS='~{if defined(allowed_submitters) then json(allowed_submitters) else ""}'
         python3 <<CODE
 
+        import os
+        import json
         import firecloud.api as fapi
 
         namespace = "~{namespace}"
         workspace = "~{workspace}"
         remove_partially_fail = '~{remove_partially_fail}' == 'true'
-        allowed_submitters = ~{sep(",", default=[]) allowed_submitters}
+
+        allowed_submitters_env = os.environ.get("ALLOWED_SUBMITTERS", "")
+        allowed_submitters = json.loads(allowed_submitters_env) if allowed_submitters_env else None
 
         def is_allowed(submitter):
             return (not allowed_submitters) or (submitter in allowed_submitters)
@@ -82,7 +87,8 @@ task GetWorkspaceInfo {
             f.write(fapi.get_workspace(namespace, workspace).json()['workspace']['bucketName'])
 
         CODE
-        >>>
+    >>>
+
     runtime {
        docker: "us.gcr.io/tag-team-160914/neovax-parsley:2.2.1.0"
        preemptible: 0
