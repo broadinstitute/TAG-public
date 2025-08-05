@@ -126,6 +126,7 @@ task FilterSubmissionIdsBySubmitter {
     }
 
     command <<<
+        source activate NeoVax-Input-Parser
         export NAMESPACE="~{namespace}"
         export WORKSPACE="~{workspaceName}"
         export ALLOWED_SUBMITTERS="~{select_first([allowed_submitters, ""])}"
