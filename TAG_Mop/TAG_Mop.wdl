@@ -20,7 +20,7 @@ workflow CleanupWithOptionalMop {
                 namespace = namespace,
                 workspaceName = workspaceName,
                 allowed_submitters = allowed_submitters,
-                docker_image = mopDocker
+                mopDocker = mopDocker
         }
 
         call mop as mop_with_submitter{
