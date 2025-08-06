@@ -10,7 +10,8 @@ workflow CleanupWithOptionalMop {
         Boolean runMop
     }
 
-    if (defined(allowed_submitters)) {
+    # Optional mop calls
+    if (runMop && defined(allowed_submitters)) {
         call FilterSubmissionIdsBySubmitter {
             input:
                 namespace = namespace,
@@ -28,7 +29,7 @@ workflow CleanupWithOptionalMop {
         }
     }
 
-    if (!defined(allowed_submitters)) {
+    if (runMop && !defined(allowed_submitters)) {
         call mop as mop_without_submitter {
             input:
                 namespace = namespace,
@@ -37,20 +38,38 @@ workflow CleanupWithOptionalMop {
         }
     }
 
+    # Always define a dummy fallback trigger
+    String dummy_trigger = "noop"
+
     if (delete_sys_files) {
-        call rmSysfiles {
-            input:
-                namespace = namespace,
-                workspaceName = workspaceName,
-                mopDocker = mopDocker
-        }
-        # Depend on both possible mop calls to ensure correct order
-        if (defined(allowed_submitters)) {
-            rmSysfiles.after = mop_with_submitter
+        if (runMop && defined(allowed_submitters)) {
+            call rmSysfiles {
+                input:
+                    namespace = namespace,
+                    workspaceName = workspaceName,
+                    mopDocker = mopDocker,
+                    trigger = mop_with_submitter.total_size_to_mop
+            }
+        } else if (runMop && !defined(allowed_submitters)) {
+            call rmSysfiles {
+                input:
+                    namespace = namespace,
+                    workspaceName = workspaceName,
+                    mopDocker = mopDocker,
+                    trigger = mop_without_submitter.total_size_to_mop
+            }
         } else {
-            rmSysfiles.after = mop_without_submitter
+            # If mop is not run, use dummy trigger to allow rmSysfiles alone
+            call rmSysfiles {
+                input:
+                    namespace = namespace,
+                    workspaceName = workspaceName,
+                    mopDocker = mopDocker,
+                    trigger = dummy_trigger
+            }
         }
     }
+
 
     output {
         Int? deleted_sysfiles = if (delete_sys_files) then rmSysfiles.deleted_sys_files else 0
@@ -75,6 +94,7 @@ workflow CleanupWithOptionalMop {
             String mopDocker
             Int memory = 16
             Int cpu = 2
+            String? trigger # dummy input to inforce order
         }
         command <<<
             source activate NeoVax-Input-Parser
