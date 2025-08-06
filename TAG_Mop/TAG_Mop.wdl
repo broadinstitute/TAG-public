@@ -76,10 +76,11 @@ workflow CleanupWithOptionalMop {
 
     output {
         Int? deleted_sysfiles = if (delete_sys_files) then select_first(select_all([rm_after_mop_with_submitter.deleted_sys_files, rm_after_mop_without_submitter.deleted_sys_files, rm_without_mop.deleted_sys_files])) else 0
-        File? mopped_files = if (runMop && defined(mop_with_submitter.mopped_files)) { mop_with_submitter.mopped_files } else if (runMop && defined(mop_without_submitter.mopped_files)) {mop_without_submitter.mopped_files } else { None }
-        Int? num_of_files_to_mop = if (runMop && defined(mop_with_submitter.num_of_files_to_mop)) { mop_with_submitter.num_of_files_to_mop } else if (runMop && defined(mop_without_submitter.num_of_files_to_mop)) { mop_without_submitter.num_of_files_to_mop } else { None }
-        String? total_size_to_mop = if (runMop && defined(mop_with_submitter.total_size_to_mop)) { mop_with_submitter.total_size_to_mop } else if (runMop && defined(mop_without_submitter.total_size_to_mop)) { mop_without_submitter.total_size_to_mop } else { None } 
-  }
+        File? mopped_files =  if runMop && defined(mop_with_submitter.mopped_files) then mop_with_submitter.mopped_files else if runMop && defined(mop_without_submitter.mopped_files) then mop_without_submitter.mopped_files else None
+        Int? num_of_files_to_mop = if runMop && defined(mop_with_submitter.num_of_files_to_mop) then mop_with_submitter.num_of_files_to_mop else if runMop && defined(mop_without_submitter.num_of_files_to_mop) then mop_without_submitter.num_of_files_to_mop else None
+        String? total_size_to_mop = if runMop && defined(mop_with_submitter.total_size_to_mop) then mop_with_submitter.total_size_to_mop else if runMop && defined(mop_without_submitter.total_size_to_mop) then mop_without_submitter.total_size_to_mop else None
+
+        }
 
     meta {
         author: "Yueyao Gao"
