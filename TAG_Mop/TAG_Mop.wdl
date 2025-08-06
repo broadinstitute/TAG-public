@@ -6,12 +6,8 @@ workflow CleanupWithOptionalMop {
         String workspaceName
         String mopDocker = "us.gcr.io/tag-team-160914/neovax-parsley:2.2.1.0"
         String? allowed_submitters
-    }
-    call rmSysfiles {
-        input:
-            namespace = namespace,
-            workspaceName = workspaceName,
-            mopDocker = mopDocker
+        Boolean delete_sys_files
+        Boolean runMop
     }
 
     if (defined(allowed_submitters)) {
@@ -23,12 +19,11 @@ workflow CleanupWithOptionalMop {
                 mopDocker = mopDocker
         }
 
-        call mop as mop_with_submitter{
+        call mop as mop_with_submitter {
             input:
                 namespace = namespace,
                 workspaceName = workspaceName,
                 mopDocker = mopDocker,
-                sysfiles = rmSysfiles.deleted_sys_files,
                 submission_ids_file = FilterSubmissionIdsBySubmitter.filtered_submission_ids
         }
     }
@@ -38,34 +33,48 @@ workflow CleanupWithOptionalMop {
             input:
                 namespace = namespace,
                 workspaceName = workspaceName,
-                mopDocker = mopDocker,
-                sysfiles = rmSysfiles.deleted_sys_files
+                mopDocker = mopDocker
+        }
+    }
+
+    if (delete_sys_files) {
+        call rmSysfiles {
+            input:
+                namespace = namespace,
+                workspaceName = workspaceName,
+                mopDocker = mopDocker
+        }
+        # Depend on both possible mop calls to ensure correct order
+        if (defined(allowed_submitters)) {
+            rmSysfiles.after = mop_with_submitter
+        } else {
+            rmSysfiles.after = mop_without_submitter
         }
     }
 
     output {
-        Int deleted_sysfiles = rmSysfiles.deleted_sys_files
+        Int? deleted_sysfiles = if (delete_sys_files) then rmSysfiles.deleted_sys_files else 0
         File? mopped_files = select_first([mop_with_submitter.mopped_files, mop_without_submitter.mopped_files])
         File? filtered_submission_ids = FilterSubmissionIdsBySubmitter.filtered_submission_ids
         Int? num_of_files_to_mop = select_first([mop_with_submitter.num_of_files_to_mop, mop_without_submitter.num_of_files_to_mop])
         String? total_size_to_mop = select_first([mop_with_submitter.total_size_to_mop, mop_without_submitter.total_size_to_mop])
     }
 
-        meta {
-            author: "Yueyao Gao"
-            email: "gaoyueya@broadinstitute.org"
-            description: "TAG Mop contains three sub-workflows: rmSysfiles and mop. rmSysfiles removes system files that were generated from submissions from a Terra workspace. mop runs the FISS Mop function. Suggest to run after cleanupFailedSubmission.wdl"
-        }
-
+    meta {
+        author: "Yueyao Gao"
+        email: "gaoyueya@broadinstitute.org"
+        description: "TAG Mop optionally runs mop and/or removes sysfiles after mop."
     }
+}
+
 
     task rmSysfiles {
         input{
             String namespace
             String workspaceName
             String mopDocker
-            Int memory = 32
-            Int cpu = 8
+            Int memory = 16
+            Int cpu = 2
         }
         command <<<
             source activate NeoVax-Input-Parser
@@ -178,8 +187,6 @@ CODE
 
         command <<<
             source activate NeoVax-Input-Parser
-
-            echo "System Files Deleted: ~{sysfiles}"
 
             if [[ -f "~{submission_ids_file}" ]]; then
                 SUB_IDS=$(paste -sd " " ~{submission_ids_file})
