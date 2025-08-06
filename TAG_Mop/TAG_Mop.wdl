@@ -81,14 +81,16 @@ workflow CleanupWithOptionalMop {
     File? mopped_files = select_first([mopped_files_with_submitter, mopped_files_without_submitter])
     String total_size_to_mop = select_first([mopped_sizes_with_submitter, mopped_sizes_without_submitter, "0"])
     }
-
- }
-
+    
     meta {
         author: "Yueyao Gao"
         email: "gaoyueya@broadinstitute.org"
         description: "TAG Mop optionally runs mop and/or removes sysfiles after mop."
     }
+
+ }
+
+
 
 
 
