@@ -42,7 +42,7 @@ workflow CleanupWithOptionalMop {
     String dummy_trigger = "noop"
 
     if (delete_sys_files && runMop && defined(allowed_submitters)) {
-        call rmSysfiles {
+        call rmSysfiles as rm_after_mop_with_submitter {
             input:
                 namespace = namespace,
                 workspaceName = workspaceName,
@@ -52,7 +52,7 @@ workflow CleanupWithOptionalMop {
     }
 
     if (delete_sys_files && runMop && !defined(allowed_submitters)) {
-        call rmSysfiles {
+        call rmSysfiles as rm_after_mop_without_submitter {
             input:
                 namespace = namespace,
                 workspaceName = workspaceName,
@@ -62,14 +62,15 @@ workflow CleanupWithOptionalMop {
     }
 
     if (delete_sys_files && !runMop) {
-        call rmSysfiles {
+        call rmSysfiles as rm_without_mop {
             input:
                 namespace = namespace,
                 workspaceName = workspaceName,
                 mopDocker = mopDocker,
                 trigger = dummy_trigger
-        } 
+        }
     }
+
 
 
 
