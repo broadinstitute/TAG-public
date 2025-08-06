@@ -71,17 +71,31 @@ workflow CleanupWithOptionalMop {
         }
     }
         
-    String? mopped_sizes_with_submitter = if runMop && defined(mop_with_submitter.total_size_to_mop) then mop_with_submitter.total_size_to_mop else None
-    String? mopped_sizes_without_submitter = if runMop && defined(mop_without_submitter.total_size_to_mop) then mop_without_submitter.total_size_to_mop else None
-    File? mopped_files_with_submitter = if runMop && defined(mop_with_submitter.mopped_files) then mop_with_submitter.mopped_files else None
-    File? mopped_files_without_submitter = if runMop && defined(mop_without_submitter.mopped_files) then mop_without_submitter.mopped_files else None
+    String? mopped_sizes_with_submitter = if runMop && defined(mop_with_submitter.total_size_to_mop) then mop_with_submitter.total_size_to_mop
+    String? mopped_sizes_without_submitter = if runMop && defined(mop_without_submitter.total_size_to_mop) then mop_without_submitter.total_size_to_mop
+    File? mopped_files_with_submitter = if runMop && defined(mop_with_submitter.mopped_files) then mop_with_submitter.mopped_files
+    File? mopped_files_without_submitter = if runMop && defined(mop_without_submitter.mopped_files) then mop_without_submitter.mopped_files
 
     output {
-    Int deleted_sysfiles = if delete_sys_files then select_first(select_all([rm_after_mop_with_submitter.deleted_sys_files, rm_after_mop_without_submitter.deleted_sys_files, rm_without_mop.deleted_sys_files])) else 0
-    File? mopped_files = select_first([mopped_files_with_submitter, mopped_files_without_submitter])
-    String total_size_to_mop = select_first([mopped_sizes_with_submitter, mopped_sizes_without_submitter, "0"])
+    Int deleted_sysfiles = if delete_sys_files then select_first(select_all([
+        rm_after_mop_with_submitter.deleted_sys_files,
+        rm_after_mop_without_submitter.deleted_sys_files,
+        rm_without_mop.deleted_sys_files
+    ])) else 0
+
+    File? mopped_files = select_first([
+        mopped_files_with_submitter,
+        mopped_files_without_submitter
+    ])
+
+    String total_size_to_mop = select_first([
+        mopped_sizes_with_submitter,
+        mopped_sizes_without_submitter,
+        "0"
+    ])
     }
-    
+
+
     meta {
         author: "Yueyao Gao"
         email: "gaoyueya@broadinstitute.org"
