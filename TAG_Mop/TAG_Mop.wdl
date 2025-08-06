@@ -41,34 +41,36 @@ workflow CleanupWithOptionalMop {
     # Always define a dummy fallback trigger
     String dummy_trigger = "noop"
 
-    if (delete_sys_files) {
-        if (runMop && defined(allowed_submitters)) {
-            call rmSysfiles {
-                input:
-                    namespace = namespace,
-                    workspaceName = workspaceName,
-                    mopDocker = mopDocker,
-                    trigger = mop_with_submitter.total_size_to_mop
-            }
-        } else if (runMop && !defined(allowed_submitters)) {
-            call rmSysfiles {
-                input:
-                    namespace = namespace,
-                    workspaceName = workspaceName,
-                    mopDocker = mopDocker,
-                    trigger = mop_without_submitter.total_size_to_mop
-            }
-        } else {
-            # If mop is not run, use dummy trigger to allow rmSysfiles alone
-            call rmSysfiles {
-                input:
-                    namespace = namespace,
-                    workspaceName = workspaceName,
-                    mopDocker = mopDocker,
-                    trigger = dummy_trigger
-            }
+    if (delete_sys_files && runMop && defined(allowed_submitters)) {
+        call rmSysfiles {
+            input:
+                namespace = namespace,
+                workspaceName = workspaceName,
+                mopDocker = mopDocker,
+                trigger = mop_with_submitter.total_size_to_mop
         }
     }
+
+    if (delete_sys_files && runMop && !defined(allowed_submitters)) {
+        call rmSysfiles {
+            input:
+                namespace = namespace,
+                workspaceName = workspaceName,
+                mopDocker = mopDocker,
+                trigger = mop_without_submitter.total_size_to_mop
+        }
+    }
+
+    if (delete_sys_files && !runMop) {
+        call rmSysfiles {
+            input:
+                namespace = namespace,
+                workspaceName = workspaceName,
+                mopDocker = mopDocker,
+                trigger = dummy_trigger
+        } 
+    }
+
 
 
     output {
