@@ -85,7 +85,7 @@ workflow CleanupWithOptionalMop {
         Int? deleted_sysfiles = if (delete_sys_files) then select_first(select_all([rm_after_mop_with_submitter.deleted_sys_files, rm_after_mop_without_submitter.deleted_sys_files, rm_without_mop.deleted_sys_files])) else 0
         File? mopped_files =  mopped_files
         Int? num_of_files_to_mop = if runMop && defined(mop_with_submitter.num_of_files_to_mop) then mop_with_submitter.num_of_files_to_mop else if runMop && defined(mop_without_submitter.num_of_files_to_mop) then mop_without_submitter.num_of_files_to_mop else 0
-        String? total_size_to_mop = _otal_size_to_mop
+        String? total_size_to_mop = total_size_to_mop
         }
 
     meta {
