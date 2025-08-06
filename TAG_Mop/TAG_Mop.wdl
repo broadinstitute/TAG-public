@@ -204,7 +204,6 @@ CODE
             String namespace
             String workspaceName
             String mopDocker
-            Int sysfiles
             File? submission_ids_file
         }
 
