@@ -70,30 +70,26 @@ workflow CleanupWithOptionalMop {
                 trigger = dummy_trigger
         }
     }
-
-    File? mopped_files = 
-    if runMop && defined(mop_with_submitter.mopped_files) then mop_with_submitter.mopped_files
-    else if runMop && defined(mop_without_submitter.mopped_files) then mop_without_submitter.mopped_files
-    else undefined
-    String? total_size_to_mop =
-    if runMop && defined(mop_with_submitter.total_size_to_mop) then mop_with_submitter.total_size_to_mop
-    else if runMop && defined(mop_without_submitter.total_size_to_mop) then mop_without_submitter.total_size_to_mop
-    else undefined
-
+        
+    String? mopped_sizes_with_submitter = if runMop && defined(mop_with_submitter.total_size_to_mop) then mop_with_submitter.total_size_to_mop else None
+    String? mopped_sizes_without_submitter = if runMop && defined(mop_without_submitter.total_size_to_mop) then mop_without_submitter.total_size_to_mop else None
+    File? mopped_files_with_submitter = if runMop && defined(mop_with_submitter.mopped_files) then mop_with_submitter.mopped_files else None
+    File? mopped_files_without_submitter = if runMop && defined(mop_without_submitter.mopped_files) then mop_without_submitter.mopped_files else None
 
     output {
-        Int? optional_deleted_sysfiles = if (delete_sys_files) then select_first(select_all([rm_after_mop_with_submitter.deleted_sys_files, rm_after_mop_without_submitter.deleted_sys_files, rm_without_mop.deleted_sys_files])) else 0
-        File? optional_mopped_files =  mopped_files
-        Int? optional_num_of_files_to_mop = if runMop && defined(mop_with_submitter.num_of_files_to_mop) then mop_with_submitter.num_of_files_to_mop else if runMop && defined(mop_without_submitter.num_of_files_to_mop) then mop_without_submitter.num_of_files_to_mop else 0
-        String? optional_total_size_to_mop = total_size_to_mop
-        }
+    Int deleted_sysfiles = if delete_sys_files then select_first(select_all([rm_after_mop_with_submitter.deleted_sys_files, rm_after_mop_without_submitter.deleted_sys_files, rm_without_mop.deleted_sys_files])) else 0
+    File? mopped_files = select_first([mopped_files_with_submitter, mopped_files_without_submitter])
+    String total_size_to_mop = select_first([mopped_sizes_with_submitter, mopped_sizes_without_submitter, "0"])
+    }
+
+ }
 
     meta {
         author: "Yueyao Gao"
         email: "gaoyueya@broadinstitute.org"
         description: "TAG Mop optionally runs mop and/or removes sysfiles after mop."
     }
-}
+
 
 
     task rmSysfiles {
