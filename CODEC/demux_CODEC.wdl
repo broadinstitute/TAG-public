@@ -48,7 +48,7 @@ workflow demux_CODEC {
         call concatenate_and_compress_fastq as concatenate_and_compress_fastq1 {
             input:
                 grouped_fastq_list = txt_file,
-                output_file = basename(txt_file, ".txt") + ".1.gz"
+                output_file = basename(txt_file, ".txt") + ".1.fastq.gz"
         }
     }
 
@@ -56,7 +56,7 @@ workflow demux_CODEC {
         call concatenate_and_compress_fastq as concatenate_and_compress_fastq2 {
             input:
                 grouped_fastq_list = txt_file,
-                output_file = basename(txt_file, ".txt") + ".2.gz"
+                output_file = basename(txt_file, ".txt") + ".2.fastq.gz"
         }
     }
     
@@ -195,21 +195,14 @@ task concatenate_and_compress_fastq {
         Int disk_size = 64
     }
 
-    command {
-        set -e
-        while IFS= read -r line; do
-        gsutil cp "$line" temp.fastq.gz
-        
-        # Check if the file was successfully copied
-        if [ -f temp.fastq.gz ]; then
-            gunzip -c temp.fastq.gz
-        else
-            echo "Failed to copy file from $line"
-            exit 1
-        fi
-    done < ~{grouped_fastq_list} | gzip > ~{output_file}
-    }
-    output {
+  command <<<
+    set -euo pipefail
+
+    gsutil cat $(grep '^gs://' "~{grouped_fastq_list}") | gzip -c > ~{output_file}
+    
+  >>>
+  
+  output {
         File output_fastq_gz = output_file
     }
 
