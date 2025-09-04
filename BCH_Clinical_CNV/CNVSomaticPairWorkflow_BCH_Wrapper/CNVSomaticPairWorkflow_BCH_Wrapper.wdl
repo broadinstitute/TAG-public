@@ -137,7 +137,7 @@ workflow CNVSomaticPairWorkflow_BCH_Wrapper {
       File evaluate_cnv_script
       String python_docker = "python:3"
       String pairID
-      String quicvizDocker = "us-central1-docker.pkg.dev/tag-team-160914/gptag-dockers/cmi_quicviz:0.4.2"
+      String quicvizDocker = "us.gcr.io/tag-team-160914/cmi_quicviz:0.4.3"
 	}
 
 	call CNV_WDL.CNVSomaticPairWorkflow as CNVSomaticPairWorkflow{
@@ -390,7 +390,7 @@ task QUICviz {
         echo "Input Normal Sample: "~{normal_sample_id}
 
 
-        Rscript /BaseImage/CMI_QUICviz/scripts/CMI_QUICviz_v0.4.2.R \
+        Rscript /BaseImage/CMI_QUICviz/scripts/CMI_QUICviz.R \
             --sample ~{tumor_sample_id} \
             --tumor_type ~{tumorType} \
             --normal_acf ~{allelicCountsNormal} \
