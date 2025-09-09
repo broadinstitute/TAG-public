@@ -1,0 +1,21 @@
+{
+    "demux_CODEC.Demux.disk_size": "${200}",
+    "demux_CODEC.Demux.memory": "${64}",
+    "demux_CODEC.GroupFastq1.disk_size": "${1600}",
+    "demux_CODEC.GroupFastq2.disk_size": "${1600}",
+    "demux_CODEC.SplitFastq1.disk_size": "${2048}",
+    "demux_CODEC.SplitFastq1.memory": "${128}",
+    "demux_CODEC.SplitFastq2.disk_size": "${2048}",
+    "demux_CODEC.SplitFastq2.memory": "${128}",
+    "demux_CODEC.UploadDataTable.namespace": "broadtagteam",
+    "demux_CODEC.batch_ids": "${[\"L001\",\"L002\"]}",
+    "demux_CODEC.concatenate_and_compress_fastq1.disk_size": "${100}",
+    "demux_CODEC.concatenate_and_compress_fastq1.memory": "${64}",
+    "demux_CODEC.concatenate_and_compress_fastq2.disk_size": "${100}",
+    "demux_CODEC.concatenate_and_compress_fastq2.memory": "${64}",
+    "demux_CODEC.fastq1": "${[\"gs://fc-685a4bff-2f8c-4c0c-ad21-bbfdeab7b5e0/1705429346_fastqs/Undetermined_S0_L001_R1_001.fastq.gz\",\"gs://fc-685a4bff-2f8c-4c0c-ad21-bbfdeab7b5e0/1705429346_fastqs/Undetermined_S0_L002_R1_001.fastq.gz\"]}",
+    "demux_CODEC.fastq2": "${[\"gs://fc-685a4bff-2f8c-4c0c-ad21-bbfdeab7b5e0/1705429346_fastqs/Undetermined_S0_L001_R2_001.fastq.gz\",\"gs://fc-685a4bff-2f8c-4c0c-ad21-bbfdeab7b5e0/1705429346_fastqs/Undetermined_S0_L002_R2_001.fastq.gz\"]}",
+    "demux_CODEC.num_parallel": "${40}",
+    "demux_CODEC.sample_sheet": "${[\"gs://fc-685a4bff-2f8c-4c0c-ad21-bbfdeab7b5e0/sample_sheet/sample_sheet_L001.csv\",\"gs://fc-685a4bff-2f8c-4c0c-ad21-bbfdeab7b5e0/sample_sheet/sample_sheet_L002.csv\"]}",
+    "demux_CODEC.workspace": "CODEC_example_workspace"
+}
