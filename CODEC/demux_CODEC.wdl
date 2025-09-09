@@ -197,9 +197,9 @@ task concatenate_and_compress_fastq {
 
   command <<<
     set -euo pipefail
-
-    gsutil cat $(grep '^gs://' "~{grouped_fastq_list}") | gzip -c > ~{output_file}
-    
+    # strip blank/comment/CRLF lines, then stream in order
+    sed -E 's/\r$//' "~{grouped_fastq_list}" | grep -E '^\s*gs://' | while IFS= read -r uri; do gsutil -q cat "$uri"; done > "~{output_file}"
+   
   >>>
   
   output {
