@@ -191,7 +191,7 @@ workflow SingleSampleCODEC_targeted {
         }
         call Maf2Vcf {
             input:
-            maf = codec2MAF.maf,
+            maf = codec2MAF.output_maf,
             ref_fasta = reference_fasta,
             ref_fai = reference_fasta_index
         }
