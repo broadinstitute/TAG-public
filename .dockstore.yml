@@ -119,6 +119,26 @@ workflows:
    primaryDescriptorPath: /CleanupFailedSubmissions/Cleanup_Failed_Submissions.wdl
    testParameterFiles:
     - /CleanupFailedSubmissions/Cleanup_Failed_Submissions.inputs.json
+ - name: codec_bcl2fastq
+   subclass: WDL
+   primaryDescriptorPath: /CODEC/codec_bcl2fastq.wdl
+   testParameterFiles:
+    - /CODEC/codec_bcl2fastq.inputs.json
+ - name: demux_CODEC
+   subclass: WDL
+   primaryDescriptorPath: /CODEC/demux_CODEC.wdl
+   testParameterFiles:
+    - /CODEC/demux_CODEC.inputs.json
+ - name: SingleSampleCODEC
+   subclass: WDL
+   primaryDescriptorPath: /CODEC/SingleSampleCODEC.wdl
+   testParameterFiles:
+    - /CODEC/SingleSampleCODEC.inputs.json
+ - name: SigProfiler
+   subclass: WDL
+   primaryDescriptorPath: /CODEC/SigProfiler.wdl
+   testParameterFiles:
+    - /CODEC/SigProfiler.inputs.json
  - name: TAG_Mop
    subclass: WDL
    primaryDescriptorPath: /TAG_Mop/TAG_Mop.wdl

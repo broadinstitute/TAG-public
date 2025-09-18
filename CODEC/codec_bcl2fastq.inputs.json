@@ -1,0 +1,12 @@
+{
+    "codec_bcl2fastq.delete_input_bcl_directory": "${false}",
+    "codec_bcl2fastq.disk_space": "${3000}",
+    "codec_bcl2fastq.input_bcl_directory": "gs://fc-685a4bff-2f8c-4c0c-ad21-bbfdeab7b5e0/1705429346/",
+    "codec_bcl2fastq.memory": "${}",
+    "codec_bcl2fastq.output_directory": "gs://fc-685a4bff-2f8c-4c0c-ad21-bbfdeab7b5e0",
+    "codec_bcl2fastq.preemptible": "${4}",
+    "codec_bcl2fastq.read_threads": "${8}",
+    "codec_bcl2fastq.run_bcl2fastq.num_cpu": "${2}",
+    "codec_bcl2fastq.run_bcl2fastq.run_id": "${}",
+    "codec_bcl2fastq.write_threads": "${8}"
+}
