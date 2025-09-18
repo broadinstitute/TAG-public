@@ -378,6 +378,7 @@ task QUICviz {
         File denoisedCopyRatiosTumor
         File calledCopyRatioSegTumor
         File oncotatedCalledTumor
+        File? gene_list_override
         Int memory = 16
         Int cpu = 4
         Int maxRetries = 3
@@ -399,6 +400,7 @@ task QUICviz {
             --tumor_cr ~{denoisedCopyRatiosTumor} \
             --tumor_cr_seg ~{calledCopyRatioSegTumor} \
             --tumor_seg_oncotated ~{oncotatedCalledTumor} \
+            ~{'--gene_list '+ gene_list_override} \
             --output_dir outputs/
 
         mv outputs/*chromosome_plots.pdf outputs/~{pairID}_chromosome_plots.pdf
