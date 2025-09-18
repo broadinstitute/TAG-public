@@ -22,7 +22,7 @@ workflow SingleSampleCODEC_targeted {
         File? bait_intervals
         File? target_intervals
         Boolean is_captured_data
-        Boolean create_maf
+        Boolean create_vcf
     }
         call SplitFastq1 {
             input: 
@@ -183,11 +183,17 @@ workflow SingleSampleCODEC_targeted {
                 germline_bam_index = germline_bam_index,
                 eval_genome_bed = eval_genome_bed
         }
-        if (create_maf) {
+        if (create_vcf) {
         call codec2MAF {
             input:
                 variants_called = CSS_SFC_ErrorMetrics.variants_called,
                 sample_id = sample_id
+        }
+        call Maf2Vcf {
+            input:
+            maf = codec2MAF.maf,
+            ref_fasta = reference_fasta,
+            ref_fai = reference_fasta_index
         }
         }
         call QC_metrics {
@@ -252,6 +258,7 @@ workflow SingleSampleCODEC_targeted {
         File? duplex_recovery_metrics = DuplexRecoveryMetrics.duplex_recovery_metrics
         File? ds_duplex_plots = PlotDuplexRecoveryByTarget.ds_duplex_plots
         File? outputMAF = codec2MAF.output_maf
+        File? outputVCF = Maf2Vcf.vcf
     }
 }
 
@@ -1156,4 +1163,47 @@ task codec2MAF {
         disks: "local-disk 16 HDD"
         preemptible: 1
     }
+}
+
+
+task Maf2Vcf {
+  input {
+    File maf
+    File ref_fasta
+    File ref_fai
+    String outdir = "vcfs"
+  }
+
+  command <<<
+    set -euo pipefail
+    mkdir -p "~{outdir}"
+
+    perl /app/script.pl \
+      --input-maf "~{maf}" \
+      --output-dir "~{outdir}" \
+      --ref-fasta "~{ref_fasta}" \
+      --ref-fai "~{ref_fai}"
+  >>>
+
+  output {
+    File vcf = glob("~{outdir}/*.vcf")[0]
+  }
+
+  runtime {
+    docker: "us.gcr.io/tag-public/perl-tools"
+    cpu: 1
+    memory: "8G"
+    disks: "local-disk 16 HDD"
+  }
+
+  meta {
+    description: "Convert a MAF to a multi-sample VCF using maf2vcf.pl"
+  }
+
+  parameter_meta {
+    maf:        "Input MAF file"
+    ref_fasta:  "Reference FASTA file"
+    ref_fai:    "Reference FASTA index file (.fai)"
+    outdir:     "Output directory (default: vcfs)"
+  }
 }
