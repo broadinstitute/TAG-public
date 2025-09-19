@@ -154,3 +154,8 @@ workflows:
    primaryDescriptorPath: /BCH_Clinical_CNV/DeliverCNVOutputs/DeliverCNVOutputs.wdl
    testParameterFiles:
    - /BCH_Clinical_CNV/DeliverCNVOutputs/DeliverCNVOutputs.inputs.json
+ - name: plotCNVQC
+   subclass: WDL
+   primaryDescriptorPath: /BCH_Clinical_CNV/plotCNVQC/plotCNVQC.wdl
+   testParameterFiles:
+   - /BCH_Clinical_CNV/plotCNVQC/plotCNVQC.inputs.json

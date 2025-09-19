@@ -1,6 +1,7 @@
 version 1.0
 
 import "./subworkflows/cnv_somatic_pair_workflow.wdl" as CNV_WDL
+import "../plotCNVQC/plotCNVQC.wdl" as CNV_QC
 
 workflow CNVSomaticPairWorkflow_BCH_Wrapper {
 	input {
@@ -242,6 +243,16 @@ workflow CNVSomaticPairWorkflow_BCH_Wrapper {
             oncotatedCalledTumor = CNVSomaticPairWorkflow.oncotated_called_file_tumor
     }
 
+    call CNV_QC.plotQCTask as plotQCTask {
+        input:
+            called_copy_ratio_segments_tumor = CNVSomaticPairWorkflow.called_copy_ratio_segments_tumor,
+            called_copy_ratio_segments_normal = select_first([CNVSomaticPairWorkflow.called_copy_ratio_segments_normal]),
+            ref_fasta_index = ref_fasta_fai,
+            output_basename = pairID,
+            denoised_MAD_value_normal = select_first([CNVSomaticPairWorkflow.denoised_MAD_value_normal]),
+            denoised_MAD_value_tumor = CNVSomaticPairWorkflow.denoised_MAD_value_tumor
+    }
+
 	output {
 		File preprocessed_intervals = CNVSomaticPairWorkflow.preprocessed_intervals
         File read_counts_entity_id_tumor = CNVSomaticPairWorkflow.read_counts_entity_id_tumor
@@ -318,6 +329,8 @@ workflow CNVSomaticPairWorkflow_BCH_Wrapper {
         File QUICvizPDF = QUICviz.QUICvizPDF
         File GeneLevelCNV = QUICviz.GeneLevelCNV
         File AllChrPlot = QUICviz.AllChrPlot
+
+        File CNV_QC_plots = plotQCTask.CNV_QC_plots
 	}
 }
 
