@@ -1,7 +1,7 @@
 version 1.0
 
 import "./subworkflows/cnv_somatic_pair_workflow.wdl" as CNV_WDL
-import "BCH_Clinical_CNV/PlotCNVQC/plotCNVQC.wdl" as CNV_QC
+import "/BCH_Clinical_CNV/PlotCNVQC/plotCNVQC.wdl" as CNV_QC
 
 workflow CNVSomaticPairWorkflow_BCH_Wrapper {
 	input {
