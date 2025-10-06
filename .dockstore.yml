@@ -144,3 +144,18 @@ workflows:
    primaryDescriptorPath: /CNV_Array_Prober/cnvArrayProber.wdl
    testParameterFiles:
     - /CNV_Array_Prober/cnvArrayProber.inputs.json
+ - name: CNVSomaticPairWorkflow_BCH_Wrapper
+   subclass: WDL
+   primaryDescriptorPath: /BCH_Clinical_CNV/CNVSomaticPairWorkflow_BCH_Wrapper/CNVSomaticPairWorkflow_BCH_Wrapper.wdl
+   testParameterFiles:
+   - /BCH_Clinical_CNV/CNVSomaticPairWorkflow_BCH_Wrapper/CNVSomaticPairWorkflow_BCH_Wrapper.inputs.json
+ - name: DeliverCNVOutputs
+   subclass: WDL
+   primaryDescriptorPath: /BCH_Clinical_CNV/DeliverCNVOutputs/DeliverCNVOutputs.wdl
+   testParameterFiles:
+   - /BCH_Clinical_CNV/DeliverCNVOutputs/DeliverCNVOutputs.inputs.json
+ - name: plotCNVQC
+   subclass: WDL
+   primaryDescriptorPath: /BCH_Clinical_CNV/CNVSomaticPairWorkflow_BCH_Wrapper/subworkflows/plotCNVQC/plotCNVQC.wdl
+   testParameterFiles:
+   - /BCH_Clinical_CNV/CNVSomaticPairWorkflow_BCH_Wrapper/subworkflows/plotCNVQC/plotCNVQC.inputs.json
