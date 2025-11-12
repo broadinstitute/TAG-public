@@ -129,13 +129,11 @@ workflows:
    primaryDescriptorPath: /NeoVax/NeoVax_PackageData/NeoVax_PackageData.wdl
    testParameterFiles:
     - /NeoVax/NeoVax_PackageData/NeoVax_PackageData.inputs.json
-<<<<<<< HEAD
  - name: QUICviz
    subclass: WDL
    primaryDescriptorPath: /PECGS-QUICviz/QUICviz.wdl
    testParameterFiles:
     - /PECGS-QUICviz/QUICviz.inputs.json
-=======
  - name: SomaticQC
    subclass: WDL
    primaryDescriptorPath: /NeoVax/neovax_dragen_modules/SomaticQC.wdl
@@ -161,4 +159,3 @@ workflows:
    primaryDescriptorPath: /NeoVax/neovax_dragen_modules/Absolute.wdl
    testParameterFiles:
     - /NeoVax/neovax_dragen_modules/Absolute.inputs.json
->>>>>>> 7716879 (adding configs to run individual QC WDLs)
