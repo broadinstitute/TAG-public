@@ -1,0 +1,10 @@
+{"Absolute.additional_disk":"${100}",
+"Absolute.boot_disk_size":"${}",
+"Absolute.cpu":"${}",
+"Absolute.maf_file":"${this.somatic_maf}",
+"Absolute.max_retries":"${}",
+"Absolute.mem":"${}",
+"Absolute.pair_name":"${this.name}",
+"Absolute.preemptible":"${}",
+"Absolute.seg_file":"${this.alleliccapseg_tsv}",
+"Absolute.skew":"${this.alleliccapseg_skew}"}

@@ -119,6 +119,16 @@ workflows:
    primaryDescriptorPath: /CleanupFailedSubmissions/Cleanup_Failed_Submissions.wdl
    testParameterFiles:
     - /CleanupFailedSubmissions/Cleanup_Failed_Submissions.inputs.json
+ - name: NeoVax_Analysis
+   subclass: WDL
+   primaryDescriptorPath: /NeoVax/NeoVax_Analysis/NeoVax_Analysis.wdl
+   testParameterFiles:
+    - /NeoVax/NeoVax_Analysis/NeoVax_Analysis.inputs.json
+ - name: NeoVax_PackageData
+   subclass: WDL
+   primaryDescriptorPath: /NeoVax/NeoVax_PackageData/NeoVax_PackageData.wdl
+   testParameterFiles:
+    - /NeoVax/NeoVax_PackageData/NeoVax_PackageData.inputs.json
  - name: TAG_Mop
    subclass: WDL
    primaryDescriptorPath: /TAG_Mop/TAG_Mop.wdl
@@ -129,6 +139,31 @@ workflows:
    primaryDescriptorPath: /PECGS-QUICviz/QUICviz.wdl
    testParameterFiles:
     - /PECGS-QUICviz/QUICviz.inputs.json
+ - name: SomaticQC
+   subclass: WDL
+   primaryDescriptorPath: /NeoVax/neovax_dragen_modules/SomaticQC.wdl
+   testParameterFiles:
+    - /NeoVax/neovax_dragen_modules/SomaticQC.inputs.json
+ - name: PairBamQC
+   subclass: WDL
+   primaryDescriptorPath: /NeoVax/neovax_dragen_modules/PairBamQC.wdl
+   testParameterFiles:
+    - /NeoVax/neovax_dragen_modules/PairBamQC.inputs.json
+ - name: LegoPlotter
+   subclass: WDL
+   primaryDescriptorPath: /NeoVax/neovax_dragen_modules/LegoPlotter.wdl
+   testParameterFiles:
+    - /NeoVax/neovax_dragen_modules/LegoPlotter.inputs.json
+ - name: AllelicCNV
+   subclass: WDL
+   primaryDescriptorPath: /NeoVax/neovax_dragen_modules/AllelicCNV.wdl
+   testParameterFiles:
+    - /NeoVax/neovax_dragen_modules/AllelicCNV.inputs.json
+ - name: Absolute
+   subclass: WDL
+   primaryDescriptorPath: /NeoVax/neovax_dragen_modules/Absolute.wdl
+   testParameterFiles:
+    - /NeoVax/neovax_dragen_modules/Absolute.inputs.json
  - name: BroadInternalRNAWithUMIs
    subclass: WDL
    primaryDescriptorPath: /TCapRNAPipeline/BroadInternalRNAWithUMIs.wdl
