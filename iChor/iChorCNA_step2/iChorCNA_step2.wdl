@@ -1,16 +1,20 @@
-task bundle_plots {
-    Array[File] CNA_plots
-    File summary_script
-    String sample_set_name
+version 1.0
 
-    Int? disk_size
+task bundle_plots {
+    input {
+        Array[File] CNA_plots
+        File summary_script
+        String sample_set_name
+        String docker = "us.gcr.io/tag-public/tag-tools:1.0.0"
+        Int? disk_size
+    }
 
     command {
         python ${summary_script} --prefix ${sample_set_name} ${sep=' ' CNA_plots}
         pdflatex ${sample_set_name}.tex
     }
     runtime {
-        docker: "us.gcr.io/tag-team-160914/tag-tools:0.0.4"
+        docker: docker
         memory: "2 GB"
         cpu: 1
         disks: "local-disk " + select_first([disk_size, 20]) + " HDD"
@@ -21,9 +25,11 @@ task bundle_plots {
 }
 
 workflow ichorSummaryBundle {
-    Array[File] CNA_plots
-    File summary_script
-    String sample_set_name
+    input {
+        Array[File] CNA_plots
+        File summary_script
+        String sample_set_name
+    }
 
     call bundle_plots {
         input: CNA_plots = CNA_plots,
@@ -31,6 +37,6 @@ workflow ichorSummaryBundle {
                sample_set_name = sample_set_name
     }
     output {
-        bundle_plots.*
+        File bundledPDF = bundle_plots.bundledPDF
     }
 }

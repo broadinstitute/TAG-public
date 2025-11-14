@@ -129,6 +129,11 @@ workflows:
    primaryDescriptorPath: /NeoVax/NeoVax_PackageData/NeoVax_PackageData.wdl
    testParameterFiles:
     - /NeoVax/NeoVax_PackageData/NeoVax_PackageData.inputs.json
+ - name: TAG_Mop
+   subclass: WDL
+   primaryDescriptorPath: /TAG_Mop/TAG_Mop.wdl
+   testParameterFiles:
+    - /TAG_Mop/TAG_Mop.inputs.json
  - name: QUICviz
    subclass: WDL
    primaryDescriptorPath: /PECGS-QUICviz/QUICviz.wdl
@@ -159,3 +164,33 @@ workflows:
    primaryDescriptorPath: /NeoVax/neovax_dragen_modules/Absolute.wdl
    testParameterFiles:
     - /NeoVax/neovax_dragen_modules/Absolute.inputs.json
+ - name: BroadInternalRNAWithUMIs
+   subclass: WDL
+   primaryDescriptorPath: /TCapRNAPipeline/BroadInternalRNAWithUMIs.wdl
+   testParameterFiles:
+    - /TCapRNAPipeline/BroadInternalRNAWithUMIs.inputs.json
+ - name: PeddyAnalysis
+   subclass: WDL
+   primaryDescriptorPath: /PeddyAnalysis/PeddyAnalysis.wdl
+   testParameterFiles:
+    - /PeddyAnalysis/PeddyAnalysis.inputs.json
+ - name: cnvArrayProber
+   subclass: WDL
+   primaryDescriptorPath: /CNV_Array_Prober/cnvArrayProber.wdl
+   testParameterFiles:
+    - /CNV_Array_Prober/cnvArrayProber.inputs.json
+ - name: CNVSomaticPairWorkflow_BCH_Wrapper
+   subclass: WDL
+   primaryDescriptorPath: /BCH_Clinical_CNV/CNVSomaticPairWorkflow_BCH_Wrapper/CNVSomaticPairWorkflow_BCH_Wrapper.wdl
+   testParameterFiles:
+   - /BCH_Clinical_CNV/CNVSomaticPairWorkflow_BCH_Wrapper/CNVSomaticPairWorkflow_BCH_Wrapper.inputs.json
+ - name: DeliverCNVOutputs
+   subclass: WDL
+   primaryDescriptorPath: /BCH_Clinical_CNV/DeliverCNVOutputs/DeliverCNVOutputs.wdl
+   testParameterFiles:
+   - /BCH_Clinical_CNV/DeliverCNVOutputs/DeliverCNVOutputs.inputs.json
+ - name: plotCNVQC
+   subclass: WDL
+   primaryDescriptorPath: /BCH_Clinical_CNV/CNVSomaticPairWorkflow_BCH_Wrapper/subworkflows/plotCNVQC/plotCNVQC.wdl
+   testParameterFiles:
+   - /BCH_Clinical_CNV/CNVSomaticPairWorkflow_BCH_Wrapper/subworkflows/plotCNVQC/plotCNVQC.inputs.json
