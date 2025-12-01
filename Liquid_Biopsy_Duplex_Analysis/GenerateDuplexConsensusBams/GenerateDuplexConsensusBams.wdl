@@ -1,6 +1,7 @@
 # Import BaitSetNameCheck task
 import "../../checkBaitSetName/checkBaitSetName.dev.wdl" as checkBaitSetName
-import "../RevertBamAndBwaAln/subworkflows/CopyUmiFromReadName.wdl" as copyUmi
+import "RevertBamAndBwaAln/subworkflows/CopyUmiFromReadName.wdl" as copyUmi
+import "RevertBamAndBwaAln/RevertBamAndBwaAln.wdl" as RevertBamAndBwaAln
 
 workflow GenerateDuplexConsensusBams {
 
@@ -22,6 +23,7 @@ workflow GenerateDuplexConsensusBams {
    File dbsnp
    File dbsnp_index
    String bwa_path
+   String bwa_path_gitc
 
    # sample specific files
    File bam_file
@@ -44,6 +46,9 @@ workflow GenerateDuplexConsensusBams {
    Int? num_clip_bases_three_prime
    Boolean? run_bwa_mem_on_raw
    Boolean run_bwa_mem_on_raw_or_default = select_first([run_bwa_mem_on_raw, false])
+   Boolean? run_bwa_aln_on_raw
+   Boolean run_bwa_aln_on_raw_or_default = select_first([run_bwa_aln_on_raw, false])
+   Boolean? bwa_aln_extract_umi = true
    Boolean? copy_umi_from_readname
    Boolean copy_umi_or_default = select_first([copy_umi_from_readname, false])
    Int compression_level
@@ -68,7 +73,7 @@ workflow GenerateDuplexConsensusBams {
          target_intervals = target_intervals,
          fail_task = fail_on_intervals_mismatch
    }
-   if(copy_umi_or_default){
+   if(copy_umi_or_default && !run_bwa_aln_on_raw_or_default){
       call copyUmi.CopyUmiTask as CopyUmiTask {
          input: 
          bam_file = bam_file,
@@ -128,8 +133,28 @@ workflow GenerateDuplexConsensusBams {
       }
    }
 
-   File preprocessed_raw_bam = select_first([AlignRawBamWithBwaMem.output_bam, DownsampleSam.output_bam, CopyUmiTask.umi_extracted_bam, bam_file])
-   File preprocessed_raw_bam_index = select_first([AlignRawBamWithBwaMem.output_bam_index, DownsampleSam.output_bam_index, CopyUmiTask.umi_extracted_bam_index, bam_index])
+   if(run_bwa_aln_on_raw_or_default){
+      call RevertBamAndBwaAln.AlignRawReadsBwaAln as RevertBamAndBwaAln {
+         input: input_bam = select_first([DownsampleSam.output_bam, bam_file]),
+            input_bam_index = select_first([DownsampleSam.output_bam_index, bam_index]),
+            sample_name = base_name,
+            ref_fasta = reference,
+            ref_fai = reference_index,
+            ref_dict = reference_dict,
+            ref_alt = reference_alt,
+            ref_amb = reference_amb,
+            ref_ann = reference_ann,
+            ref_bwt = reference_bwt,
+            ref_pac = reference_pac,
+            ref_sa = reference_sa,
+            compression_level = compression_level,
+            bwa_path = bwa_path_gitc,
+            extract_umis = bwa_aln_extract_umi
+      }
+   }
+
+   File preprocessed_raw_bam = select_first([AlignRawBamWithBwaMem.output_bam, DownsampleSam.output_bam, CopyUmiTask.umi_extracted_bam, RevertBamAndBwaAln.bwa_aln_output_bam, bam_file])
+   File preprocessed_raw_bam_index = select_first([AlignRawBamWithBwaMem.output_bam_index, DownsampleSam.output_bam_index, CopyUmiTask.umi_extracted_bam_index, RevertBamAndBwaAln.bwa_aln_output_bam_index, bam_index])
 
    # Collect HS or Targeted PCR metrics after deduplication by start and stop
    # position (but not incluing UMIs).
@@ -515,7 +540,7 @@ task QuerySortSam {
   }
   runtime {
       docker: bloodbiopsydocker
-      disks: "local-disk " + disk_size + " HDD, /cromwell_root/tmp 500 HDD"
+      disks: "local-disk " + disk_size + " HDD"
       memory: mem + " GB"
   }
 }
@@ -724,7 +749,7 @@ task FilterConsensusReads {
    }
    runtime {
       docker: bloodbiopsydocker
-      disks: "local-disk " + disk_size + " HDD, /cromwell_root/tmp 100 HDD"
+      disks: "local-disk " + disk_size + " HDD"
       memory: mem + " GB"
       maxRetries: 3
       preemptible: select_first([preemptible_attempts, 10])
@@ -925,7 +950,7 @@ task CallDuplexConsensusReads {
    }
    runtime {
       docker: bloodbiopsydocker
-      disks: "local-disk " + disk_size + " HDD, /cromwell_root/tmp 100 HDD"
+      disks: "local-disk " + disk_size + " HDD"
       memory: mem + " GB"
       maxRetries: 3
       preemptible: select_first([preemptible_attempts, 10])
