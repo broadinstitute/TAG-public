@@ -1,8 +1,8 @@
-import "RevertBamAndBwaAln/subworkflows/CopyUmiFromReadName.wdl" as CopyUmiFromReadName
-import "RevertBamAndBwaAln/subworkflows/RevertSam.wdl" as RevertSam
-import "RevertBamAndBwaAln/subworkflows/BwaAlignment.wdl" as bwa_aln
-import "RevertBamAndBwaAln/subworkflows/MergeBamAlignment.wdl" as MergeBamAlignment
-import "RevertBamAndBwaAln/subworkflows/SamToFastq.wdl" as samtofastq
+import "subworkflows/CopyUmiFromReadName.wdl" as CopyUmiFromReadName
+import "subworkflows/RevertSam.wdl" as RevertSam
+import "subworkflows/BwaAlignment.wdl" as bwa_aln
+import "subworkflows/MergeBamAlignment.wdl" as MergeBamAlignment
+import "subworkflows/SamToFastq.wdl" as samtofastq
 
 workflow AlignRawReadsBwaAln {
 	File input_bam

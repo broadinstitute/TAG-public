@@ -1,7 +1,7 @@
 # Import BaitSetNameCheck task
 import "../../checkBaitSetName/checkBaitSetName.dev.wdl" as checkBaitSetName
-import "RevertBamAndBwaAln/subworkflows/CopyUmiFromReadName.wdl" as copyUmi
-import "RevertBamAndBwaAln/RevertBamAndBwaAln.wdl" as RevertBamAndBwaAln
+import "subworkflows/CopyUmiFromReadName.wdl" as copyUmi
+import "RevertBamAndBwaAln.wdl" as RevertBamAndBwaAln
 
 workflow GenerateDuplexConsensusBams {
 
