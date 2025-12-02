@@ -39,7 +39,7 @@ task CopyUmiTask {
     
     runtime {
       docker: select_first([bloodbiopsydocker])
-      disks: "local-disk " + disk_size + " HDD, /cromwell_root/tmp 500 HDD"
+      disks: "local-disk " + disk_size + " HDD"
       memory: mem + " GB"
       maxRetries: select_first([maxRetries])
       preemptible: select_first([preemptible])
