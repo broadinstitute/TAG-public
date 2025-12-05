@@ -1149,24 +1149,27 @@ task CollectDepthOfCoverage {
    Int disk_size = ceil(size(bam_file, "GB") * 2) + ceil(size(bam_index, "GB")) + ref_size + disk_pad
    Int mem = select_first([memory, 15])
    Int compute_mem = mem * 1000 - 1000
+   String? gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.0.0"
+   String? gatk_path_override
+   String gatk_path = select_first(["/gatk/gatk.jar", gatk_path_override])
 
    command <<<
       set -e
 
       # Calculate tumor depth over the panel
       # only count fragments with same base.
-      java -jar /usr/gitc/GATK36.jar -T DepthOfCoverage \
+      java -jar -Xmx${compute_mem}m ${gatk_path} DepthOfCoverage \
          -L ${interval_list} \
          -I ${bam_file} \
          -R ${reference} \
-         -o ${base_name}.depth \
-         --omitPerSampleStats \
-         --printBaseCounts \
+         -O ${base_name}.depth \
+         --omit-per-sample-statistics \
+         --print-base-counts \
          ${extra_arguments}
    >>>
 
    runtime {
-      docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.3.2-1510681135"
+      docker: gatk_docker
       disks: "local-disk " + disk_size + " HDD"
       memory: mem + "GB"
       maxRetries: 3
