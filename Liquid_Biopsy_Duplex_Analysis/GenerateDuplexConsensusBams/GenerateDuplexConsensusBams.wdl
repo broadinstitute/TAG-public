@@ -1169,7 +1169,7 @@ task CollectDepthOfCoverage {
    >>>
 
    runtime {
-      docker: gatk_docker
+      docker: select_first([gatk_docker])
       disks: "local-disk " + disk_size + " HDD"
       memory: mem + "GB"
       maxRetries: 3
