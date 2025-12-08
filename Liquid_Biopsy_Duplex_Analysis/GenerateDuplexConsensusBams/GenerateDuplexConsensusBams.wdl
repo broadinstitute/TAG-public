@@ -369,7 +369,7 @@ workflow GenerateDuplexConsensusBams {
    # Collect raw fragment depth of coverage.
    # This task can take as much as 20 hours, so it is recommended to set
    # preemptible_attempts to 0.
-   call CollectDepthOfCoverage as CollectRawStartStopDepthOfCoverage {
+   call CollectDepthOfCoverageGATK3 as CollectRawStartStopDepthOfCoverage {
       input:
          interval_list = target_intervals,
          reference = reference,
@@ -378,7 +378,7 @@ workflow GenerateDuplexConsensusBams {
          bam_file = preprocessed_raw_bam,
          bam_index = preprocessed_raw_bam_index,
          base_name = base_name,
-         extra_arguments = "--count-type COUNT_FRAGMENTS_REQUIRE_SAME_BASE",
+         extra_arguments = "--countType COUNT_FRAGMENTS_REQUIRE_SAME_BASE",
          preemptible_attempts = 0,
          disk_pad = disk_pad
    }
@@ -395,7 +395,7 @@ workflow GenerateDuplexConsensusBams {
          bam_file = preprocessed_raw_bam,
          bam_index = preprocessed_raw_bam_index,
          base_name = base_name,
-         extra_arguments = "--count-type COUNT_READS -DF DuplicateRead",
+         extra_arguments = "--count-type COUNT_READS -DF NotDuplicateReadFilter",
          preemptible_attempts = 0,
          disk_pad = disk_pad
    }
@@ -1320,5 +1320,51 @@ task CalculateDuplexMetrics {
       Float median_ab_size = read_float("median_ab_family_size.txt")
       Float median_ba_size = read_float("median_ba_family_size.txt")
 
+   }
+}
+
+task CollectDepthOfCoverageGATK3 {
+
+   File interval_list
+   File reference
+   File reference_index
+   File reference_dict
+   File bam_file
+   File bam_index
+   String base_name
+   String? extra_arguments
+   Int? preemptible_attempts
+   Int? memory
+   Int disk_pad
+   Int ref_size = ceil(size(reference, "GB") + size(reference_index, "GB") + size(reference_dict, "GB"))
+   Int disk_size = ceil(size(bam_file, "GB") * 2) + ceil(size(bam_index, "GB")) + ref_size + disk_pad
+   Int mem = select_first([memory, 15])
+   Int compute_mem = mem * 1000 - 1000
+
+   command <<<
+      set -e
+
+      # Calculate tumor depth over the panel
+      # only count fragments with same base.
+      java -jar /usr/gitc/GATK36.jar -T DepthOfCoverage \
+         -L ${interval_list} \
+         -I ${bam_file} \
+         -R ${reference} \
+         -o ${base_name}.depth \
+         --omitPerSampleStats \
+         --printBaseCounts \
+         ${extra_arguments}
+   >>>
+
+   runtime {
+      docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.3.2-1510681135"
+      disks: "local-disk " + disk_size + " HDD"
+      memory: mem + "GB"
+      maxRetries: 3
+      preemptible: select_first([preemptible_attempts, 10])
+   }
+
+   output {
+      File depth_of_coverage = "${base_name}.depth"
    }
 }
