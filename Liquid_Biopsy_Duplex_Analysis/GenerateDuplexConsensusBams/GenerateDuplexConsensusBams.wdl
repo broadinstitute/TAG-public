@@ -361,7 +361,7 @@ workflow GenerateDuplexConsensusBams {
          bam_file = BQSRDuplex.output_bam,
          bam_index = BQSRDuplex.output_bam_index,
          base_name = base_name,
-         extra_arguments = "--countType COUNT_FRAGMENTS_REQUIRE_SAME_BASE -allowPotentiallyMisencodedQuals",
+         extra_arguments = "--count-type COUNT_FRAGMENTS_REQUIRE_SAME_BASE --allow_potentially_misencoded_quality_scores",
          preemptible_attempts = preemptible_attempts,
          disk_pad = disk_pad
    }
@@ -378,7 +378,7 @@ workflow GenerateDuplexConsensusBams {
          bam_file = preprocessed_raw_bam,
          bam_index = preprocessed_raw_bam_index,
          base_name = base_name,
-         extra_arguments = "--countType COUNT_FRAGMENTS_REQUIRE_SAME_BASE",
+         extra_arguments = "--count-type COUNT_FRAGMENTS_REQUIRE_SAME_BASE",
          preemptible_attempts = 0,
          disk_pad = disk_pad
    }
@@ -395,7 +395,7 @@ workflow GenerateDuplexConsensusBams {
          bam_file = preprocessed_raw_bam,
          bam_index = preprocessed_raw_bam_index,
          base_name = base_name,
-         extra_arguments = "--countType COUNT_READS -drf DuplicateRead",
+         extra_arguments = "--count-type COUNT_READS -DF DuplicateRead",
          preemptible_attempts = 0,
          disk_pad = disk_pad
    }
