@@ -51,6 +51,7 @@ workflow GenerateDuplexConsensusBams {
    Boolean? bwa_aln_extract_umi = true
    Boolean? copy_umi_from_readname
    Boolean copy_umi_or_default = select_first([copy_umi_from_readname, false])
+   Boolean? calculate_fragment_depth
    Int compression_level
 
    # scripts
@@ -351,7 +352,7 @@ workflow GenerateDuplexConsensusBams {
          disk_pad = disk_pad
    }
 
-   # Collect duplex fragment depth of coverage.
+    # Collect duplex fragment depth of coverage.
    call CollectDepthOfCoverage as CollectDuplexDepthOfCoverage {
       input:
          interval_list = target_intervals,
@@ -361,7 +362,7 @@ workflow GenerateDuplexConsensusBams {
          bam_file = BQSRDuplex.output_bam,
          bam_index = BQSRDuplex.output_bam_index,
          base_name = base_name,
-         extra_arguments = "--count-type COUNT_FRAGMENTS_REQUIRE_SAME_BASE --allow_potentially_misencoded_quality_scores",
+         extra_arguments = "--countType COUNT_FRAGMENTS_REQUIRE_SAME_BASE -allowPotentiallyMisencodedQuals",
          preemptible_attempts = preemptible_attempts,
          disk_pad = disk_pad
    }
@@ -369,20 +370,21 @@ workflow GenerateDuplexConsensusBams {
    # Collect raw fragment depth of coverage.
    # This task can take as much as 20 hours, so it is recommended to set
    # preemptible_attempts to 0.
-   call CollectDepthOfCoverageGATK3 as CollectRawStartStopDepthOfCoverage {
-      input:
-         interval_list = target_intervals,
-         reference = reference,
-         reference_index = reference_index,
-         reference_dict = reference_dict,
-         bam_file = preprocessed_raw_bam,
-         bam_index = preprocessed_raw_bam_index,
-         base_name = base_name,
-         extra_arguments = "--countType COUNT_FRAGMENTS_REQUIRE_SAME_BASE",
-         preemptible_attempts = 0,
-         disk_pad = disk_pad
+   if(select_first([calculate_fragment_depth, true])){
+      call CollectDepthOfCoverage as CollectRawStartStopDepthOfCoverage {
+         input:
+            interval_list = target_intervals,
+            reference = reference,
+            reference_index = reference_index,
+            reference_dict = reference_dict,
+            bam_file = preprocessed_raw_bam,
+            bam_index = preprocessed_raw_bam_index,
+            base_name = base_name,
+            extra_arguments = "--countType COUNT_FRAGMENTS_REQUIRE_SAME_BASE",
+            preemptible_attempts = 0,
+            disk_pad = disk_pad
+      }
    }
-
    # Collect raw read depth of coverage.
    # This task can take as much as 20 hours, so it is recommended to set
    # preemptible_attempts to 0.
@@ -395,7 +397,7 @@ workflow GenerateDuplexConsensusBams {
          bam_file = preprocessed_raw_bam,
          bam_index = preprocessed_raw_bam_index,
          base_name = base_name,
-         extra_arguments = "--count-type COUNT_READS -DF NotDuplicateReadFilter",
+         extra_arguments = "--countType COUNT_READS -drf DuplicateRead",
          preemptible_attempts = 0,
          disk_pad = disk_pad
    }
@@ -406,7 +408,7 @@ workflow GenerateDuplexConsensusBams {
          process_duplex_coverage_rscript = process_duplex_coverage_rscript,
          base_name = base_name,
          raw_depth = CollectRawReadDepthOfCoverage.depth_of_coverage,
-         start_stop_depth = CollectRawStartStopDepthOfCoverage.depth_of_coverage,
+         start_stop_depth = select_first([CollectRawStartStopDepthOfCoverage.depth_of_coverage, CollectRawReadDepthOfCoverage.depth_of_coverage]),
          duplex_depth = CollectDuplexDepthOfCoverage.depth_of_coverage,
          preemptible_attempts = preemptible_attempts,
          disk_pad = disk_pad
@@ -1130,8 +1132,6 @@ task AlignReadsAndMBA {
    }
 }
 
-
-
 task CollectDepthOfCoverage {
 
    File interval_list
@@ -1149,27 +1149,24 @@ task CollectDepthOfCoverage {
    Int disk_size = ceil(size(bam_file, "GB") * 2) + ceil(size(bam_index, "GB")) + ref_size + disk_pad
    Int mem = select_first([memory, 15])
    Int compute_mem = mem * 1000 - 1000
-   String? gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.0.0"
-   String? gatk_path_override
-   String gatk_path = select_first(["/gatk/gatk.jar", gatk_path_override])
 
    command <<<
       set -e
 
       # Calculate tumor depth over the panel
       # only count fragments with same base.
-      java -jar -Xmx${compute_mem}m ${gatk_path} DepthOfCoverage \
+      java -Xmx${compute_mem}m -jar /usr/gitc/GATK36.jar -T DepthOfCoverage \
          -L ${interval_list} \
          -I ${bam_file} \
          -R ${reference} \
-         -O ${base_name}.depth \
-         --omit-per-sample-statistics \
-         --print-base-counts \
+         -o ${base_name}.depth \
+         --omitPerSampleStats \
+         --printBaseCounts \
          ${extra_arguments}
    >>>
 
    runtime {
-      docker: select_first([gatk_docker])
+      docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.3.2-1510681135"
       disks: "local-disk " + disk_size + " HDD"
       memory: mem + "GB"
       maxRetries: 3
@@ -1320,51 +1317,5 @@ task CalculateDuplexMetrics {
       Float median_ab_size = read_float("median_ab_family_size.txt")
       Float median_ba_size = read_float("median_ba_family_size.txt")
 
-   }
-}
-
-task CollectDepthOfCoverageGATK3 {
-
-   File interval_list
-   File reference
-   File reference_index
-   File reference_dict
-   File bam_file
-   File bam_index
-   String base_name
-   String? extra_arguments
-   Int? preemptible_attempts
-   Int? memory
-   Int disk_pad
-   Int ref_size = ceil(size(reference, "GB") + size(reference_index, "GB") + size(reference_dict, "GB"))
-   Int disk_size = ceil(size(bam_file, "GB") * 2) + ceil(size(bam_index, "GB")) + ref_size + disk_pad
-   Int mem = select_first([memory, 15])
-   Int compute_mem = mem * 1000 - 1000
-
-   command <<<
-      set -e
-
-      # Calculate tumor depth over the panel
-      # only count fragments with same base.
-      java -jar /usr/gitc/GATK36.jar -T DepthOfCoverage \
-         -L ${interval_list} \
-         -I ${bam_file} \
-         -R ${reference} \
-         -o ${base_name}.depth \
-         --omitPerSampleStats \
-         --printBaseCounts \
-         ${extra_arguments}
-   >>>
-
-   runtime {
-      docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.3.2-1510681135"
-      disks: "local-disk " + disk_size + " HDD"
-      memory: mem + "GB"
-      maxRetries: 3
-      preemptible: select_first([preemptible_attempts, 10])
-   }
-
-   output {
-      File depth_of_coverage = "${base_name}.depth"
    }
 }
