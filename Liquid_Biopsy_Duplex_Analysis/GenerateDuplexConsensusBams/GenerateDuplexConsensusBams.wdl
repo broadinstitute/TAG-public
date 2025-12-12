@@ -424,6 +424,10 @@ workflow GenerateDuplexConsensusBams {
       File raw_output_bam = preprocessed_raw_bam
       File raw_output_bam_index = preprocessed_raw_bam_index
 
+      File duplex_qc = CollectDuplexSeqMetrics.duplex_qc
+      File duplex_yield_metrics = CollectDuplexSeqMetrics.duplex_yield_metrics
+      File family_size_metrics = CollectDuplexSeqMetrics.family_sizes
+
       File duplex_selection_metrics = DuplexSelectionMetrics.output_selection_metrics
       File duplex_per_target_selection_metrics  = DuplexSelectionMetrics.output_per_target_selection_metrics
       File duplex_theoretical_sensitivity  = DuplexSelectionMetrics.output_theoretical_sensitivity
