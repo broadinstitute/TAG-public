@@ -550,10 +550,12 @@ task UpdateFamFile {
             fam_file_df = pd.read_csv(fam_file_path, sep=' ', header=None, names=['FamilyID', 'SampleID', 'FatherID', 'MotherID', 'Sex', 'Phenotype'])
 
             known_trio_info_df = pd.read_csv(known_trio_info_path, sep='\t')
+            known_trio_info_df['pedigree'] = known_trio_info_df['pedigree'].astype(str).str.strip()
             sample_info = known_trio_info_df.set_index('sample_id').to_dict(orient='index')
 
             # Ensure the correct data type for columns
             fam_file_df[['FamilyID', 'FatherID', 'MotherID']] = fam_file_df[['FamilyID', 'FatherID', 'MotherID']].astype(str)
+
 
             # Update the .fam file DataFrame based on the trio information
             for i, row in fam_file_df.iterrows():
@@ -562,8 +564,18 @@ task UpdateFamFile {
                     info = sample_info[sample_id]
                     fam_file_df.at[i, 'FamilyID'] = info['sidr_family_id']
                     if info['pedigree'] == 'Proband':
-                        father_id_row = known_trio_info_df[(known_trio_info_df['sidr_family_id'] == info['sidr_family_id']) & (known_trio_info_df['pedigree'] == 'Father')]
-                        mother_id_row = known_trio_info_df[(known_trio_info_df['sidr_family_id'] == info['sidr_family_id']) & (known_trio_info_df['pedigree'] == 'Mother')]
+                        # father_id_row = known_trio_info_df[(known_trio_info_df['sidr_family_id'] == info['sidr_family_id']) & (known_trio_info_df['pedigree'] == 'Father')]
+                        # mother_id_row = known_trio_info_df[(known_trio_info_df['sidr_family_id'] == info['sidr_family_id']) & (known_trio_info_df['pedigree'] == 'Mother')]
+                        father_id_row = known_trio_info_df[
+                            (known_trio_info_df['sidr_family_id'] == info['sidr_family_id']) &
+                            (known_trio_info_df['pedigree'].str.contains('Father', case=False, na=False))
+                        ]
+                        mother_id_row = known_trio_info_df[
+                            (known_trio_info_df['sidr_family_id'] == info['sidr_family_id']) &
+                            (known_trio_info_df['pedigree'].str.contains('Mother', case=False, na=False))
+                        ]
+                        print(father_id_row)
+                        print(mother_id_row)
                         # This is to handle if only one parent present
                         father_id = '0'
                         mother_id = '0'                
@@ -583,7 +595,7 @@ task UpdateFamFile {
             fam_file_df.to_csv(output_fam_file_path, sep=' ', header=False, index=False)
 
         # Update and Save the updated .fam file
-        update_fam_file("~{fam_file}", "~{known_trio_info}", "updated_~{family_id}.fam")
+        update_fam_file("SDFM-2FT.fam", "family_info_SDFM-2FT.txt", "updated_SDFM-2FT.fam")
         CODE
     >>>
 
