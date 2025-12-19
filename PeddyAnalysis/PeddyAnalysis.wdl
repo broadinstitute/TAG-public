@@ -206,7 +206,7 @@ task FilterSingleSampleFamilies {
         echo ~{sep=' ' family_ids} > family_ids.txt
         echo ~{sep=' ' gvcfs} > gvcf_paths.txt
         echo ~{sep=' ' gvcf_indexes} > gvcf_index_paths.txt
-        echo ~{sep=' ' pedigrees} > pedigrees.txt
+        echo ~{sep=',' pedigrees} > pedigrees.txt
         echo ~{sep=' ' reported_sexes} > reported_sexes.txt
 
         # Filter out single-sample families and generate the required files
@@ -225,7 +225,7 @@ task FilterSingleSampleFamilies {
         with open("gvcf_index_paths.txt", "r") as f:
             gvcf_indexes = f.read().strip().split(' ')
         with open("pedigrees.txt", "r") as f:
-            pedigrees = f.read().strip().split(' ')
+            pedigrees = f.read().strip().split(',')
         with open("reported_sexes.txt", "r") as f:
             reported_sexes = f.read().strip().split(' ')
 
@@ -243,7 +243,7 @@ task FilterSingleSampleFamilies {
                 pass_family_ids.append(family_id)
 
                 with open(f"family_info_{family_id}.txt", "w") as family_info_file, \
-                    open(f"grouped_per_family_gvcf_{family_id}.txt", "w") as grouped_gvcf_file:
+                     open(f"grouped_per_family_gvcf_{family_id}.txt", "w") as grouped_gvcf_file:
                     family_info_file.write("sample_id\tpedigree\treported_sex\tsidr_family_id\n")
                     grouped_gvcf_file.write("family_id\tsample_id\tgvcf_path\tgvcf_index_path\n")
 
@@ -263,8 +263,6 @@ task FilterSingleSampleFamilies {
             f.write("\n".join(pass_family_ids))
 
         CODE
-
-
     >>>
 
     output {
@@ -552,12 +550,10 @@ task UpdateFamFile {
             fam_file_df = pd.read_csv(fam_file_path, sep=' ', header=None, names=['FamilyID', 'SampleID', 'FatherID', 'MotherID', 'Sex', 'Phenotype'])
 
             known_trio_info_df = pd.read_csv(known_trio_info_path, sep='\t')
-            known_trio_info_df['pedigree'] = known_trio_info_df['pedigree'].astype(str).str.strip()
             sample_info = known_trio_info_df.set_index('sample_id').to_dict(orient='index')
 
             # Ensure the correct data type for columns
             fam_file_df[['FamilyID', 'FatherID', 'MotherID']] = fam_file_df[['FamilyID', 'FatherID', 'MotherID']].astype(str)
-
 
             # Update the .fam file DataFrame based on the trio information
             for i, row in fam_file_df.iterrows():
@@ -568,6 +564,7 @@ task UpdateFamFile {
                     if info['pedigree'] == 'Proband':
                         # father_id_row = known_trio_info_df[(known_trio_info_df['sidr_family_id'] == info['sidr_family_id']) & (known_trio_info_df['pedigree'] == 'Father')]
                         # mother_id_row = known_trio_info_df[(known_trio_info_df['sidr_family_id'] == info['sidr_family_id']) & (known_trio_info_df['pedigree'] == 'Mother')]
+                        # This is to handle cases like "Biological Father/Mother"
                         father_id_row = known_trio_info_df[
                             (known_trio_info_df['sidr_family_id'] == info['sidr_family_id']) &
                             (known_trio_info_df['pedigree'].str.contains('Father', case=False, na=False))
@@ -576,8 +573,6 @@ task UpdateFamFile {
                             (known_trio_info_df['sidr_family_id'] == info['sidr_family_id']) &
                             (known_trio_info_df['pedigree'].str.contains('Mother', case=False, na=False))
                         ]
-                        print(father_id_row)
-                        print(mother_id_row)
                         # This is to handle if only one parent present
                         father_id = '0'
                         mother_id = '0'                
@@ -620,13 +615,13 @@ task RunPeddy {
         File merged_gvcf
         File merged_gvcf_index
         File fam_file
-        String reference_genome = "hg38"
+        String? reference_genome
         Int memory = 16
         Int disk_size = 16
         String? docker_override
     }
     command <<<        
-        peddy -p 4 --plot --prefix ~{prefix} ~{merged_gvcf} ~{fam_file} --sites ~{reference_genome}
+        peddy -p 4 --plot --prefix ~{prefix} ~{merged_gvcf} ~{fam_file}  ~{if defined(reference_genome) then "--sites " + reference_genome else ""}
 
     >>>
     output {
