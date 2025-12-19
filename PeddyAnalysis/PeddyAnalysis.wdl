@@ -243,7 +243,7 @@ task FilterSingleSampleFamilies {
                 pass_family_ids.append(family_id)
 
                 with open(f"family_info_{family_id}.txt", "w") as family_info_file, \
-                     open(f"grouped_per_family_gvcf_{family_id}.txt", "w") as grouped_gvcf_file:
+                    open(f"grouped_per_family_gvcf_{family_id}.txt", "w") as grouped_gvcf_file:
                     family_info_file.write("sample_id\tpedigree\treported_sex\tsidr_family_id\n")
                     grouped_gvcf_file.write("family_id\tsample_id\tgvcf_path\tgvcf_index_path\n")
 
@@ -263,6 +263,8 @@ task FilterSingleSampleFamilies {
             f.write("\n".join(pass_family_ids))
 
         CODE
+
+
     >>>
 
     output {
@@ -595,7 +597,7 @@ task UpdateFamFile {
             fam_file_df.to_csv(output_fam_file_path, sep=' ', header=False, index=False)
 
         # Update and Save the updated .fam file
-        update_fam_file("SDFM-2FT.fam", "family_info_SDFM-2FT.txt", "updated_SDFM-2FT.fam")
+        update_fam_file("~{fam_file}", "~{known_trio_info}", "updated_~{family_id}.fam")
         CODE
     >>>
 
