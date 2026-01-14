@@ -666,6 +666,7 @@ task FGBioGroupReadsByUmi {
    Int allowable_umi_distance
    Int? preemptible_attempts
    Int? memory
+   String? additional_args
    Int disk_pad
    Int disk_size = ceil(size(bam_file, "GB") * 5) + ceil(size(bam_index, "GB")) + disk_pad
    Int mem = select_first([memory, 5])
@@ -682,7 +683,8 @@ task FGBioGroupReadsByUmi {
          -e ${allowable_umi_distance} \
          -i ${bam_file} \
          -o ${base_name}.fgbio.groupByUmi.bam \
-         --strategy=paired
+         --strategy=paired \
+         ${additional_args}
    }
    runtime {
       docker: bloodbiopsydocker
