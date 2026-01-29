@@ -6,6 +6,7 @@
   "QUICviz.denoisedCopyRatiosNormal": "File",
   "QUICviz.allelicCountsTumor": "File",
   "QUICviz.tumorType": "String",
-  "QUICviz.sampleID": "String"
+  "QUICviz.sampleID": "String",
+  "QUICviz.gene_list": "File?"
 }
 
