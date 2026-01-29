@@ -5,7 +5,7 @@ workflow QUICviz {
         String sampleID
         Boolean isPECGS = true
         String tumorType
-        String quicvizDocker = "us-central1-docker.pkg.dev/tag-team-160914/gptag-dockers/cmi_quicviz:0.4.4"
+        String quicvizDocker = "us.gcr.io/tag-team-160914/cmi_quicviz:0.4.4"
         File allelicCountsNormal
         File allelicCountsTumor
         File denoisedCopyRatiosNormal
