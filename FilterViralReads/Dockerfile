@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y \
     samtools \
     wget \
     tar \
+    pv \
     && rm -rf /var/lib/apt/lists/*
 
 # Install BBTools (which contains bbduk.sh)

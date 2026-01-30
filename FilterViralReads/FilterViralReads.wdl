@@ -48,7 +48,7 @@ task FilterViralBam {
         
         # 1. Convert BAM to FASTA
         # We use ~{threads} to utilize the requested CPU cores
-        samtools fastq -@ ~{threads} "~{bam_file}" -o "~{basename}.fasta"
+        samtools fastq -@ ~{threads} "~{bam_file}" | pv -i 10 > "~{basename}.fasta"
 
         # 2. Run BBDuk
         # Note: We set -Xmx to (memory_gb - 4) to leave room for overhead
