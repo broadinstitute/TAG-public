@@ -60,7 +60,7 @@ task FilterViralBam {
         # 1. Convert BAM to FASTA
         # We use ~{threads} to utilize the requested CPU cores
         echo "Step 1: Convert Bam to FASTA"
-        samtools fastq -@ ~{threads} "~{bam_file}" | pv -i 10 2> samtools_progress.log > "~{basename}.fasta" &
+        samtools fastq -@ ~{threads} "~{bam_file}" | pv -i 10 2> samtools_progress.log > "~{basename}.fasta" 
 
         # 2. Run BBDuk
         echo "Step 2: Run BBDuk"
