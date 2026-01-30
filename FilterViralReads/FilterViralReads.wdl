@@ -43,7 +43,13 @@ task FilterViralBam {
 
     command <<<
         set -e
+        echo "df -h"
+        df -h 
         
+        echo "df -h ."
+        df -h .
+        pwd
+
         echo "Processing Sample: ~{basename}"
         
         # 1. Convert BAM to FASTA
