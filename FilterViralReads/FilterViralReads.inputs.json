@@ -1,0 +1,7 @@
+{
+  "ViralFilterWorkflow.input_bam": "gs://your-testing-bucket/sample.bam",
+  "ViralFilterWorkflow.viral_reference": "gs://your-testing-bucket/lenti_reference.fasta",
+  "ViralFilterWorkflow.sample_name": "M24_WB",
+  "ViralFilterWorkflow.FilterViralBam.memory_gb": 16,
+  "ViralFilterWorkflow.FilterViralBam.threads": 8
+}

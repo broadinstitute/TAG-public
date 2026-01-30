@@ -194,3 +194,10 @@ workflows:
    primaryDescriptorPath: /BCH_Clinical_CNV/CNVSomaticPairWorkflow_BCH_Wrapper/subworkflows/plotCNVQC/plotCNVQC.wdl
    testParameterFiles:
    - /BCH_Clinical_CNV/CNVSomaticPairWorkflow_BCH_Wrapper/subworkflows/plotCNVQC/plotCNVQC.inputs.json
+ - name: FilterViralReads
+   subclass: WDL
+   primaryDescriptorPath: /FilterViralReads/FilterViralReads.wdl
+   testParameterFiles:
+    - /FilterViralReads/FilterViralReads.input.json
+
+
