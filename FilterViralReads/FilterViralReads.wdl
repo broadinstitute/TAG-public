@@ -33,8 +33,8 @@ task FilterViralBam {
         Int memory_gb = 16
         Int preemptible_attempts
 
-        # Calculate disk: (10 * size of BAM in GB) + 10GB buffer for tools/logs
-        # The reason for 10x size is that it converts the bam to a fasta file.
+        # Calculate disk: (20 * size of BAM in GB) + 10GB buffer for tools/logs
+        # The reason for 20x size is that it converts the bam to a fasta file.
         Int disk_size_gb = ceil(10 * size(bam_file, "GB")) + 10
 
         # Replace this string with the tag of the image you built in Part 1
