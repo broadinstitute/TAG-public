@@ -21,8 +21,7 @@ workflow FilterViralReads {
         File viral_bam = FilterViralBam.out_bam
         File viral_bai = FilterViralBam.out_bai
         
-        # Diagnostic Outputs (Logs & Intermediate Files)
-        File progress_log = FilterViralBam.progress_log
+        # Diagnostic Outputs
         File viral_names = FilterViralBam.viral_names
         File viral_fastq = FilterViralBam.viral_fastq
         File bbduk_stats = FilterViralBam.bbduk_stats
@@ -40,11 +39,9 @@ task FilterViralBam {
         Int memory_gb = 16
         Int preemptible_attempts
 
-        # Disk size calculation: 
-        # 20x is safer for BAM->FASTA expansion overhead
+        # Disk size calculation: 20x to handle large BAM->FASTA expansion
         Int disk_size_gb = ceil(20 * size(bam_file, "GB")) + 20
 
-        # Docker Image (v2 contains pv and samtools)
         String docker_image = "fleharty/viral-bam-filter:v2" 
     }
 
@@ -60,11 +57,13 @@ task FilterViralBam {
         # STEP 1: Convert BAM to FASTA
         # -------------------------------------------------------
         echo "Step 1: Converting BAM to FASTA..."
+        date # Print timestamp so you can calculate duration later
+
+        # Standard conversion. Silent until finished.
+        samtools fastq -@ ~{threads} "~{bam_file}" > "~{basename}.fasta"
         
-        # CRITICAL FIX: Removed the '&' at the end to prevent race condition.
-        # Capturing samtools progress via pv (stderr) to a log file.
-        samtools fastq -@ ~{threads} "~{bam_file}" | pv -i 10 2> samtools_progress.log > "~{basename}.fasta"
-        
+        echo "Step 1 Finished."
+        date
         echo "DIAGNOSTIC: FASTA generated. Size:"
         ls -lh "~{basename}.fasta"
         echo "DIAGNOSTIC: First 4 lines of FASTA:"
@@ -133,7 +132,6 @@ task FilterViralBam {
         File out_bai = "~{basename}.viral.bam.bai"
         
         # Debugging / Diagnostic Outputs
-        File progress_log = "samtools_progress.log"
         File viral_names = "~{basename}.viral.names"
         File viral_fastq = "~{basename}.viral.fastq"
         File bbduk_stats = "bbduk_stats.txt"
@@ -143,7 +141,6 @@ task FilterViralBam {
         docker: docker_image
         cpu: threads
         memory: "~{memory_gb} GB"
-        # Using SSD for faster I/O
         disks: "local-disk " + disk_size_gb + " SSD"
         preemptible: preemptible_attempts
     }
