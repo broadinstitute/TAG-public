@@ -59,9 +59,11 @@ task FilterViralBam {
         
         # 1. Convert BAM to FASTA
         # We use ~{threads} to utilize the requested CPU cores
+        echo "Step 1: Convert Bam to FASTA"
         samtools fastq -@ ~{threads} "~{bam_file}" | pv -i 10 2> samtools_progress.log > "~{basename}.fasta" &
 
         # 2. Run BBDuk
+        echo "Step 2: Run BBDuk"
         # Note: We set -Xmx to (memory_gb - 4) to leave room for overhead
         # We reference the WDL input ~{reference_fasta} directly
         bbduk.sh -Xmx~{memory_gb - 4}g \
@@ -76,15 +78,20 @@ task FilterViralBam {
 
         # 3. Extract read names
         # Standard grep/sed pipeline
+        echo "Step 3: Extract read names"
         grep '^@' "~{basename}.viral.fastq" | sed 's/^@//' | cut -d ' ' -f1 | sort -u > "~{basename}.viral.names"
 
         # 4. Subset original BAM using the read names
+        echo "Step 4: Subset original BAM using the read names"
         samtools view -N "~{basename}.viral.names" -b "~{bam_file}" > "~{basename}.viral.bam"
         samtools index "~{basename}.viral.bam"
 
         # Final Cleanup
+        echo "Step 5: Final Cleanup"
         rm "~{basename}.viral.names"
         rm "~{basename}.viral.fastq"
+
+        echo "Done"
     >>>
 
     output {
