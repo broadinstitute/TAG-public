@@ -17,8 +17,15 @@ workflow FilterViralReads {
     }
     
     output {
+        # Main Outputs
         File viral_bam = FilterViralBam.out_bam
         File viral_bai = FilterViralBam.out_bai
+        
+        # Diagnostic Outputs (Logs & Intermediate Files)
+        File progress_log = FilterViralBam.progress_log
+        File viral_names = FilterViralBam.viral_names
+        File viral_fastq = FilterViralBam.viral_fastq
+        File bbduk_stats = FilterViralBam.bbduk_stats
     }
 }
 
@@ -28,36 +35,47 @@ task FilterViralBam {
         File reference_fasta
         String basename
         
+        # Resource Configuration
         Int threads = 8
         Int memory_gb = 16
         Int preemptible_attempts
 
-        # Disk size calculation
-        Int disk_size_gb = ceil(10 * size(bam_file, "GB")) + 10
+        # Disk size calculation: 
+        # 20x is safer for BAM->FASTA expansion overhead
+        Int disk_size_gb = ceil(20 * size(bam_file, "GB")) + 20
 
+        # Docker Image (v2 contains pv and samtools)
         String docker_image = "fleharty/viral-bam-filter:v2" 
     }
 
     command <<<
         set -e
         
-        echo "--- DIAGNOSTIC: STARTING ---"
+        echo "--- DIAGNOSTIC START ---"
+        echo "Processing Sample: ~{basename}"
         echo "Input BAM Size:"
         ls -lh "~{bam_file}"
 
-        # 1. Convert BAM to FASTA
-        # REMOVED THE '&' to fix race condition
+        # -------------------------------------------------------
+        # STEP 1: Convert BAM to FASTA
+        # -------------------------------------------------------
         echo "Step 1: Converting BAM to FASTA..."
-        samtools fastq -@ ~{threads} "~{bam_file}" > "~{basename}.fasta"
+        
+        # CRITICAL FIX: Removed the '&' at the end to prevent race condition.
+        # Capturing samtools progress via pv (stderr) to a log file.
+        samtools fastq -@ ~{threads} "~{bam_file}" | pv -i 10 2> samtools_progress.log > "~{basename}.fasta"
         
         echo "DIAGNOSTIC: FASTA generated. Size:"
         ls -lh "~{basename}.fasta"
-        echo "DIAGNOSTIC: First 5 lines of FASTA:"
-        head -n 5 "~{basename}.fasta"
+        echo "DIAGNOSTIC: First 4 lines of FASTA:"
+        head -n 4 "~{basename}.fasta"
 
-        # 2. Run BBDuk
+        # -------------------------------------------------------
+        # STEP 2: Run BBDuk (Viral Filtering)
+        # -------------------------------------------------------
         echo "Step 2: Running BBDuk..."
-        # Capturing BBDuk stats to a file so we can see them in outputs
+        
+        # Saving BBDuk statistics to a text file for output
         bbduk.sh -Xmx~{memory_gb - 4}g \
             in="~{basename}.fasta" \
             ref="~{reference_fasta}" \
@@ -67,16 +85,15 @@ task FilterViralBam {
 
         echo "DIAGNOSTIC: BBDuk Finished. Stats:"
         cat bbduk_stats.txt
+        
         echo "DIAGNOSTIC: Viral FASTQ Size:"
         ls -lh "~{basename}.viral.fastq"
         
-        # Check if BBDuk found 0 reads
-        if [ ! -s "~{basename}.viral.fastq" ]; then
-            echo "WARNING: BBDuk output is empty! No viral reads found."
-        fi
-
-        # 3. Extract read names
+        # -------------------------------------------------------
+        # STEP 3: Extract Read Names
+        # -------------------------------------------------------
         echo "Step 3: Extracting read names..."
+        
         # We save this output to verify if suffixes like '/1' are contaminating the names
         grep '^@' "~{basename}.viral.fastq" | sed 's/^@//' | cut -d ' ' -f1 | sort -u > "~{basename}.viral.names"
 
@@ -84,30 +101,39 @@ task FilterViralBam {
         ls -lh "~{basename}.viral.names"
         echo "DIAGNOSTIC: Count of Viral Reads Found:"
         wc -l "~{basename}.viral.names"
-        echo "DIAGNOSTIC: First 5 Read Names (Check for /1 or /2 suffixes!):"
-        head -n 5 "~{basename}.viral.names"
+        
+        echo "DIAGNOSTIC: First 10 Read Names (Check for /1 or /2 suffixes!):"
+        head -n 10 "~{basename}.viral.names"
 
-        # 4. Subset original BAM
-        echo "Step 4: Subsetting BAM..."
+        # -------------------------------------------------------
+        # STEP 4: Subset Original BAM
+        # -------------------------------------------------------
+        echo "Step 4: Subsetting original BAM..."
+        
+        # -N filters the BAM based on the list of names we just generated
         samtools view -N "~{basename}.viral.names" -b "~{bam_file}" > "~{basename}.viral.bam"
         samtools index "~{basename}.viral.bam"
         
         echo "DIAGNOSTIC: Final BAM Size:"
         ls -lh "~{basename}.viral.bam"
         
-        # Check if final BAM has reads
         echo "DIAGNOSTIC: Checking final BAM read count:"
         samtools view -c "~{basename}.viral.bam"
 
-        # Cleanup (Only delete the massive FASTA, keep others for debugging)
+        # -------------------------------------------------------
+        # Cleanup
+        # -------------------------------------------------------
+        echo "Cleaning up large FASTA file..."
         rm "~{basename}.fasta"
+        echo "Done."
     >>>
 
     output {
         File out_bam = "~{basename}.viral.bam"
         File out_bai = "~{basename}.viral.bam.bai"
         
-        # NEW DEBUGGING OUTPUTS
+        # Debugging / Diagnostic Outputs
+        File progress_log = "samtools_progress.log"
         File viral_names = "~{basename}.viral.names"
         File viral_fastq = "~{basename}.viral.fastq"
         File bbduk_stats = "bbduk_stats.txt"
@@ -117,6 +143,7 @@ task FilterViralBam {
         docker: docker_image
         cpu: threads
         memory: "~{memory_gb} GB"
+        # Using SSD for faster I/O
         disks: "local-disk " + disk_size_gb + " SSD"
         preemptible: preemptible_attempts
     }
