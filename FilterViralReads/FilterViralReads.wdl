@@ -38,7 +38,7 @@ task FilterViralBam {
         Int disk_size_gb = ceil(10 * size(bam_file, "GB")) + 10
 
         # Replace this string with the tag of the image you built in Part 1
-        String docker_image = "fleharty/viral-bam-filter:v1" 
+        String docker_image = "fleharty/viral-bam-filter:v2" 
     }
 
     command <<<
