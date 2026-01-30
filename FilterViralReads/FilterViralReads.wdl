@@ -5,6 +5,7 @@ workflow FilterViralReads {
         File input_bam
         File viral_reference
         String sample_name
+        Int preemptible_attempts = 1
     }
 
     call FilterViralBam {
@@ -12,6 +13,7 @@ workflow FilterViralReads {
             bam_file = input_bam,
             reference_fasta = viral_reference,
             basename = sample_name
+            preemptible_attempts = preemptible_attempts
     }
     
     output {
@@ -29,8 +31,10 @@ task FilterViralBam {
         # Runtime attributes (can be overridden in inputs)
         Int threads = 8
         Int memory_gb = 16
+        Int preemptible_attempts
 
-        # Calculate disk: (3 * size of BAM in GB) + 10GB buffer for tools/logs
+        # Calculate disk: (10 * size of BAM in GB) + 10GB buffer for tools/logs
+        # The reason for 10x size is that it converts the bam to a fasta file.
         Int disk_size_gb = ceil(3 * size(bam_file, "GB")) + 10
 
         # Replace this string with the tag of the image you built in Part 1
@@ -82,5 +86,6 @@ task FilterViralBam {
         cpu: threads
         memory: "~{memory_gb} GB"
         disks: "local-disk " + disk_size_gb + " HDD"
+        preemptible: preemptible_attempts
     }
 }
