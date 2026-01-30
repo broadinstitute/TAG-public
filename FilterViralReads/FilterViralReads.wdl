@@ -48,7 +48,7 @@ task FilterViralBam {
         # 1. Convert BAM to FASTA
         # REMOVED THE '&' to fix race condition
         echo "Step 1: Converting BAM to FASTA..."
-        samtools fastq -@ ~{threads} "~{bam_file}" | pv -i 10 2> samtools_progress.log > "~{basename}.fasta"
+        samtools fastq -@ ~{threads} "~{bam_file}" > "~{basename}.fasta"
         
         echo "DIAGNOSTIC: FASTA generated. Size:"
         ls -lh "~{basename}.fasta"
@@ -106,7 +106,6 @@ task FilterViralBam {
     output {
         File out_bam = "~{basename}.viral.bam"
         File out_bai = "~{basename}.viral.bam.bai"
-        File progress_log = "samtools_progress.log"
         
         # NEW DEBUGGING OUTPUTS
         File viral_names = "~{basename}.viral.names"
