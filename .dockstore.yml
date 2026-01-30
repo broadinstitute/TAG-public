@@ -113,7 +113,12 @@ workflows:
    subclass: WDL
    primaryDescriptorPath: /DownsampleBam/DownsampleBam.wdl
    testParameterFiles:
-    - /DownsampleBam/DownsampleBam.inputs.json 
+    - /DownsampleBam/DownsampleBam.inputs.json
+ - name: CrosscheckFingerprints
+   subclass: WDL
+   primaryDescriptorPath: /CrossCheckFingerPrint/CrossCheckFingerPrint.wdl
+   testParameterFiles:
+    - /CrossCheckFingerPrint/CrossCheckFingerPrint.inputs.json
  - name: Cleanup_Failed_Submissions
    subclass: WDL
    primaryDescriptorPath: /CleanupFailedSubmissions/Cleanup_Failed_Submissions.wdl

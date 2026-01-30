@@ -1,0 +1,10 @@
+{
+  "CrosscheckFingerprintsWorkflow.picard_docker": "String (optional, default = \"us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.1-1540490856\")",
+  "CrosscheckFingerprintsWorkflow.CrosscheckFingerprints.memory_gb": "Int (optional, default = 16)",
+  "CrosscheckFingerprintsWorkflow.input_bamB": "File",
+  "CrosscheckFingerprintsWorkflow.CrosscheckFingerprints.disk_gb": "Int (optional, default = 200)",
+  "CrosscheckFingerprintsWorkflow.output_name": "String",
+  "CrosscheckFingerprintsWorkflow.hapmap": "File",
+  "CrosscheckFingerprintsWorkflow.reference_fasta": "File",
+  "CrosscheckFingerprintsWorkflow.input_bamA": "File"
+}
