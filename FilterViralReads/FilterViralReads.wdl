@@ -59,7 +59,7 @@ task FilterViralBam {
         
         # 1. Convert BAM to FASTA
         # We use ~{threads} to utilize the requested CPU cores
-        samtools fastq -@ ~{threads} "~{bam_file}" | pv -i 10 > "~{basename}.fasta"
+        samtools fastq -@ ~{threads} "~{bam_file}" | pv -i 10 2> samtools_progress.log > "~{basename}.fasta" &
 
         # 2. Run BBDuk
         # Note: We set -Xmx to (memory_gb - 4) to leave room for overhead
@@ -90,13 +90,14 @@ task FilterViralBam {
     output {
         File out_bam = "~{basename}.viral.bam"
         File out_bai = "~{basename}.viral.bam.bai"
+        File progress_log = "samtools_progress.log"
     }
 
     runtime {
         docker: docker_image
         cpu: threads
         memory: "~{memory_gb} GB"
-        disks: "local-disk " + disk_size_gb + " HDD"
+        disks: "local-disk " + disk_size_gb + " SSD"
         preemptible: preemptible_attempts
     }
 }
