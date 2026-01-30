@@ -93,8 +93,8 @@ task FilterViralBam {
         # -------------------------------------------------------
         echo "Step 3: Extracting read names..."
         
-        # We save this output to verify if suffixes like '/1' are contaminating the names
-        grep '^@' "~{basename}.viral.fastq" | sed 's/^@//' | cut -d ' ' -f1 | sort -u > "~{basename}.viral.names"
+        # This strips /1 or /2 before saving the names
+        grep '^@' "~{basename}.viral.fastq" | sed 's/^@//' | sed 's/\/[12]$//' | cut -d ' ' -f1 | sort -u > "~{basename}.viral.names"
 
         echo "DIAGNOSTIC: Read Names File Size:"
         ls -lh "~{basename}.viral.names"
