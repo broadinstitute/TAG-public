@@ -29,6 +29,10 @@ task FilterViralBam {
         # Runtime attributes (can be overridden in inputs)
         Int threads = 8
         Int memory_gb = 16
+
+        # Calculate disk: (3 * size of BAM in GB) + 10GB buffer for tools/logs
+        Int disk_size_gb = ceil(3 * size(bam_file, "GB")) + 10
+
         # Replace this string with the tag of the image you built in Part 1
         String docker_image = "fleharty/viral-bam-filter:v1" 
     }
@@ -77,5 +81,6 @@ task FilterViralBam {
         docker: docker_image
         cpu: threads
         memory: "~{memory_gb} GB"
+        disks: "local-disk " + disk_size_gb + " HDD"
     }
 }
