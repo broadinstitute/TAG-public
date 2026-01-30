@@ -48,7 +48,12 @@ task FilterViralBam {
         
         echo "df -h ."
         df -h .
+
+        echo "pwd"
         pwd
+
+        echo "du -h"
+        du -h 
 
         echo "Processing Sample: ~{basename}"
         
