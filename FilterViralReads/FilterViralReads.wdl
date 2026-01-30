@@ -28,76 +28,90 @@ task FilterViralBam {
         File reference_fasta
         String basename
         
-        # Runtime attributes (can be overridden in inputs)
         Int threads = 8
         Int memory_gb = 16
         Int preemptible_attempts
 
-        # Calculate disk: (20 * size of BAM in GB) + 10GB buffer for tools/logs
-        # The reason for 20x size is that it converts the bam to a fasta file.
+        # Disk size calculation
         Int disk_size_gb = ceil(10 * size(bam_file, "GB")) + 10
 
-        # Replace this string with the tag of the image you built in Part 1
         String docker_image = "fleharty/viral-bam-filter:v2" 
     }
 
     command <<<
         set -e
-        echo "df -h"
-        df -h 
         
-        echo "df -h ."
-        df -h .
+        echo "--- DIAGNOSTIC: STARTING ---"
+        echo "Input BAM Size:"
+        ls -lh "~{bam_file}"
 
-        echo "pwd"
-        pwd
-
-        echo "du -h"
-        du -h 
-
-        echo "Processing Sample: ~{basename}"
-        
         # 1. Convert BAM to FASTA
-        # We use ~{threads} to utilize the requested CPU cores
-        echo "Step 1: Convert Bam to FASTA"
-        samtools fastq -@ ~{threads} "~{bam_file}" | pv -i 10 2> samtools_progress.log > "~{basename}.fasta" 
+        # REMOVED THE '&' to fix race condition
+        echo "Step 1: Converting BAM to FASTA..."
+        samtools fastq -@ ~{threads} "~{bam_file}" | pv -i 10 2> samtools_progress.log > "~{basename}.fasta"
+        
+        echo "DIAGNOSTIC: FASTA generated. Size:"
+        ls -lh "~{basename}.fasta"
+        echo "DIAGNOSTIC: First 5 lines of FASTA:"
+        head -n 5 "~{basename}.fasta"
 
         # 2. Run BBDuk
-        echo "Step 2: Run BBDuk"
-        # Note: We set -Xmx to (memory_gb - 4) to leave room for overhead
-        # We reference the WDL input ~{reference_fasta} directly
+        echo "Step 2: Running BBDuk..."
+        # Capturing BBDuk stats to a file so we can see them in outputs
         bbduk.sh -Xmx~{memory_gb - 4}g \
             in="~{basename}.fasta" \
             ref="~{reference_fasta}" \
             outm="~{basename}.viral.fastq" \
             k=19 hdist=0 rcomp=t \
-            threads=~{threads} tbo=f tpe=f
+            threads=~{threads} tbo=f tpe=f 2> bbduk_stats.txt
 
-        # Cleanup intermediate FASTA
-        rm "~{basename}.fasta"
+        echo "DIAGNOSTIC: BBDuk Finished. Stats:"
+        cat bbduk_stats.txt
+        echo "DIAGNOSTIC: Viral FASTQ Size:"
+        ls -lh "~{basename}.viral.fastq"
+        
+        # Check if BBDuk found 0 reads
+        if [ ! -s "~{basename}.viral.fastq" ]; then
+            echo "WARNING: BBDuk output is empty! No viral reads found."
+        fi
 
         # 3. Extract read names
-        # Standard grep/sed pipeline
-        echo "Step 3: Extract read names"
+        echo "Step 3: Extracting read names..."
+        # We save this output to verify if suffixes like '/1' are contaminating the names
         grep '^@' "~{basename}.viral.fastq" | sed 's/^@//' | cut -d ' ' -f1 | sort -u > "~{basename}.viral.names"
 
-        # 4. Subset original BAM using the read names
-        echo "Step 4: Subset original BAM using the read names"
+        echo "DIAGNOSTIC: Read Names File Size:"
+        ls -lh "~{basename}.viral.names"
+        echo "DIAGNOSTIC: Count of Viral Reads Found:"
+        wc -l "~{basename}.viral.names"
+        echo "DIAGNOSTIC: First 5 Read Names (Check for /1 or /2 suffixes!):"
+        head -n 5 "~{basename}.viral.names"
+
+        # 4. Subset original BAM
+        echo "Step 4: Subsetting BAM..."
         samtools view -N "~{basename}.viral.names" -b "~{bam_file}" > "~{basename}.viral.bam"
         samtools index "~{basename}.viral.bam"
+        
+        echo "DIAGNOSTIC: Final BAM Size:"
+        ls -lh "~{basename}.viral.bam"
+        
+        # Check if final BAM has reads
+        echo "DIAGNOSTIC: Checking final BAM read count:"
+        samtools view -c "~{basename}.viral.bam"
 
-        # Final Cleanup
-        echo "Step 5: Final Cleanup"
-        rm "~{basename}.viral.names"
-        rm "~{basename}.viral.fastq"
-
-        echo "Done"
+        # Cleanup (Only delete the massive FASTA, keep others for debugging)
+        rm "~{basename}.fasta"
     >>>
 
     output {
         File out_bam = "~{basename}.viral.bam"
         File out_bai = "~{basename}.viral.bam.bai"
         File progress_log = "samtools_progress.log"
+        
+        # NEW DEBUGGING OUTPUTS
+        File viral_names = "~{basename}.viral.names"
+        File viral_fastq = "~{basename}.viral.fastq"
+        File bbduk_stats = "bbduk_stats.txt"
     }
 
     runtime {
