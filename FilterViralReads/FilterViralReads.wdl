@@ -12,7 +12,7 @@ workflow FilterViralReads {
         input:
             bam_file = input_bam,
             reference_fasta = viral_reference,
-            basename = sample_name
+            basename = sample_name,
             preemptible_attempts = preemptible_attempts
     }
     
