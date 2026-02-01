@@ -21,6 +21,10 @@ workflow FilterViralReads {
         File viral_bam = FilterViralBam.out_bam
         File viral_bai = FilterViralBam.out_bai
         
+        # Aligned Read Counts as Integers
+        Int input_aligned_read_count = FilterViralBam.input_aligned_count
+        Int viral_aligned_read_count = FilterViralBam.viral_aligned_count
+        
         # Diagnostic Outputs
         File viral_names = FilterViralBam.viral_names
         File viral_fastq = FilterViralBam.viral_fastq
@@ -50,31 +54,30 @@ task FilterViralBam {
         
         echo "--- DIAGNOSTIC START ---"
         echo "Processing Sample: ~{basename}"
-        echo "Input BAM Size:"
-        ls -lh "~{bam_file}"
+        
+        # -------------------------------------------------------
+        # STEP 0: Count Aligned Reads in Input BAM
+        # -------------------------------------------------------
+        echo "Step 0: Counting aligned reads in input..."
+        # -c counts, -F 4 excludes unmapped reads
+        samtools view -c -F 4 "~{bam_file}" > input_aligned.txt
+        echo "Input Aligned Count: $(cat input_aligned.txt)"
 
         # -------------------------------------------------------
         # STEP 1: Convert BAM to FASTA
         # -------------------------------------------------------
         echo "Step 1: Converting BAM to FASTA..."
-        date # Print timestamp so you can calculate duration later
-
-        # Standard conversion. Silent until finished.
+        date
         samtools fastq -@ ~{threads} "~{bam_file}" > "~{basename}.fasta"
         
         echo "Step 1 Finished."
         date
-        echo "DIAGNOSTIC: FASTA generated. Size:"
-        ls -lh "~{basename}.fasta"
-        echo "DIAGNOSTIC: First 4 lines of FASTA:"
-        head -n 4 "~{basename}.fasta"
 
         # -------------------------------------------------------
         # STEP 2: Run BBDuk (Viral Filtering)
         # -------------------------------------------------------
         echo "Step 2: Running BBDuk..."
         
-        # Saving BBDuk statistics to a text file for output
         bbduk.sh -Xmx~{memory_gb - 4}g \
             in="~{basename}.fasta" \
             ref="~{reference_fasta}" \
@@ -85,45 +88,35 @@ task FilterViralBam {
         echo "DIAGNOSTIC: BBDuk Finished. Stats:"
         cat bbduk_stats.txt
         
-        echo "DIAGNOSTIC: Viral FASTQ Size:"
-        ls -lh "~{basename}.viral.fastq"
+        # Cleanup intermediate FASTA to save disk space
+        rm "~{basename}.fasta"
         
         # -------------------------------------------------------
         # STEP 3: Extract Read Names
         # -------------------------------------------------------
         echo "Step 3: Extracting read names..."
         
-        # This strips /1 or /2 before saving the names
+        # This strips /1 or /2 before saving the names to ensure match in original BAM
         grep '^@' "~{basename}.viral.fastq" | sed 's/^@//' | sed 's/\/[12]$//' | cut -d ' ' -f1 | sort -u > "~{basename}.viral.names"
 
-        echo "DIAGNOSTIC: Read Names File Size:"
-        ls -lh "~{basename}.viral.names"
-        echo "DIAGNOSTIC: Count of Viral Reads Found:"
-        wc -l "~{basename}.viral.names"
+        echo "DIAGNOSTIC: Count of Unique Viral Read Names Found: $(wc -l < "~{basename}.viral.names")"
         
-        echo "DIAGNOSTIC: First 10 Read Names (Check for /1 or /2 suffixes!):"
-        head -n 10 "~{basename}.viral.names"
-
         # -------------------------------------------------------
         # STEP 4: Subset Original BAM
         # -------------------------------------------------------
         echo "Step 4: Subsetting original BAM..."
         
-        # -N filters the BAM based on the list of names we just generated
+        # -N filters the BAM based on the list of names
         samtools view -N "~{basename}.viral.names" -b "~{bam_file}" > "~{basename}.viral.bam"
         samtools index "~{basename}.viral.bam"
         
-        echo "DIAGNOSTIC: Final BAM Size:"
-        ls -lh "~{basename}.viral.bam"
-        
-        echo "DIAGNOSTIC: Checking final BAM read count:"
-        samtools view -c "~{basename}.viral.bam"
+        # -------------------------------------------------------
+        # STEP 5: Count Aligned Reads in Output Viral BAM
+        # -------------------------------------------------------
+        echo "Step 5: Counting aligned reads in output..."
+        samtools view -c -F 4 "~{basename}.viral.bam" > viral_aligned.txt
+        echo "Viral Aligned Count: $(cat viral_aligned.txt)"
 
-        # -------------------------------------------------------
-        # Cleanup
-        # -------------------------------------------------------
-        echo "Cleaning up large FASTA file..."
-        rm "~{basename}.fasta"
         echo "Done."
     >>>
 
@@ -131,6 +124,10 @@ task FilterViralBam {
         File out_bam = "~{basename}.viral.bam"
         File out_bai = "~{basename}.viral.bam.bai"
         
+        # Capturing counts as Integers for the workflow output
+        Int input_aligned_count = read_int("input_aligned.txt")
+        Int viral_aligned_count = read_int("viral_aligned.txt")
+
         # Debugging / Diagnostic Outputs
         File viral_names = "~{basename}.viral.names"
         File viral_fastq = "~{basename}.viral.fastq"
