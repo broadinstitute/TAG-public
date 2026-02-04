@@ -1,0 +1,1 @@
+{"FilterViralReads.FilterViralBam.docker_image":"fleharty/viral-bam-filter:v2","FilterViralReads.FilterViralBam.threads":"${8}","FilterViralReads.input_bam":"${this.bam_file}","FilterViralReads.sample_name":"${this.sample_id}","FilterViralReads.viral_reference":"gs://gptag/tag_2460_LentiviralInsertion/lenti_k19_unique.cleaned.fasta"}

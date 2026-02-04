@@ -8,24 +8,31 @@ workflow FilterViralReads {
         Int preemptible_attempts = 1
     }
 
+    meta {
+        description: "Extracts viral-specific reads from a BAM file using BBDuk k-mer matching. Identifies reads (and mates) matching the provided viral reference and outputs a subsetted BAM." [cite: 12, 14]
+        author: "fleharty"
+        email: "fleharty@broadinstitute.org"
+    }
+
+    parameter_meta {
+        input_bam: "The original BAM file to be filtered; can be aligned to any host reference." [cite: 7]
+        viral_reference: "FASTA file containing viral sequences. K-mers should be unique to the virus to avoid host contamination." 
+        sample_name: "Prefix used for all output files." [cite: 3]
+    }
+
     call FilterViralBam {
         input:
             bam_file = input_bam,
             reference_fasta = viral_reference,
-            basename = sample_name,
+            basename = sample_name, [cite: 3]
             preemptible_attempts = preemptible_attempts
     }
     
     output {
-        # Main Outputs
         File viral_bam = FilterViralBam.out_bam
         File viral_bai = FilterViralBam.out_bai
-        
-        # Aligned Read Counts as Integers
-        Int input_aligned_read_count = FilterViralBam.input_aligned_count
-        Int viral_aligned_read_count = FilterViralBam.viral_aligned_count
-        
-        # Diagnostic Outputs
+        Int input_aligned_read_count = FilterViralBam.input_aligned_count [cite: 4]
+        Int viral_aligned_read_count = FilterViralBam.viral_aligned_count [cite: 4]
         File viral_names = FilterViralBam.viral_names
         File viral_fastq = FilterViralBam.viral_fastq
         File bbduk_stats = FilterViralBam.bbduk_stats
@@ -36,101 +43,70 @@ task FilterViralBam {
     input {
         File bam_file
         File reference_fasta
-        String basename
+        String basename [cite: 5]
         
         # Resource Configuration
         Int threads = 8
         Int memory_gb = 16
         Int preemptible_attempts
 
-        # Disk size calculation: 20x to handle large BAM->FASTA expansion
-        Int disk_size_gb = ceil(20 * size(bam_file, "GB")) + 20
+        # Configurable BBDuk parameters
+        Int kmer_size = 19 
+        Int hdist = 0 
+
+        # Disk size calculation: Adjusted to 10x for safety without being excessive
+        Int disk_size_gb = ceil(10 * size(bam_file, "GB")) + 20 [cite: 5]
 
         String docker_image = "fleharty/viral-bam-filter:v2" 
+    }
+
+    parameter_meta {
+        threads: "Number of CPUs to allocate for samtools and BBDuk." [cite: 8, 10]
+        memory_gb: "Total memory; note that BBDuk is allocated memory_gb - 4GB." 
+        kmer_size: "K-mer length for matching (default 19)." 
+        hdist: "Hamming distance for k-mer matching; 0 requires exact matches." 
     }
 
     command <<<
         set -e
         
-        echo "--- DIAGNOSTIC START ---"
-        echo "Processing Sample: ~{basename}"
-        
-        # -------------------------------------------------------
-        # STEP 0: Count Aligned Reads in Input BAM
-        # -------------------------------------------------------
         echo "Step 0: Counting aligned reads in input..."
-        # -c counts, -F 4 excludes unmapped reads
-        samtools view -c -F 4 "~{bam_file}" > input_aligned.txt
-        echo "Input Aligned Count: $(cat input_aligned.txt)"
+        samtools view -c -F 4 "~{bam_file}" > input_aligned.txt [cite: 7]
 
-        # -------------------------------------------------------
-        # STEP 1: Convert BAM to FASTA
-        # -------------------------------------------------------
-        echo "Step 1: Converting BAM to FASTA..."
-        date
-        samtools fastq -@ ~{threads} "~{bam_file}" > "~{basename}.fasta"
+        echo "Step 1: Converting BAM to FASTQ..."
+        samtools fastq -@ ~{threads} "~{bam_file}" > "~{basename}.fastq" [cite: 8]
         
-        echo "Step 1 Finished."
-        date
-
-        # -------------------------------------------------------
-        # STEP 2: Run BBDuk (Viral Filtering)
-        # -------------------------------------------------------
         echo "Step 2: Running BBDuk..."
-        
+        # BBDuk uses k-mer matching to identify viral reads 
         bbduk.sh -Xmx~{memory_gb - 4}g \
-            in="~{basename}.fasta" \
+            in="~{basename}.fastq" \
             ref="~{reference_fasta}" \
             outm="~{basename}.viral.fastq" \
-            k=19 hdist=0 rcomp=t \
-            threads=~{threads} tbo=f tpe=f 2> bbduk_stats.txt
+            k=~{kmer_size} hdist=~{hdist} rcomp=t \
+            threads=~{threads} tbo=f tpe=f 2> bbduk_stats.txt 
+        
+        rm "~{basename}.fastq"
+        
+        echo "Step 3: Extracting unique read names..."
+        # Strips /1 and /2 to ensure both mates are captured from the original BAM [cite: 12]
+        grep '^@' "~{basename}.viral.fastq" | sed 's/^@//' | sed 's/\/[12]$//' | cut -d ' ' -f1 | sort -u > "~{basename}.viral.names" [cite: 12, 13]
 
-        echo "DIAGNOSTIC: BBDuk Finished. Stats:"
-        cat bbduk_stats.txt
-        
-        # Cleanup intermediate FASTA to save disk space
-        rm "~{basename}.fasta"
-        
-        # -------------------------------------------------------
-        # STEP 3: Extract Read Names
-        # -------------------------------------------------------
-        echo "Step 3: Extracting read names..."
-        
-        # This strips /1 or /2 before saving the names to ensure match in original BAM
-        grep '^@' "~{basename}.viral.fastq" | sed 's/^@//' | sed 's/\/[12]$//' | cut -d ' ' -f1 | sort -u > "~{basename}.viral.names"
-
-        echo "DIAGNOSTIC: Count of Unique Viral Read Names Found: $(wc -l < "~{basename}.viral.names")"
-        
-        # -------------------------------------------------------
-        # STEP 4: Subset Original BAM
-        # -------------------------------------------------------
         echo "Step 4: Subsetting original BAM..."
-        
-        # -N filters the BAM based on the list of names
-        samtools view -N "~{basename}.viral.names" -b "~{bam_file}" > "~{basename}.viral.bam"
+        # -N uses the name list to pull full read records [cite: 14]
+        samtools view -N "~{basename}.viral.names" -b "~{bam_file}" > "~{basename}.viral.bam" [cite: 14]
         samtools index "~{basename}.viral.bam"
         
-        # -------------------------------------------------------
-        # STEP 5: Count Aligned Reads in Output Viral BAM
-        # -------------------------------------------------------
         echo "Step 5: Counting aligned reads in output..."
-        samtools view -c -F 4 "~{basename}.viral.bam" > viral_aligned.txt
-        echo "Viral Aligned Count: $(cat viral_aligned.txt)"
-
-        echo "Done."
+        samtools view -c -F 4 "~{basename}.viral.bam" > viral_aligned.txt [cite: 15]
     >>>
 
     output {
         File out_bam = "~{basename}.viral.bam"
         File out_bai = "~{basename}.viral.bam.bai"
-        
-        # Capturing counts as Integers for the workflow output
-        Int input_aligned_count = read_int("input_aligned.txt")
-        Int viral_aligned_count = read_int("viral_aligned.txt")
-
-        # Debugging / Diagnostic Outputs
+        Int input_aligned_count = read_int("input_aligned.txt") [cite: 16]
+        Int viral_aligned_count = read_int("viral_aligned.txt") [cite: 16]
         File viral_names = "~{basename}.viral.names"
-        File viral_fastq = "~{basename}.viral.fastq"
+        File viral_fastq = "~{basename}.viral.fastq" [cite: 17]
         File bbduk_stats = "bbduk_stats.txt"
     }
 

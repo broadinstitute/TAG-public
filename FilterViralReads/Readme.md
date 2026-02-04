@@ -1,8 +1,9 @@
 # Viral BAM Filter Pipeline
 
 This repository contains a WDL (Workflow Description Language) pipeline designed to extract 
-viral-specific reads from a sample BAM file using `BBDuk`. It identifies reads matching a 
-provided viral reference and outputs a subsetted BAM file containing only those reads.
+viral-specific reads from a sample BAM file using `BBDuk`. It identifies reads (and their mates) matching a 
+provided list of k-mers unique to the viral reference and outputs a subsetted BAM file 
+containing only those reads.
 
 The pipeline is optimized for use on the **Terra** platform and can be found in the workspace:
 [tag_2460_lentiviral_insertion](https://app.terra.bio/#workspaces/broadtagteam/tag_2460_lentiviral_insertion)
@@ -11,7 +12,7 @@ The pipeline is optimized for use on the **Terra** platform and can be found in 
 
 ## Overview
 
-The workflow filters bam files to isolate viral sequences (e.g., Lentiviral transfections) by converting 
+The workflow filters bam files to isolate viral sequences (e.g., Lentiviral) by converting 
 alignments to FASTQ, performing k-mer matching against a reference, and re-subsetting the original BAM 
 to contain only reads that have k-mers from the virus. 
 
@@ -21,7 +22,7 @@ to contain only reads that have k-mers from the virus.
 
 2.  **Conversion**: Converts the input BAM to FASTQ format using `samtools`. 
 
-3.  **Viral Filtering**: Uses `bbduk.sh` to match reads against the provided viral reference FASTA using k-mer matching (). 
+3.  **Viral Filtering**: Uses `bbduk.sh` to match reads against the provided viral reference FASTA using k-mer matching (k = 19, hdist = 0). 
 
 4.  **Name Extraction**: Extracts and cleans unique read names that matched the viral reference. 
 
@@ -45,20 +46,15 @@ to contain only reads that have k-mers from the virus.
 ### Key Inputs
 
 * **input_bam**: The original BAM file to be filtered.
-* **viral_reference**: A FASTA file containing the viral sequence(s) to filter against.
+* **viral_reference**: A FASTA file containing the viral k-mers to filter against.  It's important that these k-mers are unique to the viral sequence, and not found in the reference of the sample.
 * **sample_name**: String used for naming output files. 
-
 * **threads/memory_gb**: Resource allocations (default 8 threads, 16 GB RAM). 
-
-
 
 ### Primary Outputs
 
 * **viral_bam**: A BAM file containing only the reads matching the viral reference.
 * **viral_aligned_read_count**: Integer count of aligned reads in the final viral BAM. 
 * **bbduk_stats**: A diagnostic text file showing the filtering statistics from BBMap. 
-
-
 
 ---
 
@@ -76,12 +72,8 @@ The pipeline relies on a custom Docker image. If you need to rebuild it:
 
 ```
 
-
-
 ### Running on Terra
 
-1. Upload the `FilterViralReads.wdl` to your Terra workspace.
-2. Configure the runtime inputs in the **Inputs** tab using the format provided in `FilterViralReads.inputs.json`.
-3. Ensure your `input_bam` and `viral_reference` are hosted in a Google Cloud Storage bucket accessible by the workspace.
-
+The Terra Workspace is available at:
+https://app.terra.bio/#workspaces/broadtagteam/tag_2460_lentiviral_insertion
 
