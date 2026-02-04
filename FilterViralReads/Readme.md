@@ -1,6 +1,8 @@
 # Viral BAM Filter Pipeline
 
-This repository contains a WDL (Workflow Description Language) pipeline designed to extract viral-specific reads from a sample BAM file using `BBDuk`. It identifies reads matching a provided viral reference and outputs a subsetted BAM file containing only those reads.
+This repository contains a WDL (Workflow Description Language) pipeline designed to extract 
+viral-specific reads from a sample BAM file using `BBDuk`. It identifies reads matching a 
+provided viral reference and outputs a subsetted BAM file containing only those reads.
 
 The pipeline is optimized for use on the **Terra** platform and can be found in the workspace:
 [tag_2460_lentiviral_insertion](https://app.terra.bio/#workspaces/broadtagteam/tag_2460_lentiviral_insertion)
@@ -9,30 +11,21 @@ The pipeline is optimized for use on the **Terra** platform and can be found in 
 
 ## Overview
 
-The workflow filters large genomic datasets to isolate viral sequences (e.g., Lentivirus) by converting alignments to FASTQ, performing k-mer matching against a reference, and re-subsetting the original BAM for downstream analysis. 
+The workflow filters bam files to isolate viral sequences (e.g., Lentiviral transfections) by converting 
+alignments to FASTQ, performing k-mer matching against a reference, and re-subsetting the original BAM 
+to contain only reads that have k-mers from the virus. 
 
 ### Workflow Steps
 
-1. 
-**Count Input Reads**: Calculates the initial number of aligned reads in the source BAM. 
+1.  **Count Input Reads**: Calculates the initial number of aligned reads in the source BAM. 
 
+2.  **Conversion**: Converts the input BAM to FASTQ format using `samtools`. 
 
-2. 
-**Conversion**: Converts the input BAM to FASTQ format using `samtools`. 
+3.  **Viral Filtering**: Uses `bbduk.sh` to match reads against the provided viral reference FASTA using k-mer matching (). 
 
+4.  **Name Extraction**: Extracts and cleans unique read names that matched the viral reference. 
 
-3. 
-**Viral Filtering**: Uses `bbduk.sh` to match reads against the provided viral reference FASTA using k-mer matching (). 
-
-
-4. 
-**Name Extraction**: Extracts and cleans unique read names that matched the viral reference. 
-
-
-5. 
-**BAM Subsetting**: Uses `samtools view -N` to create a new BAM containing only the identified viral reads. 
-
-
+5.  **BAM Subsetting**: Uses `samtools view -N` to create a new BAM containing only the identified viral reads. 
 
 ---
 
@@ -41,11 +34,7 @@ The workflow filters large genomic datasets to isolate viral sequences (e.g., Le
 | File | Description |
 | --- | --- |
 | `FilterViralReads.wdl` | The main WDL script defining the workflow and task logic. 
-
- |
 | `Dockerfile` | Defines the environment (Java 11, Samtools, BBTools) for the pipeline. 
-
- |
 | `docker_build.sh` | Utility script to build and push the image to Docker Hub (`fleharty/viral-bam-filter:v2`). |
 | `FilterViralReads.inputs.json` | Example JSON template for workflow parameters. |
 
@@ -57,24 +46,17 @@ The workflow filters large genomic datasets to isolate viral sequences (e.g., Le
 
 * **input_bam**: The original BAM file to be filtered.
 * **viral_reference**: A FASTA file containing the viral sequence(s) to filter against.
-* 
-**sample_name**: String used for naming output files. 
+* **sample_name**: String used for naming output files. 
 
-
-* 
-**threads/memory_gb**: Resource allocations (default 8 threads, 16 GB RAM). 
+* **threads/memory_gb**: Resource allocations (default 8 threads, 16 GB RAM). 
 
 
 
 ### Primary Outputs
 
 * **viral_bam**: A BAM file containing only the reads matching the viral reference.
-* 
-**viral_aligned_read_count**: Integer count of aligned reads in the final viral BAM. 
-
-
-* 
-**bbduk_stats**: A diagnostic text file showing the filtering statistics from BBMap. 
+* **viral_aligned_read_count**: Integer count of aligned reads in the final viral BAM. 
+* **bbduk_stats**: A diagnostic text file showing the filtering statistics from BBMap. 
 
 
 
@@ -88,8 +70,8 @@ The pipeline relies on a custom Docker image. If you need to rebuild it:
 
 1. Ensure you have Docker installed and authenticated.
 2. Run the build script:
+
 ```bash
-chmod +x docker_build.sh
 ./docker_build.sh
 
 ```
@@ -102,4 +84,4 @@ chmod +x docker_build.sh
 2. Configure the runtime inputs in the **Inputs** tab using the format provided in `FilterViralReads.inputs.json`.
 3. Ensure your `input_bam` and `viral_reference` are hosted in a Google Cloud Storage bucket accessible by the workspace.
 
-Would you like me to generate a summary of the `bbduk.sh` parameters used in this specific implementation?
+
