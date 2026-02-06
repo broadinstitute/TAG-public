@@ -1,0 +1,9 @@
+{
+  "GenerateUniqueKmers.viral_vector_fasta": "gs://your-bucket/path/to/lentiviral_vector.fasta",
+  "GenerateUniqueKmers.host_reference_fasta": "gs://your-bucket/path/to/Homo_sapiens_assembly19.fasta",
+  "GenerateUniqueKmers.output_basename": "${this.sample_id}",
+  "GenerateUniqueKmers.preemptible_attempts": 1,
+  "GenerateUniqueKmers.SubtractHostKmers.memory_gb": 40,
+  "GenerateUniqueKmers.SubtractHostKmers.threads": 16,
+  "GenerateUniqueKmers.SubtractHostKmers.docker_image": "fleharty/viral-bam-filter:v2"
+}
