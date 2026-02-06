@@ -199,5 +199,9 @@ workflows:
    primaryDescriptorPath: /FilterViralReads/FilterViralReads.wdl
    testParameterFiles:
     - /FilterViralReads/FilterViralReads.input.json
-
+ - name: GenerateUniqueKmers
+   subclass: WDL
+   primaryDescriptorPath: /FilterViralReads/GenerateUniqueKmers.wdl
+   testParameterFiles:
+    - /FilterViralReads/GenerateUniqueKmers.inputs.json
 

@@ -38,6 +38,7 @@ to contain only reads that have k-mers from the virus.
 | `Dockerfile` | Defines the environment (Java 11, Samtools, BBTools) for the pipeline. 
 | `docker_build.sh` | Utility script to build and push the image to Docker Hub (`fleharty/viral-bam-filter:v2`). |
 | `FilterViralReads.inputs.json` | Example JSON template for workflow parameters. |
+| `FilterViralReads.outputs.json` | Example JSON template for workflow parameters. |
 
 ---
 
