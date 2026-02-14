@@ -4,6 +4,7 @@
   "CNVSomaticPairWorkflow.mem_gb_for_call_copy_ratio_segments": "Int? (optional)",
   "CNVSomaticPairWorkflow.num_smoothing_iterations_per_fit": "Int? (optional)",
   "CNVSomaticPairWorkflow.ModelSegmentsNormal.output_dir": "String? (optional)",
+  "CNVSomaticPairWorkflow.is_run_contam": "Boolean? (optional)",
   "CNVSomaticPairWorkflow.mem_gb_for_funcotator": "Int? (optional)",
   "CNVSomaticPairWorkflow.PlotModeledSegmentsTumor.output_dir": "String? (optional)",
   "CNVSomaticPairWorkflow.calling_copy_ratio_z_score_threshold": "Float? (optional)",
@@ -29,6 +30,7 @@
   "CNVSomaticPairWorkflow.funcotator_cpu": "Int? (optional)",
   "CNVSomaticPairWorkflow.funcotator_is_removing_untared_datasources": "Boolean? (optional)",
   "CNVSomaticPairWorkflow.emergency_extra_disk": "Int? (optional)",
+  "CNVSomaticPairWorkflow.CalculateContamination.additional_disk": "Int? (optional)",
   "CNVSomaticPairWorkflow.ModelSegmentsNormal.cpu": "Int? (optional)",
   "CNVSomaticPairWorkflow.CallCopyRatioSegmentsTumor.cpu": "Int? (optional)",
   "CNVSomaticPairWorkflow.ModelSegmentsNormal.normal_allelic_counts": "File? (optional)",
@@ -36,6 +38,7 @@
   "CNVSomaticPairWorkflow.funcotator_excluded_fields": "Array[String]? (optional)",
   "CNVSomaticPairWorkflow.point_size_copy_ratio": "Float? (optional)",
   "CNVSomaticPairWorkflow.ref_fasta_fai": "File",
+  "CNVSomaticPairWorkflow.CalculateContamination.contamination_vcf_index": "File",
   "CNVSomaticPairWorkflow.CollectCountsTumor.cpu": "Int? (optional)",
   "CNVSomaticPairWorkflow.kernel_approximation_dimension": "Int? (optional)",
   "CNVSomaticPairWorkflow.outlier_neutral_segment_copy_ratio_z_score_threshold": "Float? (optional)",
@@ -114,6 +117,7 @@
   "CNVSomaticPairWorkflow.boot_disk_space_gb_for_oncotator": "Int? (optional)",
   "CNVSomaticPairWorkflow.bin_length": "Int? (optional)",
   "CNVSomaticPairWorkflow.additional_args_for_funcotator": "String? (optional)",
+  "CNVSomaticPairWorkflow.CalculateContamination.contamination_vcf": "File",
   "CNVSomaticPairWorkflow.kernel_variance_allele_fraction": "Float? (optional)"
 }
 
