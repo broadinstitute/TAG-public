@@ -168,6 +168,7 @@ task ichorCNATask {
         Float maxFracGenomeSubclone
         Float altFracThreshold
         Int lambdaScaleHyperParam
+        String? lambda
         Int rmCentromereFlankLength
         String plotFileType = "pdf"
         String plotYlim
@@ -218,7 +219,8 @@ task ichorCNATask {
             --maxFracCNASubclone ~{maxFracCNASubclone} \
             --rmCentromereFlankLength ~{rmCentromereFlankLength} \
             --plotFileType ~{plotFileType} \
-            --plotYLim "~{plotYlim}"
+            --plotYLim "~{plotYlim}" \
+            ~{"--lambda '" + lambda + "'"}
 
         # Zip optimal solutions
         mkdir "~{sample_id}.optimalSolution"
