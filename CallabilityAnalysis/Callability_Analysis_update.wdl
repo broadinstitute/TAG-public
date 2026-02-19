@@ -9,7 +9,6 @@ workflow Callability_Analysis {
         Int min_mapping_quality
         Int low_coverage_threshold
         Int sample_fraction
-        File interval_list
         File target_bed
         File ref_dict
         File ref_fasta
@@ -27,6 +26,7 @@ workflow Callability_Analysis {
         File exome_bed
         File? gene_list
         Boolean generate_gene_summary
+        Boolean generate_plot = false
     }
     
    Float one = 1.0
@@ -77,8 +77,14 @@ workflow Callability_Analysis {
         low_coverage_threshold = low_coverage_threshold,
         sample_threshold = sample_fraction/100.0
    }
+   call BedToIntervalList as InputBedToInterval {
+        input:
+            bed = target_bed,
+            refDict = ref_dict
 
-   call BedToIntervalList {
+   }
+
+   call BedToIntervalList as UndercoveredBedToInterval {
         input:
             bed = CollectData.bed_file_output,
             refDict = ref_dict
@@ -86,17 +92,17 @@ workflow Callability_Analysis {
     
    call CountBases as CountUndercoveredBases {
         input:
-            intervalListOrVcf = BedToIntervalList.interval_list
+            intervalListOrVcf = UndercoveredBedToInterval.interval_list
     }
 
    call CountBases as CountAllBases {
         input:
-            intervalListOrVcf = interval_list
+            intervalListOrVcf = InputBedToInterval.interval_list
     }
         
     File undercovered_bed = CollectData.bed_file_output
     File coverage_output = CollectData.coverage_output
-    File undercovered_interval_list = BedToIntervalList.interval_list
+    File undercovered_interval_list = UndercoveredBedToInterval.interval_list
     Int bases_undercovered = CountUndercoveredBases.bases
     Float fraction_undercovered =  CountUndercoveredBases.bases/(CountAllBases.bases/one)
     
@@ -157,7 +163,8 @@ workflow Callability_Analysis {
             CoverageFile = CollectData.coverage_output,
             gene_bed = gene_bed,
             group_by_gene = GenerateAnnotation.grouped_by_gene,
-            sample_fraction = sample_fraction
+            sample_fraction = sample_fraction,
+            generate_plot = generate_plot
      }
      }
   }
@@ -484,7 +491,7 @@ task GenerateAnnotation {
         python3 /scripts/bed_annotate_script_hg38.py --annotation /reference_files/MANE.GRCh38.v1.3.ensembl_genomic.gtf --bed ~{bed_to_annotate} --gene_bed ~{gene_bed} --exome_bed ~{exome_bed} ~{'--gene_list ' + gene_list} --output_prefix ~{output_prefix}
     }
     runtime {
-        docker: select_first([docker_override, "us.gcr.io/tag-public/annotatebed_hg38:v3"])
+        docker: select_first([docker_override, "us.gcr.io/tag-public/annotatebed_hg38:v4"])
         preemptible: preemptible
         disks: "local-disk ~{diskGB} HDD"
         memory: "8 GB"
@@ -545,7 +552,7 @@ task summarize_coverage {
     File samtools_coverage_summary = 'samtools_coverage_summary.txt'
     }
     runtime {
-    	docker: select_first([docker_override, "us.gcr.io/tag-public/annotatebed_hg38:v3"])
+    	docker: select_first([docker_override, "us.gcr.io/tag-public/annotatebed_hg38:v4"])
         memory: memory_gb + "GB"
         disks: "local-disk " + disk_size + " HDD"
     }
@@ -566,7 +573,7 @@ task generate_clinvar_results{
         File clinvar_annotation = "clinvar_annotation.txt"
     }
     runtime {
-        docker: select_first([docker_override, "us.gcr.io/tag-public/annotatebed_hg38:v3"])
+        docker: select_first([docker_override, "us.gcr.io/tag-public/annotatebed_hg38:v4"])
         memory: memory_gb + "GB"
         disks: "local-disk " + disk_size + " HDD"
     }
@@ -588,7 +595,7 @@ task concatenate_results {
         File integrated_annotation_file = "~{output_prefix}.integrated_annotation.txt"
     }
     runtime {
-        docker: select_first([docker_override, "us.gcr.io/tag-public/annotatebed_hg38:v3"])
+        docker: select_first([docker_override, "us.gcr.io/tag-public/annotatebed_hg38:v4"])
         memory: memory_gb + "GB"
         disks: "local-disk " + disk_size + " HDD"
 
@@ -603,82 +610,23 @@ task GenerateGeneSummary {
        Int sample_fraction
        Int memory_gb = 32
        Int disk_size = 32
+       Boolean generate_plot
     }
 
     command <<<
-    set -e
 
-    Rscript -<<"EOF"
-    library(dplyr)
-    library(tidyr)
-    library(ggplot2)
-
-    # Read input files
-    coverage <- read.table("~{CoverageFile}", header = TRUE, stringsAsFactors = FALSE, sep = "\t")
-    gene_bed <- read.table("~{gene_bed}", header = FALSE, stringsAsFactors = FALSE)
-    group_by_gene <- read.table("~{group_by_gene}", header = TRUE, stringsAsFactors = FALSE, sep = "\t")
-
-    colnames(gene_bed) <- c("chr", "start", "end", "info")
-    gene_bed <- gene_bed %>% mutate(gene = sapply(strsplit(info, ":"), function(x) x[1]))
-    gene_bed <- gene_bed[gene_bed$gene %in% group_by_gene$gene_name, ]
-
-    frac_callable = coverage %>% pivot_longer(!Locus) %>% group_by(Locus) %>% summarize(frac=sum(value>=20)/n())
-    frac_callable = separate(frac_callable, Locus, c("Chrom", "Position")) 
-
-    # Function to assign gene name based on position
-    assign_gene <- function(chr, position, gene_bed) {
-       gene_names <- c()  
-       for (i in 1:nrow(gene_bed)) {
-         if (chr == gene_bed$chr[i] && position >= gene_bed$start[i] && position <= gene_bed$end[i]) {
-           gene_names <- c(gene_names, gene_bed$gene[i])  
-          }
-       }
-       return(gene_names)  
-    }
-    
-    frac_callable$gene_name <- mapply(assign_gene, frac_callable$Chrom, frac_callable$Position, MoreArgs = list(gene_bed = gene_bed))
-    frac_callable = frac_callable %>% group_by(Chrom) %>% arrange(Chrom, Position) %>% mutate(pos=seq(n()))
-    
-    callable_result_per_gene <- frac_callable %>% 
-           filter(frac <= (1 - ~{sample_fraction}/100 )) %>% 
-           group_by(gene_name) %>% 
-           summarise(undercovered_bases = n())   
-
-    gene_base_counts <- frac_callable %>% group_by(gene_name) %>% summarise(total_bases_per_gene = n())
-
-    callable_result_per_gene$gene_name <- as.character(callable_result_per_gene$gene_name)
-    gene_base_counts$gene_name <- as.character(gene_base_counts$gene_name)
-
-    df_with_uncallable_bases <- group_by_gene %>% left_join(callable_result_per_gene, by = "gene_name") %>% left_join(gene_base_counts, by = "gene_name") 
-    df_with_uncallable_bases <- df_with_uncallable_bases %>% mutate(undercovered_percentage = undercovered_bases / total_bases_per_gene * 100) 
-
-    write.table(df_with_uncallable_bases, file = "gene_base_count.txt", row.names = FALSE, sep = "\t", quote = FALSE)
-
-    selected_genes <- filter(df_with_uncallable_bases, undercovered_percentage > 0 )$gene_name
-    selected_genes <- selected_genes[selected_genes != ""]
-
-    frac_callable <- frac_callable %>%
-      mutate(gene_name = sapply(gene_name, function(x) paste(x, collapse = ", "))) %>%
-      unnest(cols = c(gene_name)) %>%
-      filter(gene_name %in% selected_genes)
-
-    callable_fraction = ggplot(data = frac_callable, aes(x = pos, y = frac)) + geom_line() +
-        facet_wrap(~gene_name, scales = "free_x") + theme_bw() +
-        theme(axis.title.x = element_blank(), 
-            axis.text.x = element_blank(),  
-            axis.ticks.x = element_blank()) +
-        ylab("Fraction of Covered Samples") +
-        geom_hline(yintercept = (1 - ~{sample_fraction}/100), color = "red", linetype = "dotted") 
-
-    ggsave("callable_fraction.png", plot = callable_fraction, width = 10, height = 6, dpi = 300)
-
-    EOF
+        Rscript /script/generate_gene_summary.R \
+            --coverage_file ~{CoverageFile} \
+            --gene_bed ~{gene_bed} \
+            --grouped_by_gene ~{group_by_gene} \
+            --sample_fraction ~{sample_fraction} \
+            --plot ~{generate_plot}
 
     >>>
 
     output {
         File gene_base_count = "gene_base_count.txt"
-        File output_plot = "callable_fraction.png"
+        File? output_plot = "callable_fraction.png"
     }
 
     runtime {

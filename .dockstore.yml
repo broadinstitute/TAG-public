@@ -179,6 +179,11 @@ workflows:
    primaryDescriptorPath: /CNV_Array_Prober/cnvArrayProber.wdl
    testParameterFiles:
     - /CNV_Array_Prober/cnvArrayProber.inputs.json
+ - name: CallabilityAnalysis
+   subclass: WDL
+   primaryDescriptorPath: /CallabilityAnalysis/Callability_Analysis_update.wdl
+   testParameterFiles:
+    - /CallabilityAnalysis/Callability_Analysis_update.inputs.json
  - name: CNVSomaticPairWorkflow_BCH_Wrapper
    subclass: WDL
    primaryDescriptorPath: /BCH_Clinical_CNV/CNVSomaticPairWorkflow_BCH_Wrapper/CNVSomaticPairWorkflow_BCH_Wrapper.wdl
