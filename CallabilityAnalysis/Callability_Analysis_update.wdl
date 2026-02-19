@@ -491,7 +491,7 @@ task GenerateAnnotation {
         python3 /scripts/bed_annotate_script_hg38.py --annotation /reference_files/MANE.GRCh38.v1.3.ensembl_genomic.gtf --bed ~{bed_to_annotate} --gene_bed ~{gene_bed} --exome_bed ~{exome_bed} ~{'--gene_list ' + gene_list} --output_prefix ~{output_prefix}
     }
     runtime {
-        docker: select_first([docker_override, "us.gcr.io/tag-public/annotatebed_hg38:v3"])
+        docker: select_first([docker_override, "us.gcr.io/tag-public/annotatebed_hg38:v4"])
         preemptible: preemptible
         disks: "local-disk ~{diskGB} HDD"
         memory: "8 GB"
@@ -552,7 +552,7 @@ task summarize_coverage {
     File samtools_coverage_summary = 'samtools_coverage_summary.txt'
     }
     runtime {
-    	docker: select_first([docker_override, "us.gcr.io/tag-public/annotatebed_hg38:v3"])
+    	docker: select_first([docker_override, "us.gcr.io/tag-public/annotatebed_hg38:v4"])
         memory: memory_gb + "GB"
         disks: "local-disk " + disk_size + " HDD"
     }
@@ -573,7 +573,7 @@ task generate_clinvar_results{
         File clinvar_annotation = "clinvar_annotation.txt"
     }
     runtime {
-        docker: select_first([docker_override, "us.gcr.io/tag-public/annotatebed_hg38:v3"])
+        docker: select_first([docker_override, "us.gcr.io/tag-public/annotatebed_hg38:v4"])
         memory: memory_gb + "GB"
         disks: "local-disk " + disk_size + " HDD"
     }
@@ -595,7 +595,7 @@ task concatenate_results {
         File integrated_annotation_file = "~{output_prefix}.integrated_annotation.txt"
     }
     runtime {
-        docker: select_first([docker_override, "us.gcr.io/tag-public/annotatebed_hg38:v3"])
+        docker: select_first([docker_override, "us.gcr.io/tag-public/annotatebed_hg38:v4"])
         memory: memory_gb + "GB"
         disks: "local-disk " + disk_size + " HDD"
 
