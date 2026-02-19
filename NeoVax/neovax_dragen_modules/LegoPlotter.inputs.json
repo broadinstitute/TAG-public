@@ -1,0 +1,10 @@
+{"LegoPlotter.additional_disk":"${200}",
+"LegoPlotter.boot_disk_size":"${}",
+"LegoPlotter.cov_string":"exome",
+"LegoPlotter.cpu":"${}",
+"LegoPlotter.maf_file":"${this.somatic_maf}",
+"LegoPlotter.max_retries":"${}",
+"LegoPlotter.mem":"${15}",
+"LegoPlotter.mut_categs":"${workspace.mut_categs}",
+"LegoPlotter.pair_name":"${this.name}",
+"LegoPlotter.preemptible":"${}"}

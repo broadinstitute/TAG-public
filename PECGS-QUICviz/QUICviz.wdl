@@ -5,13 +5,14 @@ workflow QUICviz {
         String sampleID
         Boolean isPECGS = true
         String tumorType
-        String quicvizDocker = "us-central1-docker.pkg.dev/tag-team-160914/gptag-dockers/cmi_quicviz:0.4.2"
+        String quicvizDocker = "us.gcr.io/tag-team-160914/cmi_quicviz:0.4.4"
         File allelicCountsNormal
         File allelicCountsTumor
         File denoisedCopyRatiosNormal
         File denoisedCopyRatiosTumor
         File calledCopyRatioSegTumor
         File oncotatedCalledTumor
+        File? gene_list
     }
     call QUICviz {
         input:
@@ -23,7 +24,8 @@ workflow QUICviz {
             denoisedCopyRatiosNormal = denoisedCopyRatiosNormal,
             denoisedCopyRatiosTumor = denoisedCopyRatiosTumor,
             calledCopyRatioSegTumor = calledCopyRatioSegTumor,
-            oncotatedCalledTumor = oncotatedCalledTumor
+            oncotatedCalledTumor = oncotatedCalledTumor,
+            gene_list = gene_list
     }
     output {
         File QUICvizPDF = QUICviz.QUICvizPDF
@@ -50,6 +52,7 @@ task QUICviz {
         File denoisedCopyRatiosTumor
         File calledCopyRatioSegTumor
         File oncotatedCalledTumor
+        File? gene_list
         Int memory = 16
         Int cpu = 4
         Int maxRetries = 3
@@ -68,7 +71,7 @@ task QUICviz {
         fi
 
 
-        Rscript /BaseImage/CMI_QUICviz/scripts/CMI_QUICviz_v0.4.2.R \
+        Rscript /BaseImage/CMI_QUICviz/scripts/CMI_QUICviz.R \
             --sample $tumor_sample \
             --tumor_type ~{tumorType} \
             --normal_acf ~{allelicCountsNormal} \
@@ -77,7 +80,8 @@ task QUICviz {
             --tumor_cr ~{denoisedCopyRatiosTumor} \
             --tumor_cr_seg ~{calledCopyRatioSegTumor} \
             --tumor_seg_oncotated ~{oncotatedCalledTumor} \
-            --output_dir outputs/
+            --output_dir outputs/ \
+            ~{'--gene_list ' + gene_list}
 
         mv outputs/*chromosome_plots.pdf outputs/~{sampleID}_chromosome_plots.pdf
         mv outputs/*gene_level_calls.csv outputs/~{sampleID}_gene_level_calls.csv
