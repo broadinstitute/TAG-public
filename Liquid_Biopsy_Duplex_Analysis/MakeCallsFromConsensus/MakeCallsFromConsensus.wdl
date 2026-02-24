@@ -213,6 +213,7 @@ workflow MakeCallsFromConsensus {
          filter_not_in_mask = true,
          disk_pad = disk_pad
    }
+   }
    
 
    # Split VCFs by snps and indels
@@ -227,7 +228,6 @@ workflow MakeCallsFromConsensus {
          reference_dict = reference_dict, 
          preemptible = preemptible,
          disk_pad = disk_pad
-   }
    }
 
    # Create text file of variants
