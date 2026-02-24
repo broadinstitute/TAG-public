@@ -42,6 +42,7 @@ workflow MakeCallsFromConsensus {
       File? gnomad_for_benchmarking_idx
       Boolean? run_orientation_bias_mixture_model_filter
       Boolean run_ob_filter = select_first([run_orientation_bias_mixture_model_filter, false])
+      Boolean FilterVariants
       Int scatter_count
       String? m2_extra_args
       String? m2_extra_filtering_args
@@ -175,6 +176,7 @@ workflow MakeCallsFromConsensus {
        }
    }
 
+   if (FilterVariants) {
    # Apply MRD mapping filter to duplex
    call RunMappingFilter {
       input:
@@ -211,19 +213,21 @@ workflow MakeCallsFromConsensus {
          filter_not_in_mask = true,
          disk_pad = disk_pad
    }
+   
 
    # Split VCFs by snps and indels
    call SplitVCFs {
       input:
          bloodbiopsydocker = bloodbiopsydocker,
          basename = basename,
-         vcf_file = VariantFiltration.output_vcf,
-         vcf_idx = VariantFiltration.output_vcf_idx,
+         vcf_file =  M2Duplex.filtered_vcf,
+         vcf_idx =  M2Duplex.filtered_vcf_idx,
          reference_fasta = reference,
          reference_fasta_idx = reference_idx,
          reference_dict = reference_dict, 
          preemptible = preemptible,
          disk_pad = disk_pad
+   }
    }
 
    # Create text file of variants
