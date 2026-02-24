@@ -214,10 +214,9 @@ workflow MakeCallsFromConsensus {
          disk_pad = disk_pad
    }
    }
-   
-   File filtered_vcf =  select_first([VariantFiltration.output_vcf, M2Duplex.filtered_vcf])
-   File filtered_vcf_idx = select_first([VariantFiltration.output_vcf_idx, M2Duplex.filtered_vcf_idx])
 
+   File final_vcf = select_first([VariantFiltration.output_vcf, M2Duplex.filtered_vcf])
+   File final_vcf_idx = select_first([VariantFiltration.output_vcf_idx, M2Duplex.filtered_vcf_idx])
    # Split VCFs by snps and indels
    call SplitVCFs {
       input:
@@ -297,8 +296,8 @@ workflow MakeCallsFromConsensus {
 
       File igv_session = GenerateIGVSession.igv_session
 
-      File filtered_vcf = VariantFiltration.output_vcf
-      File filtered_vcf_idx = VariantFiltration.output_vcf_idx
+      File filtered_vcf = final_vcf
+      File filtered_vcf_idx = final_vcf_idx
 
       File filtered_snp_vcf = SplitVCFs.output_snp_vcf
       File filtered_snp_vcf_idx = SplitVCFs.output_snp_vcf_idx
