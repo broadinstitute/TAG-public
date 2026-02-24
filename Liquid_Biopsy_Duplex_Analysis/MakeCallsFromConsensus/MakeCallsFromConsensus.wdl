@@ -215,6 +215,8 @@ workflow MakeCallsFromConsensus {
    }
    }
    
+   File filtered_vcf =  select_first([VariantFiltration.output_vcf, M2Duplex.filtered_vcf])
+   File filtered_vcf_idx = select_first([VariantFiltration.output_vcf_idx, M2Duplex.filtered_vcf_idx])
 
    # Split VCFs by snps and indels
    call SplitVCFs {
