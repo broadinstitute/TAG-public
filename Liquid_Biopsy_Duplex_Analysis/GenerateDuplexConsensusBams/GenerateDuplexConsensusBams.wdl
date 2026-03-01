@@ -43,6 +43,8 @@ workflow GenerateDuplexConsensusBams {
    Int? num_clip_bases_three_prime
    Boolean? run_bwa_mem_on_raw
    Boolean run_bwa_mem_on_raw_or_default = select_first([run_bwa_mem_on_raw, false])
+   Boolean? CollectRawStartStopDepthOfCoverage
+   Boolean run_CollectRawStartStopDepthOfCoverage_or_default = select_first([CollectRawStartStopDepthOfCoverage, false])
    Int compression_level
 
    # scripts
@@ -333,6 +335,7 @@ workflow GenerateDuplexConsensusBams {
    # Collect raw fragment depth of coverage.
    # This task can take as much as 20 hours, so it is recommended to set
    # preemptible_attempts to 0.
+   if (CollectRawStartStopDepthOfCoverage) {
    call CollectDepthOfCoverage as CollectRawStartStopDepthOfCoverage {
       input:
          interval_list = target_intervals,
@@ -345,6 +348,7 @@ workflow GenerateDuplexConsensusBams {
          extra_arguments = "--countType COUNT_FRAGMENTS_REQUIRE_SAME_BASE",
          preemptible_attempts = 0,
          disk_pad = disk_pad
+   }
    }
 
    # Collect raw read depth of coverage.
@@ -370,7 +374,6 @@ workflow GenerateDuplexConsensusBams {
          process_duplex_coverage_rscript = process_duplex_coverage_rscript,
          base_name = base_name,
          raw_depth = CollectRawReadDepthOfCoverage.depth_of_coverage,
-         start_stop_depth = CollectRawStartStopDepthOfCoverage.depth_of_coverage,
          duplex_depth = CollectDuplexDepthOfCoverage.depth_of_coverage,
          preemptible_attempts = preemptible_attempts,
          disk_pad = disk_pad
@@ -1147,7 +1150,7 @@ task CollectStatisticsByCoverage {
    String bloodbiopsydocker
    String process_duplex_coverage_rscript
    File raw_depth
-   File start_stop_depth
+   File? start_stop_depth
    File duplex_depth
    String base_name
    Int? preemptible_attempts
@@ -1160,8 +1163,21 @@ task CollectStatisticsByCoverage {
    command <<<
       set -e
 
-      Rscript -e 'source("${process_duplex_coverage_rscript}"); generateDepthFigures("${base_name}", "${raw_depth}", "${start_stop_depth}", "${duplex_depth}")'
-
+      if [[ -n "~{start_stop_depth}" ]]; then
+         Rscript -e 'source("${process_duplex_coverage_rscript}");
+                     generateDepthFigures("${base_name}",
+                                          "${raw_depth}",
+                                          "${start_stop_depth}",
+                                          "${duplex_depth}")'
+      else
+         Rscript -e 'source("${process_duplex_coverage_rscript}");
+                     generateDepthFigures("${base_name}",
+                                          "${raw_depth}",
+                                          NULL,
+                                          "${duplex_depth}")'
+      # ensure file exists                                   
+      echo "NA" > meanStartStopDepth.txt
+      fi
       python <<CODE
 
       import pandas as pd
@@ -1202,7 +1218,7 @@ task CollectStatisticsByCoverage {
    output {
       File depth_txt = "${base_name}.depth.txt"
       Int mean_raw_depth = read_int('meanRawDepth.txt')
-      Int mean_startstop_depth = read_int('meanStartStopDepth.txt')
+      String mean_startstop_depth = read_string("meanStartStopDepth.txt")
       Int mean_duplex_depth = read_int('meanDuplexDepth.txt')
       Float duplex_depth_above_500x = read_float('500.txt')
       Float duplex_depth_above_1000x = read_float('1000.txt')
