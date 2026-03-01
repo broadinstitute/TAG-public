@@ -43,8 +43,8 @@ workflow GenerateDuplexConsensusBams {
    Int? num_clip_bases_three_prime
    Boolean? run_bwa_mem_on_raw
    Boolean run_bwa_mem_on_raw_or_default = select_first([run_bwa_mem_on_raw, false])
-   Boolean? CollectRawStartStopDepthOfCoverage
-   Boolean run_CollectRawStartStopDepthOfCoverage_or_default = select_first([CollectRawStartStopDepthOfCoverage, false])
+   Boolean? CollectSSCoverage
+   Boolean run_CollectSSCoverage_or_default = select_first([CollectSSCoverage, false])
    Int compression_level
 
    # scripts
@@ -335,7 +335,7 @@ workflow GenerateDuplexConsensusBams {
    # Collect raw fragment depth of coverage.
    # This task can take as much as 20 hours, so it is recommended to set
    # preemptible_attempts to 0.
-   if (CollectRawStartStopDepthOfCoverage) {
+   if (run_CollectSSCoverage_or_default) {
    call CollectDepthOfCoverage as CollectRawStartStopDepthOfCoverage {
       input:
          interval_list = target_intervals,
