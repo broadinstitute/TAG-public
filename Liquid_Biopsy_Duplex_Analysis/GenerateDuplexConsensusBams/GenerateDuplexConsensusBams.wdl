@@ -373,11 +373,10 @@ workflow GenerateDuplexConsensusBams {
          bloodbiopsydocker = ,
          process_duplex_coverage_rscript = process_duplex_coverage_rscript,
          base_name = base_name,
-         raw_depth = CollectRawReadDepthOfCoverage.depth_of_coverage,
-         File? start_stop_depth =
+         start_stop_depth =
             if (run_CollectSSCoverage_or_default)
             then CollectRawStartStopDepthOfCoverage.depth_of_coverage
-            else null
+            else null,
          duplex_depth = CollectDuplexDepthOfCoverage.depth_of_coverage,
          preemptible_attempts = preemptible_attempts,
          disk_pad = disk_pad
@@ -1152,12 +1151,13 @@ task CollectDepthOfCoverage {
 task CollectStatisticsByCoverage {
 
    String bloodbiopsydocker
-   String process_duplex_coverage_rscript
+   String process_duplex_coverage_rscript = "/scripts/ProcessDuplexCoverage.R"
    File raw_depth
    File? start_stop_depth
    File duplex_depth
    String base_name
    Int? preemptible_attempts
+   String process_coverage_docker = "us.gcr.io/tag-public/process_duplex_coverage:v1.1"
    Int? memory
    Int disk_pad
    Int disk_size = 200
@@ -1214,7 +1214,7 @@ task CollectStatisticsByCoverage {
 
    >>>
    runtime {
-      docker: "us.gcr.io/broad-dsde-methods/liquidbiopsy:0.0.3.7"
+      docker: process_coverage_docker
       disks: "local-disk " + disk_size + " HDD"
       memory: mem + "GB"
       maxRetries: 3
