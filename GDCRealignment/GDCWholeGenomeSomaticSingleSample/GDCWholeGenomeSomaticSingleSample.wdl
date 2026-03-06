@@ -552,6 +552,7 @@ task gatk_applybqsr {
         Int max_retries = 0
         Int additional_memory_mb = 0
         Int additional_disk_gb = 0
+        Int compression_level = 7
     }
     String output_bam = basename(input_bam)
     String output_bai = basename(input_bam, ".bam") + ".bai"
@@ -565,7 +566,7 @@ task gatk_applybqsr {
     }
 
     command {
-        gatk --java-options "-XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -XX:+PrintFlagsFinal -Xlog:gc=debug:file=gc_log.log -Xms~{jvm_mem}m -Xmx~{max_heap}m" \
+        gatk --java-options "-Dsamjdk.compression_level=~{compression_level} -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -XX:+PrintFlagsFinal -Xlog:gc=debug:file=gc_log.log -Xms~{jvm_mem}m -Xmx~{max_heap}m" \
             ApplyBQSR \
                 --input ~{input_bam} \
                 --bqsr-recal-file ~{bqsr_recal_file} \
