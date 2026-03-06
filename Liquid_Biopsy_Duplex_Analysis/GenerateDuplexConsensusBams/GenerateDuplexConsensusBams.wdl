@@ -370,13 +370,10 @@ workflow GenerateDuplexConsensusBams {
 
    call CollectStatisticsByCoverage {
       input:
-         bloodbiopsydocker = ,
          process_duplex_coverage_rscript = process_duplex_coverage_rscript,
          base_name = base_name,
-         start_stop_depth =
-            if (run_CollectSSCoverage_or_default)
-            then CollectRawStartStopDepthOfCoverage.depth_of_coverage
-            else null,
+         raw_depth = CollectRawReadDepthOfCoverage.depth_of_coverage,
+         start_stop_depth = CollectRawStartStopDepthOfCoverage.depth_of_coverage,
          duplex_depth = CollectDuplexDepthOfCoverage.depth_of_coverage,
          preemptible_attempts = preemptible_attempts,
          disk_pad = disk_pad
