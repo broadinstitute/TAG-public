@@ -370,10 +370,14 @@ workflow GenerateDuplexConsensusBams {
 
    call CollectStatisticsByCoverage {
       input:
-         bloodbiopsydocker = bloodbiopsydocker,
+         bloodbiopsydocker = ,
          process_duplex_coverage_rscript = process_duplex_coverage_rscript,
          base_name = base_name,
          raw_depth = CollectRawReadDepthOfCoverage.depth_of_coverage,
+         File? start_stop_depth =
+            if (run_CollectSSCoverage_or_default)
+            then CollectRawStartStopDepthOfCoverage.depth_of_coverage
+            else null
          duplex_depth = CollectDuplexDepthOfCoverage.depth_of_coverage,
          preemptible_attempts = preemptible_attempts,
          disk_pad = disk_pad
@@ -1163,11 +1167,13 @@ task CollectStatisticsByCoverage {
    command <<<
       set -e
 
-      if [[ -n "~{start_stop_depth}" ]]; then
+      START_STOP="~{default="NA" start_stop_depth}"
+
+      if [[ "$START_STOP" != "NA" ]]; then
          Rscript -e 'source("${process_duplex_coverage_rscript}");
                      generateDepthFigures("${base_name}",
                                           "${raw_depth}",
-                                          "${start_stop_depth}",
+                                          "${START_STOP}",
                                           "${duplex_depth}")'
       else
          Rscript -e 'source("${process_duplex_coverage_rscript}");
@@ -1175,8 +1181,8 @@ task CollectStatisticsByCoverage {
                                           "${raw_depth}",
                                           NULL,
                                           "${duplex_depth}")'
-      # ensure file exists                                   
-      echo "NA" > meanStartStopDepth.txt
+
+         echo "NA" > meanStartStopDepth.txt
       fi
       python <<CODE
 
