@@ -394,6 +394,7 @@ workflow GenerateDuplexConsensusBams {
       File duplex_theoretical_sensitivity  = DuplexSelectionMetrics.output_theoretical_sensitivity
 
       Int mean_duplex_depth = CollectStatisticsByCoverage.mean_duplex_depth
+      String mean_startstop_depth = CollectStatisticsByCoverage.mean_startstop_depth
       Int mean_raw_depth = CollectStatisticsByCoverage.mean_raw_depth
 
       File duplex_family_sizes = CollectDuplexSeqMetrics.duplex_family_sizes
@@ -1164,7 +1165,7 @@ task CollectStatisticsByCoverage {
    command <<<
       set -e
 
-      START_STOP="~{default="NA" start_stop_depth}"
+      START_STOP="~{select_first([start_stop_depth, "NA"])}"
 
       if [[ "$START_STOP" != "NA" ]]; then
          Rscript -e "source('~{process_duplex_coverage_rscript}');
@@ -1179,19 +1180,20 @@ task CollectStatisticsByCoverage {
                                           NULL,
                                           '~{duplex_depth}')"
 
-         echo "NA" > meanStartStopDepth.txt
-
       fi
-      python <<CODE
+
+      python3 <<CODE
 
       import pandas as pd
 
       df = pd.read_csv("~{base_name}.depth.txt", delim_whitespace=True)
 
       def writeFile(value, filename):
-         f = open(filename + ".txt", 'w')
-         f.write(str(int(float(value))))
-         f.close()
+         with open(filename + ".txt", 'w') as f:
+            if pd.isna(value):
+                  f.write("NA")
+            else:
+                  f.write(str(int(float(value))))
 
       for col in df.columns:
          writeFile(df[col].loc[0], col)
@@ -1209,6 +1211,7 @@ task CollectStatisticsByCoverage {
       writeDepthStatistic(depthOfCoverageByLocus, 2000)
 
       CODE
+
 
    >>>
    runtime {
