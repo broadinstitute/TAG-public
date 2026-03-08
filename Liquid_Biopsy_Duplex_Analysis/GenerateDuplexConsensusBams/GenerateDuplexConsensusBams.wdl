@@ -1148,7 +1148,6 @@ task CollectDepthOfCoverage {
 
 task CollectStatisticsByCoverage {
 
-   String bloodbiopsydocker
    String process_duplex_coverage_rscript = "/scripts/ProcessDuplexCoverage.R"
    File raw_depth
    File? start_stop_depth
@@ -1162,23 +1161,23 @@ task CollectStatisticsByCoverage {
    Int mem = select_first([memory, 10])
    Int compute_mem = mem * 1000 - 500
 
-   command <<<
+   command {
       set -e
 
-      START_STOP="~{select_first([start_stop_depth, "NA"])}"
+      START_STOP="${start_stop_depth:-NA}"
 
       if [[ "$START_STOP" != "NA" ]]; then
-         Rscript -e "source('~{process_duplex_coverage_rscript}');
-                     generateDepthFigures('~{base_name}',
-                                          '~{raw_depth}',
+         Rscript -e "source('$process_duplex_coverage_rscript');
+                     generateDepthFigures('$base_name',
+                                          '$raw_depth',
                                           '$START_STOP',
-                                          '~{duplex_depth}')"
+                                          '$duplex_depth')"
       else
-         Rscript -e "source('~{process_duplex_coverage_rscript}');
-                     generateDepthFigures('~{base_name}',
-                                          '~{raw_depth}',
+         Rscript -e "source('$process_duplex_coverage_rscript');
+                     generateDepthFigures('$base_name',
+                                          '$raw_depth',
                                           NULL,
-                                          '~{duplex_depth}')"
+                                          '$duplex_depth')"
 
       fi
 
@@ -1186,7 +1185,7 @@ task CollectStatisticsByCoverage {
 
       import pandas as pd
 
-      df = pd.read_csv("~{base_name}.depth.txt", delim_whitespace=True)
+      df = pd.read_csv("$base_name.depth.txt", delim_whitespace=True)
 
       def writeFile(value, filename):
          with open(filename + ".txt", 'w') as f:
@@ -1203,7 +1202,7 @@ task CollectStatisticsByCoverage {
          f.write(str(depthValues[depthValues.Total_Depth >= depthCutoff].count().Total_Depth / depthValues.count().Total_Depth))
          f.close()
 
-      depthOfCoverageByLocus = pd.read_csv("~{duplex_depth}", delimiter = '\t')
+      depthOfCoverageByLocus = pd.read_csv("$duplex_depth", delimiter = '\t')
 
       writeDepthStatistic(depthOfCoverageByLocus, 500)
       writeDepthStatistic(depthOfCoverageByLocus, 1000)
@@ -1212,8 +1211,8 @@ task CollectStatisticsByCoverage {
 
       CODE
 
+   }
 
-   >>>
    runtime {
       docker: process_coverage_docker
       disks: "local-disk " + disk_size + " HDD"
