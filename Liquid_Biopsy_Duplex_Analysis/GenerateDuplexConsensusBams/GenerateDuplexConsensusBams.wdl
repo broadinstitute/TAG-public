@@ -1148,7 +1148,7 @@ task CollectDepthOfCoverage {
 
 task CollectStatisticsByCoverage {
 
-   String process_duplex_coverage_rscript = "/scripts/ProcessDuplexCoverage.R"
+   String process_duplex_coverage_rscript
    File raw_depth
    File? start_stop_depth
    File duplex_depth
