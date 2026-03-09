@@ -433,7 +433,7 @@ workflow GenerateDuplexConsensusBams {
       File duplex_theoretical_sensitivity  = DuplexSelectionMetrics.output_theoretical_sensitivity
 
       Int mean_duplex_depth = CollectStatisticsByCoverage.mean_duplex_depth
-      Int mean_raw_depth = CollectStatisticsByCoverage.mean_raw_depth
+      Int? mean_raw_depth = CollectStatisticsByCoverage.mean_raw_depth
 
       File duplex_family_sizes = CollectDuplexSeqMetrics.duplex_family_sizes
 
