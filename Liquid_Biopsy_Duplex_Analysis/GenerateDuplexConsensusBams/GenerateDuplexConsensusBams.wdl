@@ -1164,7 +1164,7 @@ task CollectStatisticsByCoverage {
    command {
       set -e
 
-      START_STOP="~{select_first([start_stop_depth, "NA"])}"
+      START_STOP="~{select_first([start_stop_depth, \"NA\"])}"
 
       if [[ "$START_STOP" != "NA" ]]; then
          Rscript ~{process_duplex_coverage_rscript} \
