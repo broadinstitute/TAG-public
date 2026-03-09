@@ -52,6 +52,7 @@ workflow GenerateDuplexConsensusBams {
    Boolean? copy_umi_from_readname
    Boolean copy_umi_or_default = select_first([copy_umi_from_readname, false])
    Boolean? calculate_fragment_depth
+   Boolean? calculate_raw_depth
    Int compression_level
 
    # scripts
@@ -388,27 +389,28 @@ workflow GenerateDuplexConsensusBams {
    # Collect raw read depth of coverage.
    # This task can take as much as 20 hours, so it is recommended to set
    # preemptible_attempts to 0.
-   call CollectDepthOfCoverage as CollectRawReadDepthOfCoverage {
-      input:
-         interval_list = target_intervals,
-         reference = reference,
-         reference_index = reference_index,
-         reference_dict = reference_dict,
-         bam_file = preprocessed_raw_bam,
-         bam_index = preprocessed_raw_bam_index,
-         base_name = base_name,
-         extra_arguments = "--countType COUNT_READS -drf DuplicateRead",
-         preemptible_attempts = 0,
-         disk_pad = disk_pad
+   if(select_first([calculate_raw_depth, true])){
+      call CollectDepthOfCoverage as CollectRawReadDepthOfCoverage {
+         input:
+            interval_list = target_intervals,
+            reference = reference,
+            reference_index = reference_index,
+            reference_dict = reference_dict,
+            bam_file = preprocessed_raw_bam,
+            bam_index = preprocessed_raw_bam_index,
+            base_name = base_name,
+            extra_arguments = "--countType COUNT_READS -drf DuplicateRead",
+            preemptible_attempts = 0,
+            disk_pad = disk_pad
+      }
    }
-
    call CollectStatisticsByCoverage {
       input:
          bloodbiopsydocker = bloodbiopsydocker,
          process_duplex_coverage_rscript = process_duplex_coverage_rscript,
          base_name = base_name,
          raw_depth = CollectRawReadDepthOfCoverage.depth_of_coverage,
-         start_stop_depth = select_first([CollectRawStartStopDepthOfCoverage.depth_of_coverage, CollectRawReadDepthOfCoverage.depth_of_coverage]),
+         start_stop_depth = CollectRawStartStopDepthOfCoverage.depth_of_coverage,
          duplex_depth = CollectDuplexDepthOfCoverage.depth_of_coverage,
          preemptible_attempts = preemptible_attempts,
          disk_pad = disk_pad
