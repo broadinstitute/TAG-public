@@ -1209,7 +1209,7 @@ task CollectStatisticsByCoverage {
 
       CODE
 
-   >>
+   >>>
 
    runtime {
       docker: process_coverage_docker
