@@ -1188,8 +1188,9 @@ task CollectStatisticsByCoverage {
 
    String bloodbiopsydocker
    String process_duplex_coverage_rscript
-   File raw_depth
-   File start_stop_depth
+   File? override_coverage_script
+   File? raw_depth
+   File? start_stop_depth
    File duplex_depth
    String base_name
    Int? preemptible_attempts
@@ -1201,8 +1202,13 @@ task CollectStatisticsByCoverage {
 
    command <<<
       set -e
+      if [ -f "${override_coverage_script}" ]; then
+         export PROCESS_COV=${override_coverage_script}
+      else
+         export PROCESS_COV=${process_duplex_coverage_rscript}
+      fi
 
-      Rscript -e 'source("${process_duplex_coverage_rscript}"); generateDepthFigures("${base_name}", "${raw_depth}", "${start_stop_depth}", "${duplex_depth}")'
+      Rscript -e 'source("$PROCESS_COV"); generateDepthFigures("${base_name}", "${duplex_depth}"${',"' + raw_depth + '"'}${',"' + start_stop_depth + '"'})'
 
       python <<CODE
 
@@ -1243,8 +1249,8 @@ task CollectStatisticsByCoverage {
 
    output {
       File depth_txt = "${base_name}.depth.txt"
-      Int mean_raw_depth = read_int('meanRawDepth.txt')
-      Int mean_startstop_depth = read_int('meanStartStopDepth.txt')
+      Int? mean_raw_depth = read_int('meanRawDepth.txt')
+      Int? mean_startstop_depth = read_int('meanStartStopDepth.txt')
       Int mean_duplex_depth = read_int('meanDuplexDepth.txt')
       Float duplex_depth_above_500x = read_float('500.txt')
       Float duplex_depth_above_1000x = read_float('1000.txt')
