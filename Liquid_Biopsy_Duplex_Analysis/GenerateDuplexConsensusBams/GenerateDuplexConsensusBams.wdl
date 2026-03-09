@@ -1164,26 +1164,26 @@ task CollectStatisticsByCoverage {
    command <<<
       set -e
 
-      START_STOP="~{select_first([start_stop_depth, "NA"])}"
+      START_STOP="${select_first([start_stop_depth, "NA"])}"
 
       if [[ "$START_STOP" != "NA" ]]; then
-         Rscript ~{process_duplex_coverage_rscript} \
-            "~{base_name}" \
-            "~{raw_depth}" \
+         Rscript ${process_duplex_coverage_rscript} \
+            "${base_name}" \
+            "${raw_depth}" \
             "$START_STOP" \
-            "~{duplex_depth}"
+            "${duplex_depth}"
       else
-         Rscript ~{process_duplex_coverage_rscript} \
-            "~{base_name}" \
-            "~{raw_depth}" \
+         Rscript ${process_duplex_coverage_rscript} \
+            "${base_name}" \
+            "${raw_depth}" \
             NA \
-            "~{duplex_depth}"
+            "${duplex_depth}"
       fi
 
       python3 <<CODE
 
       import pandas as pd
-      df = pd.read_csv("~{base_name}.depth.txt", sep = "\t")
+      df = pd.read_csv("${base_name}.depth.txt", sep = "\t")
 
       def writeFile(value, filename):
          with open(filename + ".txt", 'w') as f:
@@ -1200,7 +1200,7 @@ task CollectStatisticsByCoverage {
          f.write(str(depthValues[depthValues.Total_Depth >= depthCutoff].count().Total_Depth / depthValues.count().Total_Depth))
          f.close()
 
-      depthOfCoverageByLocus = pd.read_csv("~{duplex_depth}", sep='\t')
+      depthOfCoverageByLocus = pd.read_csv("${duplex_depth}", sep='\t')
 
       writeDepthStatistic(depthOfCoverageByLocus, 500)
       writeDepthStatistic(depthOfCoverageByLocus, 1000)
