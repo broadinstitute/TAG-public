@@ -1161,10 +1161,10 @@ task CollectStatisticsByCoverage {
    Int mem = select_first([memory, 10])
    Int compute_mem = mem * 1000 - 500
 
-   command {
+   command <<<
       set -e
 
-      START_STOP="~{select_first([start_stop_depth, \"NA\"])}"
+      START_STOP="~{select_first([start_stop_depth, "NA"])}"
 
       if [[ "$START_STOP" != "NA" ]]; then
          Rscript ~{process_duplex_coverage_rscript} \
@@ -1209,7 +1209,7 @@ task CollectStatisticsByCoverage {
 
       CODE
 
-   }
+   >>
 
    runtime {
       docker: process_coverage_docker
