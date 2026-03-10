@@ -1210,7 +1210,7 @@ task CollectStatisticsByCoverage {
          export PROCESS_COV=${process_duplex_coverage_rscript}
       fi
 
-      Rscript -e 'source("$PROCESS_COV"); generateDepthFigures("${base_name}", "${duplex_depth}"${',"' + raw_depth + '"'}${',"' + start_stop_depth + '"'})'
+      Rscript -e 'source(Sys.getenv("PROCESS_COV")); generateDepthFigures("${base_name}", "${duplex_depth}"${',"' + raw_depth + '"'}${',"' + start_stop_depth + '"'})'
 
       python <<CODE
 
