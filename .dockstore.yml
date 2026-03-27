@@ -43,11 +43,13 @@ workflows:
    primaryDescriptorPath: /iChor/iChorCNA_hg19/iChorCNA_hg19.wdl
    testParameterFiles:
    - /iChor/iChorCNA_hg19/iChorCNA_hg19.inputs.json
+   - /iChor/iChorCNA_hg19/iChorCNA_hg19_NVX.inputs.json
  - name: iChorCNA_hg38
    subclass: WDL
    primaryDescriptorPath: /iChor/iChorCNA_hg38/iChorCNA_hg38.wdl
    testParameterFiles:
    - /iChor/iChorCNA_hg38/iChorCNA_hg38.inputs.json
+   - /iChor/iChorCNA_hg38/iChorCNA_hg38_NVX.inputs.json
  - name: iChorCNA_step2
    subclass: WDL
    primaryDescriptorPath: /iChor/iChorCNA_step2/iChorCNA_step2.wdl
