@@ -49,3 +49,5 @@ This WDL workflow runs GATK4 Mutect2 on a single tumor-normal pair or on a singl
 * MutationalBurden: task reads MAF and computes both coding and non-coding mutational burdens (# of mutations / callable bases)
 * LegoPlot: task generates lego plots
 
+### Log
+v1.1.2: Update the original workflow to [GATK4.1.8.1 official workflow](https://raw.githubusercontent.com/broadinstitute/gatk/4.1.8.1/scripts/mutect2_wdl/mutect2.wdl).  
