@@ -1,3 +1,8 @@
+import "./subworkflows/svaba_interesct_annotate_contigNameSeq.wdl" as SvABA_annotate_extractContigs
+import "./subworkflows/snpEffCaller_extractFields.wdl" as snpEffCaller
+import "./subworkflows/svaba-annotate.wdl" as walaj_annotate_SvABA
+import "./subworkflows/MergeSvabaAnnotations.wdl" as mergeSvabaAnnotations
+
 task Svaba {
     Int disk_size
     Int cpu_num
@@ -22,6 +27,7 @@ task Svaba {
     File dbsnp_vcf
     File germline_sv_bed
     File xomere_bed
+    String? svaba_extra_args
 
     File? target_bed
 
@@ -49,6 +55,7 @@ task Svaba {
                                    -V ${germline_sv_bed} \
                                    -B ${xomere_bed} \
                                    ${"-k " + target_bed} \
+                                   ${svaba_extra_args} \
                                    -a ${sample_name} &&
         
         # bgzip unfiltered VCFs
@@ -161,6 +168,23 @@ workflow SomaticRearrangement {
     File germline_sv_bed
     File xomere_bed
     File? target_interval
+    String? svaba_extra_args
+    
+    # Svaba annotation inputs
+    File annotation_reference_bed
+    File snpEff_jar
+    File snpSift_jar
+    File configFile
+    File databaseFile
+    String? Style
+    String GenomeBuild
+    String? GeneDataBase
+    File Svaba_Annotate_Rscript
+	File Merge_Annotations_Script
+    
+    Boolean annotate_contigs = true
+    Boolean extract_contig_sequences = true
+    Boolean merge_annotations = true
 
     if (defined(target_interval)) {
         call IntervalToBed {
@@ -187,11 +211,66 @@ workflow SomaticRearrangement {
                reference_pac = reference_pac,
                reference_sa = reference_sa,
                dbsnp_vcf = dbsnp_vcf,
+               svaba_extra_args = svaba_extra_args,
                germline_sv_bed = germline_sv_bed,
                xomere_bed = xomere_bed,
                target_bed = target_bed
     }
+    if(annotate_contigs){
+    	call SvABA_annotate_extractContigs.intersectAnnotate as SvabaAnnotation {
+    		input:
+            	sampleID = sample_name,
+        	   	refBed = annotation_reference_bed,
+                inputVCF = Svaba.somatic_unfiltered_sv
+    	}
+        call snpEffCaller.snpEffCaller as SvabaAnnotationSnpEff {
+        	input:
+            	snpEff_jar = snpEff_jar,
+                snpSift_jar = snpSift_jar,
+           		inputVCF = Svaba.somatic_unfiltered_sv,
+           		configFile = configFile,
+           		databaseFile = databaseFile,
+           		outputName = sample_name
+        }
+        call walaj_annotate_SvABA.AnnotateSvabaWalajR as SvabAnnotationWalaj {
+        	input:
+            	sampleID = sample_name,
+				inputVCF = Svaba.somatic_unfiltered_sv,
+        		style = Style,
+        		genomeBuild = GenomeBuild ,
+        		geneDataBase = GeneDataBase,
+        		svaba_annotate_Rscript = Svaba_Annotate_Rscript
+        }
+    }
+    if(extract_contig_sequences){
+    	call SvABA_annotate_extractContigs.extractContigNameSeq as SvabaContigExtraction {
+        input:
+        	sampleID = sample_name,
+        	inputVCF = Svaba.somatic_unfiltered_sv,
+            inputContigBam = Svaba.contig_bam
+        }
+    }
+    if (merge_annotations){
+    	call mergeSvabaAnnotations.mergeAnnotationsTask as mergeAnnotations {
+        input:
+        	output_basename = sample_name,
+            merge_annotations_script = Merge_Annotations_Script,
+            svaba_vcf = Svaba.somatic_unfiltered_sv,
+            snpsift_table = SvabaAnnotationSnpEff.vcfOutExtractFields,
+            annot_table = SvabAnnotationWalaj.annotatedVCFwalajRscript,
+            contig_seqs = SvabaContigExtraction.contigSequences
+        }
+    }
+    
     output {
         Svaba.*
+        File? annotated_sv_vcf = SvabaAnnotation.svabaAnnotatedRegionsVCF
+        File? annotated_sv_vcf_snpEff = SvabaAnnotationSnpEff.vcfOut
+        File? annotated_sv_vcf_snpEff_extractedFields = SvabaAnnotationSnpEff.vcfOutExtractFields
+        File? annotated_sv_vcf_walaj = SvabAnnotationWalaj.annotatedVCFwalajRscript
+        File? walaj_r_object_table = SvabAnnotationWalaj.full_table_r_object
+        File? contig_names = SvabaContigExtraction.contigNames
+        File? contig_sequences = SvabaContigExtraction.contigSequences
+        File? final_annotation = mergeAnnotations.final_annotation
     }
 }
