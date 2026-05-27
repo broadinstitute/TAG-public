@@ -405,14 +405,14 @@ task BedToIntervalList {
 
     String intervalListOut = sub(basename(bed), ".bed$", ".interval_list")
 
-    Int disk_size = 10 + 2*ceil(size(bed, "GB") + size(refDict, "GB"))
+    Int disk_size = 32
     command <<<
         java -jar /usr/gitc/picard.jar BedToIntervalList I=~{bed} O=~{intervalListOut} SD=~{refDict}
     >>>
 
     runtime {
       docker: "broadinstitute/genomes-in-the-cloud:2.2.5-1486412288"
-      memory: "4 GB"
+      memory: "8 GB"
       disks: "local-disk " + disk_size + " HDD"
    }
 
