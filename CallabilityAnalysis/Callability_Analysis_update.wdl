@@ -43,8 +43,7 @@ workflow Callability_Analysis {
             bai_or_crai_path = paired_data.right,
             chrX_name = chrX_name,
             chrY_name = chrY_name,
-            base_name = sample_name,
-            disk_size = 200
+            base_name = sample_name
       }
       call CalculateCoverage {
           input:
@@ -193,7 +192,7 @@ task CalculateCoverage {
        File target_bed
        Int min_base_quality
        Int min_mapping_quality
-       Int disk_size = 200
+       Int disk_size
        String sample_name
        File ref_fasta
        File ref_dict
@@ -314,7 +313,7 @@ task DetermineXYCoverage {
         String chrX_name
         String chrY_name
         String base_name
-        Int disk_size = 200
+        Int disk_size = 64
       }
 
     command <<<
