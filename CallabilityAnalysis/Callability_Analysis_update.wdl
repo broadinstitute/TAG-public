@@ -323,8 +323,8 @@ task DetermineXYCoverage {
          idxstats <- read.table("~{base_name}.idxstats.txt", col.names = c("contig", "length", "mapped", "unmapped"))
 
           # Determine normalization constant.  This is the number of bases/chromosome/read.
-         normalization <- sum(as.numeric(idxstats[grepl("^chr[0-9]{1}$|^chr[0-9]{2}$", idxstats$contig), ]$length)) /
-              sum(as.numeric(idxstats[grepl("^chr[0-9]{1}$|^chr[0-9]{2}$", idxstats$contig), ]$mapped))
+        normalization <- sum(idxstats[grepl("^chr([1-9]|1[0-9]|2[0-2])$|^([1-9]|1[0-9]|2[0-2])$", idxstats$contig), ]$length) /
+                        sum(idxstats[grepl("^chr([1-9]|1[0-9]|2[0-2])$|^([1-9]|1[0-9]|2[0-2])$", idxstats$contig), ]$mapped)
           # Estimate the number of X and Y chromosomes in the sample by
           # normalizing the coverage on X and Y.
          normalizedX <- 2 / (idxstats[idxstats$contig == "~{chrX_name}", ]$length /
@@ -429,15 +429,15 @@ task CountBases {
 
     command <<<
         if [[ ~{intervalListOrVcf} == *vcf ]]; then
-            java -jar /usr/gitc/picard.jar VcfToIntervalList I=~{intervalListOrVcf} O=vcf.interval_list
-            java -jar /usr/gitc/picard.jar IntervalListTools I=vcf.interval_list COUNT_OUTPUT=bases.txt OUTPUT_VALUE=BASES
+            java -jar /dependencies/picard.jar VcfToIntervalList I=~{intervalListOrVcf} O=vcf.interval_list
+            java -jar /dependencies/picard.jar IntervalListTools I=vcf.interval_list OUTPUT=bases.txt OUTPUT_VALUE=BASES
         else
-            java -jar /usr/gitc/picard.jar IntervalListTools I=~{intervalListOrVcf} COUNT_OUTPUT=bases.txt OUTPUT_VALUE=BASES
+            java -jar /dependencies/picard.jar IntervalListTools I=~{intervalListOrVcf} OUTPUT=bases.txt OUTPUT_VALUE=BASES
         fi
     >>>
 
     runtime {
-        docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud@sha256:82dd1af86c9e6d4432170133382053525864d8f156a352e18ecf5947542e0b29"
+        docker: "us.gcr.io/tag-public/codec:v1.1.4"
         preemptible: 0
         disks: "local-disk " + disk_size + " HDD"
         memory: "16 GB"
