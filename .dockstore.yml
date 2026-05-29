@@ -21,12 +21,12 @@ workflows:
    subclass: WDL
    primaryDescriptorPath: /GATK_CNV_Mutect2/GATK4_CNV/GATK4_CNVSomaticPairWorkflow.wdl
    testParameterFiles:
-   - /GATK_CNV_Mutect2/GATK4_CNV/GATK4_CNVSomaticPairWorkflow.inputs.json
+   - /GATK_CNV_Mutect2/GATK4_CNV/GATK4_CNVSomaticPairWorkflow_terra.inputs.json
  - name: mutect2-gatk4
    subclass: WDL
    primaryDescriptorPath: /GATK_CNV_Mutect2/mutect2-gatk4/mutect2-gatk4.wdl
    testParameterFiles:
-   - /Users/gaoyueya/Documents/GitHub/TAG-public/GATK_CNV_Mutect2/mutect2-gatk4/mutect2-gatk4.inputs.json
+   - /GATK_CNV_Mutect2/mutect2-gatk4/mutect2-gatk4_terra.inputs.json
  - name: GenerateDuplexConsensusBams
    subclass: WDL
    primaryDescriptorPath: /Liquid_Biopsy_Duplex_Analysis/GenerateDuplexConsensusBams/GenerateDuplexConsensusBams.wdl
