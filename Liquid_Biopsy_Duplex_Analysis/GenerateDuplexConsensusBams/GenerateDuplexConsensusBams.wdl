@@ -43,6 +43,8 @@ workflow GenerateDuplexConsensusBams {
    Int? num_clip_bases_three_prime
    Boolean? run_bwa_mem_on_raw
    Boolean run_bwa_mem_on_raw_or_default = select_first([run_bwa_mem_on_raw, false])
+   Boolean? CollectSSCoverage
+   Boolean run_CollectSSCoverage_or_default = select_first([CollectSSCoverage, false])
    Int compression_level
 
    # scripts
@@ -333,6 +335,7 @@ workflow GenerateDuplexConsensusBams {
    # Collect raw fragment depth of coverage.
    # This task can take as much as 20 hours, so it is recommended to set
    # preemptible_attempts to 0.
+   if (run_CollectSSCoverage_or_default) {
    call CollectDepthOfCoverage as CollectRawStartStopDepthOfCoverage {
       input:
          interval_list = target_intervals,
@@ -345,6 +348,7 @@ workflow GenerateDuplexConsensusBams {
          extra_arguments = "--countType COUNT_FRAGMENTS_REQUIRE_SAME_BASE",
          preemptible_attempts = 0,
          disk_pad = disk_pad
+   }
    }
 
    # Collect raw read depth of coverage.
@@ -366,7 +370,6 @@ workflow GenerateDuplexConsensusBams {
 
    call CollectStatisticsByCoverage {
       input:
-         bloodbiopsydocker = bloodbiopsydocker,
          process_duplex_coverage_rscript = process_duplex_coverage_rscript,
          base_name = base_name,
          raw_depth = CollectRawReadDepthOfCoverage.depth_of_coverage,
@@ -391,6 +394,7 @@ workflow GenerateDuplexConsensusBams {
       File duplex_theoretical_sensitivity  = DuplexSelectionMetrics.output_theoretical_sensitivity
 
       Int mean_duplex_depth = CollectStatisticsByCoverage.mean_duplex_depth
+      String mean_startstop_depth = CollectStatisticsByCoverage.mean_startstop_depth
       Int mean_raw_depth = CollectStatisticsByCoverage.mean_raw_depth
 
       File duplex_family_sizes = CollectDuplexSeqMetrics.duplex_family_sizes
@@ -1144,13 +1148,13 @@ task CollectDepthOfCoverage {
 
 task CollectStatisticsByCoverage {
 
-   String bloodbiopsydocker
    String process_duplex_coverage_rscript
    File raw_depth
-   File start_stop_depth
+   File? start_stop_depth
    File duplex_depth
    String base_name
    Int? preemptible_attempts
+   String process_coverage_docker = "us.gcr.io/tag-public/process_duplex_coverage:v1.1"
    Int? memory
    Int disk_pad
    Int disk_size = 200
@@ -1160,18 +1164,33 @@ task CollectStatisticsByCoverage {
    command <<<
       set -e
 
-      Rscript -e 'source("${process_duplex_coverage_rscript}"); generateDepthFigures("${base_name}", "${raw_depth}", "${start_stop_depth}", "${duplex_depth}")'
+      START_STOP="${select_first([start_stop_depth, "NA"])}"
 
-      python <<CODE
+      if [[ "$START_STOP" != "NA" ]]; then
+         Rscript ${process_duplex_coverage_rscript} \
+            "${base_name}" \
+            "${raw_depth}" \
+            "$START_STOP" \
+            "${duplex_depth}"
+      else
+         Rscript ${process_duplex_coverage_rscript} \
+            "${base_name}" \
+            "${raw_depth}" \
+            NA \
+            "${duplex_depth}"
+      fi
+
+      python3 <<CODE
 
       import pandas as pd
-
-      df = pd.read_csv("${base_name}.depth.txt", delim_whitespace=True)
+      df = pd.read_csv("${base_name}.depth.txt", sep = "\t")
 
       def writeFile(value, filename):
-         f = open(filename + ".txt", 'w')
-         f.write(str(int(float(value))))
-         f.close()
+         with open(filename + ".txt", 'w') as f:
+            if pd.isna(value):
+                  f.write("NA")
+            else:
+                  f.write(str(int(float(value))))
 
       for col in df.columns:
          writeFile(df[col].loc[0], col)
@@ -1181,7 +1200,7 @@ task CollectStatisticsByCoverage {
          f.write(str(depthValues[depthValues.Total_Depth >= depthCutoff].count().Total_Depth / depthValues.count().Total_Depth))
          f.close()
 
-      depthOfCoverageByLocus = pd.read_csv("${duplex_depth}", delimiter = '\t')
+      depthOfCoverageByLocus = pd.read_csv("${duplex_depth}", sep='\t')
 
       writeDepthStatistic(depthOfCoverageByLocus, 500)
       writeDepthStatistic(depthOfCoverageByLocus, 1000)
@@ -1191,8 +1210,9 @@ task CollectStatisticsByCoverage {
       CODE
 
    >>>
+
    runtime {
-      docker: "us.gcr.io/broad-dsde-methods/liquidbiopsy:0.0.3.7"
+      docker: process_coverage_docker
       disks: "local-disk " + disk_size + " HDD"
       memory: mem + "GB"
       maxRetries: 3
@@ -1202,7 +1222,7 @@ task CollectStatisticsByCoverage {
    output {
       File depth_txt = "${base_name}.depth.txt"
       Int mean_raw_depth = read_int('meanRawDepth.txt')
-      Int mean_startstop_depth = read_int('meanStartStopDepth.txt')
+      String mean_startstop_depth = read_string("meanStartStopDepth.txt")
       Int mean_duplex_depth = read_int('meanDuplexDepth.txt')
       Float duplex_depth_above_500x = read_float('500.txt')
       Float duplex_depth_above_1000x = read_float('1000.txt')
