@@ -323,7 +323,7 @@ task DetermineXYCoverage {
          idxstats <- read.table("~{base_name}.idxstats.txt", col.names = c("contig", "length", "mapped", "unmapped"))
 
           # Determine normalization constant.  This is the number of bases/chromosome/read.
-        normalization <- sum(idxstats[grepl("^chr([1-9]|1[0-9]|2[0-2])$|^([1-9]|1[0-9]|2[0-2])$", idxstats$contig), ]$length) /
+         normalization <- sum(idxstats[grepl("^chr([1-9]|1[0-9]|2[0-2])$|^([1-9]|1[0-9]|2[0-2])$", idxstats$contig), ]$length) /
                         sum(idxstats[grepl("^chr([1-9]|1[0-9]|2[0-2])$|^([1-9]|1[0-9]|2[0-2])$", idxstats$contig), ]$mapped)
           # Estimate the number of X and Y chromosomes in the sample by
           # normalizing the coverage on X and Y.
