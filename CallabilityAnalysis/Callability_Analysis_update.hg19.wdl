@@ -419,7 +419,6 @@ task BedToIntervalList {
    File interval_list = "${intervalListOut}"
    }
 }
-
 task CountBases {
     input {
         File intervalListOrVcf
@@ -428,14 +427,21 @@ task CountBases {
     Int disk_size = 12
 
     command <<<
-        if [[ ~{intervalListOrVcf} == *vcf ]]; then
-            java -jar /usr/gitc/picard.jar VcfToIntervalList I=~{intervalListOrVcf} O=vcf.interval_list
-            java -jar /usr/gitc/picard.jar IntervalListTools I=vcf.interval_list OUTPUT=bases.txt OUTPUT_VALUE=BASES
+        set -euo pipefail
+
+        if [[ "~{intervalListOrVcf}" == *.vcf || "~{intervalListOrVcf}" == *.vcf.gz ]]; then
+            java -jar /dependencies/picard.jar VcfToIntervalList \
+                I=~{intervalListOrVcf} \
+                O=input.interval_list
+
+            awk 'BEGIN{sum=0} !/^@/ {sum += $3 - $2 + 1} END{print sum}' \
+                input.interval_list
+
         else
-            java -jar /usr/gitc/picard.jar IntervalListTools I=~{intervalListOrVcf} OUTPUT=bases.txt OUTPUT_VALUE=BASES
+            awk 'BEGIN{sum=0} !/^@/ {sum += $3 - $2 + 1} END{print sum}' \
+                "~{intervalListOrVcf}"
         fi
     >>>
-
     runtime {
         docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud@sha256:82dd1af86c9e6d4432170133382053525864d8f156a352e18ecf5947542e0b29"
         preemptible: 0
@@ -444,7 +450,7 @@ task CountBases {
     }
 
     output {
-        Int bases = read_int("bases.txt")
+        Int bases = read_int(stdout())
     }
 }
 
