@@ -429,15 +429,15 @@ task CountBases {
 
     command <<<
         if [[ ~{intervalListOrVcf} == *vcf ]]; then
-            java -jar /dependencies/picard.jar VcfToIntervalList I=~{intervalListOrVcf} O=vcf.interval_list
-            java -jar /dependencies/picard.jar IntervalListTools I=vcf.interval_list OUTPUT=bases.txt OUTPUT_VALUE=BASES
+            java -jar /usr/gitc/picard.jar VcfToIntervalList I=~{intervalListOrVcf} O=vcf.interval_list
+            java -jar /usr/gitc/picard.jar IntervalListTools I=vcf.interval_list OUTPUT=bases.txt OUTPUT_VALUE=BASES
         else
-            java -jar /dependencies/picard.jar IntervalListTools I=~{intervalListOrVcf} OUTPUT=bases.txt OUTPUT_VALUE=BASES
+            java -jar /usr/gitc/picard.jar IntervalListTools I=~{intervalListOrVcf} OUTPUT=bases.txt OUTPUT_VALUE=BASES
         fi
     >>>
 
     runtime {
-        docker: "us.gcr.io/tag-public/codec:v1.1.4"
+        docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud@sha256:82dd1af86c9e6d4432170133382053525864d8f156a352e18ecf5947542e0b29"
         preemptible: 0
         disks: "local-disk " + disk_size + " HDD"
         memory: "16 GB"
