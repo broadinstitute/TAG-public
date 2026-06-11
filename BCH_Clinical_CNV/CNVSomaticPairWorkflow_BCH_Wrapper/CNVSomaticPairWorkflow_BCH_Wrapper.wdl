@@ -240,7 +240,7 @@ workflow CNVSomaticPairWorkflow_BCH_Wrapper {
             denoisedCopyRatiosNormal = select_first([CNVSomaticPairWorkflow.denoised_copy_ratios_normal]),
             denoisedCopyRatiosTumor = CNVSomaticPairWorkflow.denoised_copy_ratios_tumor,
             calledCopyRatioSegTumor = CNVSomaticPairWorkflow.called_copy_ratio_segments_tumor,
-            oncotatedCalledTumor = CNVSomaticPairWorkflow.oncotated_called_file_tumor
+            oncotatedCalledTumor = select_first([CNVSomaticPairWorkflow.oncotated_called_file_tumor, CNVSomaticPairWorkflow.funcotated_called_file_tumor])
     }
 
     call CNV_QC.plotQCTask as plotQCTask {
@@ -315,10 +315,10 @@ workflow CNVSomaticPairWorkflow_BCH_Wrapper {
         Float? scaled_delta_MAD_value_normal = CNVSomaticPairWorkflow.scaled_delta_MAD_value_normal
         File? modeled_segments_plot_normal = CNVSomaticPairWorkflow.modeled_segments_plot_normal
 
-        File oncotated_called_file_tumor = CNVSomaticPairWorkflow.oncotated_called_file_tumor
-        File oncotated_called_gene_list_file_tumor = CNVSomaticPairWorkflow.oncotated_called_gene_list_file_tumor
-        File funcotated_called_file_tumor = CNVSomaticPairWorkflow.funcotated_called_file_tumor
-        File funcotated_called_gene_list_file_tumor = CNVSomaticPairWorkflow.funcotated_called_gene_list_file_tumor
+        File? oncotated_called_file_tumor = CNVSomaticPairWorkflow.oncotated_called_file_tumor
+        File? oncotated_called_gene_list_file_tumor = CNVSomaticPairWorkflow.oncotated_called_gene_list_file_tumor
+        File? funcotated_called_file_tumor = CNVSomaticPairWorkflow.funcotated_called_file_tumor
+        File? funcotated_called_gene_list_file_tumor = CNVSomaticPairWorkflow.funcotated_called_gene_list_file_tumor
 
 		String tumor_cnv_pass_fail = CallCNVPassFail.tumor_cnv_pass_fail
         Int tumor_called_segments_count = CallCNVPassFail.tumor_called_segments_count
