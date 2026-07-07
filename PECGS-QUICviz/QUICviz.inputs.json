@@ -7,6 +7,7 @@
   "QUICviz.allelicCountsTumor": "File",
   "QUICviz.tumorType": "String",
   "QUICviz.sampleID": "String",
-  "QUICviz.gene_list": "File?"
+  "QUICviz.gene_list": "File?",
+  "QUICviz.reference_genome_build": "String?"
 }
 

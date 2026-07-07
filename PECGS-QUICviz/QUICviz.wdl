@@ -34,7 +34,7 @@ workflow QUICviz {
     }
 
     meta {
-        author: "Yueyao Gao"
+        author: "Yueyao Gao, Micah Rickles-Young"
         email: "tag@broadinstitute.org"
         description: "QUICviz.wdl is based on the QUICviz_v0.4 R script developed by Alex Neil, which is a tool for visualizing CNV data"
     }
@@ -53,6 +53,7 @@ task QUICviz {
         File calledCopyRatioSegTumor
         File oncotatedCalledTumor
         File? gene_list
+        String? reference_genome_build
         Int memory = 16
         Int cpu = 4
         Int maxRetries = 3
@@ -81,7 +82,7 @@ task QUICviz {
             --tumor_cr_seg ~{calledCopyRatioSegTumor} \
             --tumor_seg_oncotated ~{oncotatedCalledTumor} \
             --output_dir outputs/ \
-            ~{'--gene_list ' + gene_list}
+            ~{'--reference_build ' + reference_genome_build} ~{'--gene_list ' + gene_list}
 
         mv outputs/*chromosome_plots.pdf outputs/~{sampleID}_chromosome_plots.pdf
         mv outputs/*gene_level_calls.csv outputs/~{sampleID}_gene_level_calls.csv
