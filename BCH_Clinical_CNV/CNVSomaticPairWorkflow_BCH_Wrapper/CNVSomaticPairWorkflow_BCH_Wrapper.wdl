@@ -343,7 +343,8 @@ task CallCNVPassFail {
       File cnv_eval_script
 
       Float normal_MAD_threshold = 0.15
-      Int normal_seg_threshold = 200
+      Int normal_seg_flag_threshold = 250
+      Int normal_seg_fail_threshold = 500
       Float tumor_MAD_threshold = 0.2
       Int tumor_seg_threshold = 1000
 
@@ -357,7 +358,8 @@ task CallCNVPassFail {
     command <<<
         python ~{cnv_eval_script} --tumor-seg ~{tumor_seg_file} --normal-seg ~{normal_seg_file} \
         --tumor-mad ~{tumor_MAD_value} --normal-mad ~{normal_MAD_value} \
-        --thresholds ~{normal_MAD_threshold} ~{normal_seg_threshold} ~{tumor_MAD_threshold} ~{tumor_seg_threshold}
+        --thresholds ~{normal_MAD_threshold} ~{normal_seg_flag_threshold} ~{normal_seg_fail_threshold} \
+         ~{tumor_MAD_threshold} ~{tumor_seg_threshold}
     >>>
 
     runtime {
