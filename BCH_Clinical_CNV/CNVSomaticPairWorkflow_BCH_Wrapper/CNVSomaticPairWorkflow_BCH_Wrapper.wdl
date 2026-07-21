@@ -136,7 +136,7 @@ workflow CNVSomaticPairWorkflow_BCH_Wrapper {
       #### optional arguments for clinical CNV ####
       #############################################
       File evaluate_cnv_script
-      String python_docker = "python:3"
+      String python_docker = "us.gcr.io/tag-team-160914/cnv-eval:1.0.0"
       String pairID
       String quicvizDocker = "us.gcr.io/tag-team-160914/cmi_quicviz:0.4.3"
 	}
@@ -358,8 +358,7 @@ task CallCNVPassFail {
     command <<<
         python ~{cnv_eval_script} --tumor-seg ~{tumor_seg_file} --normal-seg ~{normal_seg_file} \
         --tumor-mad ~{tumor_MAD_value} --normal-mad ~{normal_MAD_value} \
-        --thresholds ~{normal_MAD_threshold} ~{normal_seg_flag_threshold} ~{normal_seg_fail_threshold} \
-         ~{tumor_MAD_threshold} ~{tumor_seg_threshold}
+        --thresholds ~{normal_MAD_threshold} ~{normal_seg_flag_threshold} ~{normal_seg_fail_threshold} ~{tumor_MAD_threshold} ~{tumor_seg_threshold}
     >>>
 
     runtime {
