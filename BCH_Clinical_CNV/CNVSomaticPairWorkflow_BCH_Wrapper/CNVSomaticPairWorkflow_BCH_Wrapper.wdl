@@ -357,7 +357,7 @@ task CallCNVPassFail {
     }
 
     command <<<
-        if [ -f ~{cnv_eval_script_override} ]; then
+        if [[ -f "~{cnv_eval_script_override}" ]]; then
             CNV_EVAL="~{cnv_eval_script_override}"
         else
             CNV_EVAL="~{cnv_eval_path}"
