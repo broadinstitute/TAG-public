@@ -135,7 +135,7 @@ workflow CNVSomaticPairWorkflow_BCH_Wrapper {
       #############################################
       #### optional arguments for clinical CNV ####
       #############################################
-      File evaluate_cnv_script
+      File? evaluate_cnv_script_override
       String python_docker = "us.gcr.io/tag-team-160914/cnv-eval:1.0.0"
       String pairID
       String quicvizDocker = "us.gcr.io/tag-team-160914/cmi_quicviz:0.4.3"
@@ -225,7 +225,7 @@ workflow CNVSomaticPairWorkflow_BCH_Wrapper {
             normal_seg_file = select_first([CNVSomaticPairWorkflow.called_copy_ratio_segments_normal]),
             tumor_MAD_value = CNVSomaticPairWorkflow.denoised_MAD_value_tumor,
             normal_MAD_value = select_first([CNVSomaticPairWorkflow.denoised_MAD_value_normal]),
-            cnv_eval_script = evaluate_cnv_script,
+            cnv_eval_script_override = evaluate_cnv_script_override,
             python_docker = python_docker
     }
 
@@ -340,7 +340,8 @@ task CallCNVPassFail {
       File normal_seg_file
       Float tumor_MAD_value
       Float normal_MAD_value
-      File cnv_eval_script
+      File? cnv_eval_script_override
+      String cnv_eval_path = "/cnv_eval/evaluate_cnv_pass_fail.py"
 
       Float normal_MAD_threshold = 0.15
       Int normal_seg_flag_threshold = 250
@@ -356,7 +357,13 @@ task CallCNVPassFail {
     }
 
     command <<<
-        python ~{cnv_eval_script} --tumor-seg ~{tumor_seg_file} --normal-seg ~{normal_seg_file} \
+        if [ -f ~{cnv_eval_script_override} ]; then
+            CNV_EVAL="~{cnv_eval_script_override}"
+        else
+            CNV_EVAL="~{cnv_eval_path}"
+        fi
+
+        python $CNV_EVAL --tumor-seg ~{tumor_seg_file} --normal-seg ~{normal_seg_file} \
         --tumor-mad ~{tumor_MAD_value} --normal-mad ~{normal_MAD_value} \
         --thresholds ~{normal_MAD_threshold} ~{normal_seg_flag_threshold} ~{normal_seg_fail_threshold} ~{tumor_MAD_threshold} ~{tumor_seg_threshold}
     >>>
