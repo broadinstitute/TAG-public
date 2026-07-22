@@ -1,0 +1,16 @@
+{
+    "kinnex_bulk_preprocessing.input_bam": "s3://manifold-ai-sc-broad-prod-platform-storage/research/projects/88/example-pipeline/kinnex_example_pipelines/m84231_test_small.hifi_reads.bam",
+    "kinnex_bulk_preprocessing.mas_adapters_fasta": "s3://manifold-ai-sc-broad-prod-platform-storage/research/projects/88/example-pipeline/kinnex_example_pipelines/mas8_primers.fasta",
+    "kinnex_bulk_preprocessing.bulk_barcodes_fasta": "s3://manifold-ai-sc-broad-prod-platform-storage/research/projects/88/example-pipeline/kinnex_example_pipelines/bulk12_barcodes.fasta",
+    "kinnex_bulk_preprocessing.barcode_to_sample": "s3://manifold-ai-sc-broad-prod-platform-storage/research/projects/88/example-pipeline/kinnex_example_pipelines/TAG2665_EA316067.idmap.csv",
+    "kinnex_bulk_preprocessing.gcs_output_dir": "s3://manifold-ai-sc-broad-prod-platform-storage/research/projects/88/example-pipeline/kinnex_example_pipelines/",
+    "kinnex_bulk_preprocessing.arraysize": 8,
+    "kinnex_bulk_preprocessing.trimPolyA": true,
+    "kinnex_bulk_preprocessing.clipAdapters": true,
+    "kinnex_bulk_preprocessing.mergeBams": true,
+    "kinnex_bulk_preprocessing.num_threads": 16,
+    "kinnex_bulk_preprocessing.pbSkerawQC.mem_gb": 32,
+    "kinnex_bulk_preprocessing.pbSkerawQC.disk_space_gb": 200,
+    "kinnex_bulk_preprocessing.pbSkerawQC.boot_disk_size_gb": 200,
+    "kinnex_bulk_preprocessing.pbLimaBulk.boot_disk_size_gb": 200
+}
