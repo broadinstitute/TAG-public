@@ -19,6 +19,7 @@ struct Runtime {
 workflow WESOutofSpecAnalysis {
     input {
     String pair_name
+	String case_name
     File maf_file
     File somatic_vcf
     File mut_categs
@@ -35,6 +36,9 @@ workflow WESOutofSpecAnalysis {
     File ref_dict
     File dbSNP_vcf
     File dbSNP_vcf_index
+
+	File bait_intervals
+	File target_intervals
 
     String validation_stringency
     String? validation_errors_to_ignore
