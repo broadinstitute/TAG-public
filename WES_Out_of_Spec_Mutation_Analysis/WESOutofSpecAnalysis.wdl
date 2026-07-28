@@ -52,9 +52,6 @@ workflow WESOutofSpecAnalysis {
     File snp6_bed
     File hapmap_vcf
 
-    # Orientation bias Q-value
-    File pre_adapter_detail_metrics
-
     File? gatk_jar_override
 
     File cnv_pon
