@@ -226,7 +226,6 @@ task CalculateCoverage {
       docker: "us.gcr.io/tag-public/samtools_r:v1"
       disks: "local-disk " + disk_size + " HDD"
       memory: "~{coverage_mem_gb} GB"
-      preemptible: 0
    }
 }
 
@@ -304,7 +303,6 @@ task CollectData {
       docker: "us.gcr.io/tag-public/samtools_r:v1"
       disks: "local-disk " + disk_size + " HDD"
       memory: memory_gb + "GB"
-      preemptible: 0
    }
 }
 
@@ -348,7 +346,6 @@ task DetermineXYCoverage {
           docker: "us.gcr.io/tag-public/samtools_r:v1"
           disks: "local-disk " + disk_size + " HDD"
           memory: "16 GB"
-          preemptible: 0
        }
 }
 
@@ -422,24 +419,29 @@ task BedToIntervalList {
    File interval_list = "${intervalListOut}"
    }
 }
-
 task CountBases {
     input {
         File intervalListOrVcf
     }
 
-    Int disk_size = 10 + ceil(size(intervalListOrVcf, "GB"))
-    File picardJar = "gs://gptag/AnnotateBed/picard.jar"
+    Int disk_size = 12
 
     command <<<
-        if [[ ~{intervalListOrVcf} == *vcf ]]; then
-            java -jar /usr/gitc/picard.jar VcfToIntervalList I=~{intervalListOrVcf} O=vcf.interval_list
-            java -jar ~{picardJar} IntervalListTools I=vcf.interval_list COUNT_OUTPUT=bases.txt OUTPUT_VALUE=BASES
+        set -euo pipefail
+
+        if [[ "~{intervalListOrVcf}" == *.vcf || "~{intervalListOrVcf}" == *.vcf.gz ]]; then
+            java -jar /dependencies/picard.jar VcfToIntervalList \
+                I=~{intervalListOrVcf} \
+                O=input.interval_list
+
+            awk 'BEGIN{sum=0} !/^@/ {sum += $3 - $2 + 1} END{print sum}' \
+                input.interval_list
+
         else
-            java -jar ~{picardJar} IntervalListTools I=~{intervalListOrVcf} COUNT_OUTPUT=bases.txt OUTPUT_VALUE=BASES
+            awk 'BEGIN{sum=0} !/^@/ {sum += $3 - $2 + 1} END{print sum}' \
+                "~{intervalListOrVcf}"
         fi
     >>>
-
     runtime {
         docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud@sha256:82dd1af86c9e6d4432170133382053525864d8f156a352e18ecf5947542e0b29"
         preemptible: 0
@@ -448,7 +450,7 @@ task CountBases {
     }
 
     output {
-        Int bases = read_int("bases.txt")
+        Int bases = read_int(stdout())
     }
 }
 
@@ -490,10 +492,10 @@ task GenerateAnnotation {
         String? docker_override
     }
     command {
-        python3 /scripts/bed_annotate_script_hg38.py --annotation /reference_files/MANE.GRCh38.v1.3.ensembl_genomic.gtf --bed ~{bed_to_annotate} --gene_bed ~{gene_bed} --exome_bed ~{exome_bed} ~{'--gene_list ' + gene_list} --output_prefix ~{output_prefix}
+        python3 /scripts/bed_annotate_script_hg19.py --annotation /reference_files/gencode.v19.chr_patch_hapl_scaff.annotation.gtf --bed ~{bed_to_annotate} --gene_bed ~{gene_bed} --exome_bed ~{exome_bed} ~{'--gene_list ' + gene_list} --output_prefix ~{output_prefix}
     }
     runtime {
-        docker: select_first([docker_override, "us.gcr.io/tag-public/annotatebed_hg38:v4"])
+        docker: select_first([docker_override, "us.gcr.io/tag-public/annotatebed_hg19:v1"])
         preemptible: preemptible
         disks: "local-disk ~{diskGB} HDD"
         memory: "8 GB"
@@ -537,7 +539,6 @@ task samtools_coverage {
         docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.5.7-2021-06-09_16-47-48Z"
         memory: memory_gb + "GB"
         disks: "local-disk " + disk_size + " HDD"
-        preemptible: 0
     }
 }
 task summarize_coverage {
@@ -549,16 +550,15 @@ task summarize_coverage {
         String? docker_override
     }
     command {
-    python3 /scripts/summarize_coverage.hg38.py "~{sep=' ' coverage_outputs}" ~{sample_fraction}
+    python3 /scripts/summarize_coverage.hg19.py "~{sep=' ' coverage_outputs}" ~{sample_fraction}
     }
     output{
     File samtools_coverage_summary = 'samtools_coverage_summary.txt'
     }
     runtime {
-    	docker: select_first([docker_override, "us.gcr.io/tag-public/annotatebed_hg38:v4"])
+    	docker: select_first([docker_override, "us.gcr.io/tag-public/annotatebed_hg19:v1"])
         memory: memory_gb + "GB"
         disks: "local-disk " + disk_size + " HDD"
-        preemptible: 0
     }
 }
 task generate_clinvar_results{
@@ -577,7 +577,7 @@ task generate_clinvar_results{
         File clinvar_annotation = "clinvar_annotation.txt"
     }
     runtime {
-        docker: select_first([docker_override, "us.gcr.io/tag-public/annotatebed_hg38:v4"])
+        docker: select_first([docker_override, "us.gcr.io/tag-public/annotatebed_hg19:v1"])
         memory: memory_gb + "GB"
         disks: "local-disk " + disk_size + " HDD"
     }
@@ -593,13 +593,13 @@ task concatenate_results {
         String? docker_override
     }
     command {
-        python3 /scripts/aggregation_script.hg38.py --clinvar_file ~{clinvar_annotation} --samtools_coverage_file ~{samtools_coverage_file} --annotation_file ~{annotation_file} --output_prefix ~{output_prefix}
+        python3 /scripts/aggregation_script.hg19.py --clinvar_file ~{clinvar_annotation} --samtools_coverage_file ~{samtools_coverage_file} --annotation_file ~{annotation_file} --output_prefix ~{output_prefix}
     }
     output {
         File integrated_annotation_file = "~{output_prefix}.integrated_annotation.txt"
     }
     runtime {
-        docker: select_first([docker_override, "us.gcr.io/tag-public/annotatebed_hg38:v4"])
+        docker: select_first([docker_override, "us.gcr.io/tag-public/annotatebed_hg19:v1"])
         memory: memory_gb + "GB"
         disks: "local-disk " + disk_size + " HDD"
 
