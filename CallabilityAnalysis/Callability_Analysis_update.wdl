@@ -226,6 +226,7 @@ task CalculateCoverage {
       docker: "us.gcr.io/tag-public/samtools_r:v1"
       disks: "local-disk " + disk_size + " HDD"
       memory: "~{coverage_mem_gb} GB"
+      maxRetries: 1
    }
 }
 
@@ -303,6 +304,7 @@ task CollectData {
       docker: "us.gcr.io/tag-public/samtools_r:v1"
       disks: "local-disk " + disk_size + " HDD"
       memory: memory_gb + "GB"
+      maxRetries: 1
    }
 }
 
@@ -346,6 +348,7 @@ task DetermineXYCoverage {
           docker: "us.gcr.io/tag-public/samtools_r:v1"
           disks: "local-disk " + disk_size + " HDD"
           memory: "16 GB"
+          maxRetries: 1
        }
 }
 
@@ -534,6 +537,7 @@ task samtools_coverage {
         docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.5.7-2021-06-09_16-47-48Z"
         memory: memory_gb + "GB"
         disks: "local-disk " + disk_size + " HDD"
+        maxRetries: 1
     }
 }
 task summarize_coverage {
@@ -554,6 +558,7 @@ task summarize_coverage {
     	docker: select_first([docker_override, "us.gcr.io/tag-public/annotatebed_hg38:v4"])
         memory: memory_gb + "GB"
         disks: "local-disk " + disk_size + " HDD"
+        maxRetries: 1
     }
 }
 task generate_clinvar_results{
