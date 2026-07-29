@@ -201,3 +201,8 @@ workflows:
    primaryDescriptorPath: /BCH_Clinical_CNV/CNVSomaticPairWorkflow_BCH_Wrapper/subworkflows/plotCNVQC/plotCNVQC.wdl
    testParameterFiles:
    - /BCH_Clinical_CNV/CNVSomaticPairWorkflow_BCH_Wrapper/subworkflows/plotCNVQC/plotCNVQC.inputs.json
+ - name: WESOutofSpecAnalysis
+   subclass: WDL
+   primaryDescriptorPath: /WES_Out_of_Spec_Mutation_Analysis/WESOutofSpecAnalysis.wdl
+   testParameterFiles:
+   - /WES_Out_of_Spec_Mutation_Analysis/WESOutofSpecAnalysis.inputs.json
