@@ -1,0 +1,213 @@
+version: 1.2
+workflows:
+ - name: SmartSeq2_scRNA_pipeline
+   subclass: WDL
+   primaryDescriptorPath: /SmartSeq/scRNA_Pipeline/SmartSeq2_scRNA_pipeline.wdl
+   testParameterFiles:
+   - /SmartSeq/scRNA_Pipeline/SmartSeq2_scRNA_pipeline.human.terra-inputs.json
+   - /SmartSeq/scRNA_Pipeline/SmartSeq2_scRNA_pipeline.mouse.terra-inputs.json
+ - name: SmartSeq2_SC_Plate_QC
+   subclass: WDL
+   primaryDescriptorPath: /SmartSeq/SC_Plate_QC/SC_Plate_QC.wdl
+   testParameterFiles:
+   - /SmartSeq/SC_Plate_QC/SC_Plate_QC.human.terra-inputs.json
+   - /SmartSeq/SC_Plate_QC/SC_Plate_QC.mouse.terra-inputs.json
+ - name: CollectSamErrorMetrics
+   subclass: WDL
+   primaryDescriptorPath: /CollectSamError/CollectSamErrorMetrics.wdl
+   testParameterFiles:
+   - /CollectSamError/CollectSamErrorMetrics.inputs.json
+ - name: GATK4_CNV
+   subclass: WDL
+   primaryDescriptorPath: /GATK_CNV_Mutect2/GATK4_CNV/GATK4_CNVSomaticPairWorkflow.wdl
+   testParameterFiles:
+   - /GATK_CNV_Mutect2/GATK4_CNV/GATK4_CNVSomaticPairWorkflow.inputs.json
+ - name: mutect2-gatk4
+   subclass: WDL
+   primaryDescriptorPath: /GATK_CNV_Mutect2/mutect2-gatk4/mutect2-gatk4.wdl
+   testParameterFiles:
+   - /Users/gaoyueya/Documents/GitHub/TAG-public/GATK_CNV_Mutect2/mutect2-gatk4/mutect2-gatk4.inputs.json
+ - name: GenerateDuplexConsensusBams
+   subclass: WDL
+   primaryDescriptorPath: /Liquid_Biopsy_Duplex_Analysis/GenerateDuplexConsensusBams/GenerateDuplexConsensusBams.wdl
+   testParameterFiles:
+   - /Liquid_Biopsy_Duplex_Analysis/GenerateDuplexConsensusBams/GenerateDuplexConsensusBams.inputs.json
+ - name: MakeCallsFromConsensus
+   subclass: WDL
+   primaryDescriptorPath: /Liquid_Biopsy_Duplex_Analysis/MakeCallsFromConsensus/MakeCallsFromConsensus.wdl
+   testParameterFiles:
+   - /Liquid_Biopsy_Duplex_Analysis/MakeCallsFromConsensus/MakeCallsFromConsensus.T-N.inputs.json
+   - /Liquid_Biopsy_Duplex_Analysis/MakeCallsFromConsensus/MakeCallsFromConsensus.T-only.inputs.json
+ - name: iChorCNA_hg19
+   subclass: WDL
+   primaryDescriptorPath: /iChor/iChorCNA_hg19/iChorCNA_hg19.wdl
+   testParameterFiles:
+   - /iChor/iChorCNA_hg19/iChorCNA_hg19.inputs.json
+   - /iChor/iChorCNA_hg19/iChorCNA_hg19_NVX.inputs.json
+ - name: iChorCNA_hg38
+   subclass: WDL
+   primaryDescriptorPath: /iChor/iChorCNA_hg38/iChorCNA_hg38.wdl
+   testParameterFiles:
+   - /iChor/iChorCNA_hg38/iChorCNA_hg38.inputs.json
+   - /iChor/iChorCNA_hg38/iChorCNA_hg38_NVX.inputs.json
+ - name: iChorCNA_step2
+   subclass: WDL
+   primaryDescriptorPath: /iChor/iChorCNA_step2/iChorCNA_step2.wdl
+   testParameterFiles:
+   - /iChor/iChorCNA_step2/iChorCNA_step2.inputs.json
+ - name: lego_plotter
+   subclass: WDL
+   primaryDescriptorPath: /LegoPlotter/lego_plotter.wdl
+   testParameterFiles:
+   - /LegoPlotter/lego_plotter.inputs.json
+ - name: SomaticSV_SvABA
+   subclass: WDL
+   primaryDescriptorPath: /SomaticSV_SvABA/SomaticSV_SvABA.wdl
+   testParameterFiles:
+   - /SomaticSV_SvABA/SomaticSV_SvABA.inputs.json
+   - /SomaticSV_SvABA/SomaticSV_SvABA_Tonly.inputs.json
+ - name: BreaKmer
+   subclass: WDL
+   primaryDescriptorPath: /BreaKmer/BreaKmer.wdl
+   testParameterFiles:
+   - /BreaKmer/BreaKmer.inputs.json
+ - name: Griffin_GC_Correction
+   subclass: WDL
+   primaryDescriptorPath: /Griffin/griffin_GC_correction/griffin_GC_correction.wdl
+   testParameterFiles:
+   - /Griffin/griffin_GC_correction/griffin_GC_correction.inputs.json
+ - name: Griffin_Nucleosome_Profiling
+   subclass: WDL
+   primaryDescriptorPath: /Griffin/griffin_nucleosome_profiling/griffin_nucleosome_profiling.wdl
+   testParameterFiles:
+   - /Griffin/griffin_nucleosome_profiling/griffin_nucleosome_profiling.inputs.json
+ - name: griffin_ER_classifier
+   subclass: WDL
+   primaryDescriptorPath: /Griffin/griffin_ER_classifier/griffin_ER_classifier.wdl
+   testParameterFiles:
+   - /Griffin/griffin_ER_classifier/griffin_ER_classifier.inputs.json
+ - name: checkBaitSetName
+   subclass: WDL
+   primaryDescriptorPath: /checkBaitSetName/checkBaitSetName.wdl
+   testParameterFiles:
+    - /checkBaitSetName/checkBaitSetName.inputs.json
+ - name: SelectSampleFromCallSet
+   subclass: WDL
+   primaryDescriptorPath: /BenchmarkCNV/SelectSampleFromCallSet/SelectSampleFromCallSet.wdl
+   testParameterFiles:
+   - /BenchmarkCNV/SelectSampleFromCallSet/SelectSampleFromCallSet.inputs.json
+ - name: MergeVCF
+   subclass: WDL
+   primaryDescriptorPath: /BenchmarkCNV/MergeVCF/MergeVCF.wdl
+   testParameterFiles:
+   - /BenchmarkCNV/MergeVCF/MergeVCF.inputs.json
+ - name: BenchmarkCNV
+   subclass: WDL
+   primaryDescriptorPath: /BenchmarkCNV/BenchmarkCNV/BenchmarkCNV.wdl
+   testParameterFiles:
+   - /BenchmarkCNV/BenchmarkCNV/BenchmarkCNV.inputs.json
+ - name: checkBaitSetName_dev
+   subclass: WDL
+   primaryDescriptorPath: /checkBaitSetName/checkBaitSetName.dev.wdl
+   testParameterFiles:
+    - /checkBaitSetName/checkBaitSetName.dev.inputs.json
+ - name: DownsampleBam
+   subclass: WDL
+   primaryDescriptorPath: /DownsampleBam/DownsampleBam.wdl
+   testParameterFiles:
+    - /DownsampleBam/DownsampleBam.inputs.json
+ - name: CrosscheckFingerprints
+   subclass: WDL
+   primaryDescriptorPath: /CrossCheckFingerPrint/CrossCheckFingerPrint.wdl
+   testParameterFiles:
+    - /CrossCheckFingerPrint/CrossCheckFingerPrint.inputs.json
+ - name: Cleanup_Failed_Submissions
+   subclass: WDL
+   primaryDescriptorPath: /CleanupFailedSubmissions/Cleanup_Failed_Submissions.wdl
+   testParameterFiles:
+    - /CleanupFailedSubmissions/Cleanup_Failed_Submissions.inputs.json
+ - name: NeoVax_Analysis
+   subclass: WDL
+   primaryDescriptorPath: /NeoVax/NeoVax_Analysis/NeoVax_Analysis.wdl
+   testParameterFiles:
+    - /NeoVax/NeoVax_Analysis/NeoVax_Analysis.inputs.json
+ - name: NeoVax_PackageData
+   subclass: WDL
+   primaryDescriptorPath: /NeoVax/NeoVax_PackageData/NeoVax_PackageData.wdl
+   testParameterFiles:
+    - /NeoVax/NeoVax_PackageData/NeoVax_PackageData.inputs.json
+ - name: TAG_Mop
+   subclass: WDL
+   primaryDescriptorPath: /TAG_Mop/TAG_Mop.wdl
+   testParameterFiles:
+    - /TAG_Mop/TAG_Mop.inputs.json
+ - name: QUICviz
+   subclass: WDL
+   primaryDescriptorPath: /PECGS-QUICviz/QUICviz.wdl
+   testParameterFiles:
+    - /PECGS-QUICviz/QUICviz.inputs.json
+ - name: SomaticQC
+   subclass: WDL
+   primaryDescriptorPath: /NeoVax/neovax_dragen_modules/SomaticQC.wdl
+   testParameterFiles:
+    - /NeoVax/neovax_dragen_modules/SomaticQC.inputs.json
+ - name: PairBamQC
+   subclass: WDL
+   primaryDescriptorPath: /NeoVax/neovax_dragen_modules/PairBamQC.wdl
+   testParameterFiles:
+    - /NeoVax/neovax_dragen_modules/PairBamQC.inputs.json
+ - name: LegoPlotter
+   subclass: WDL
+   primaryDescriptorPath: /NeoVax/neovax_dragen_modules/LegoPlotter.wdl
+   testParameterFiles:
+    - /NeoVax/neovax_dragen_modules/LegoPlotter.inputs.json
+ - name: AllelicCNV
+   subclass: WDL
+   primaryDescriptorPath: /NeoVax/neovax_dragen_modules/AllelicCNV.wdl
+   testParameterFiles:
+    - /NeoVax/neovax_dragen_modules/AllelicCNV.inputs.json
+ - name: Absolute
+   subclass: WDL
+   primaryDescriptorPath: /NeoVax/neovax_dragen_modules/Absolute.wdl
+   testParameterFiles:
+    - /NeoVax/neovax_dragen_modules/Absolute.inputs.json
+ - name: BroadInternalRNAWithUMIs
+   subclass: WDL
+   primaryDescriptorPath: /TCapRNAPipeline/BroadInternalRNAWithUMIs.wdl
+   testParameterFiles:
+    - /TCapRNAPipeline/BroadInternalRNAWithUMIs.inputs.json
+ - name: PeddyAnalysis
+   subclass: WDL
+   primaryDescriptorPath: /PeddyAnalysis/PeddyAnalysis.wdl
+   testParameterFiles:
+    - /PeddyAnalysis/PeddyAnalysis.inputs.json
+ - name: cnvArrayProber
+   subclass: WDL
+   primaryDescriptorPath: /CNV_Array_Prober/cnvArrayProber.wdl
+   testParameterFiles:
+    - /CNV_Array_Prober/cnvArrayProber.inputs.json
+ - name: CNVSomaticPairWorkflow_BCH_Wrapper
+   subclass: WDL
+   primaryDescriptorPath: /BCH_Clinical_CNV/CNVSomaticPairWorkflow_BCH_Wrapper/CNVSomaticPairWorkflow_BCH_Wrapper.wdl
+   testParameterFiles:
+   - /BCH_Clinical_CNV/CNVSomaticPairWorkflow_BCH_Wrapper/CNVSomaticPairWorkflow_BCH_Wrapper.inputs.json
+ - name: DeliverCNVOutputs
+   subclass: WDL
+   primaryDescriptorPath: /BCH_Clinical_CNV/DeliverCNVOutputs/DeliverCNVOutputs.wdl
+   testParameterFiles:
+   - /BCH_Clinical_CNV/DeliverCNVOutputs/DeliverCNVOutputs.inputs.json
+ - name: plotCNVQC
+   subclass: WDL
+   primaryDescriptorPath: /BCH_Clinical_CNV/CNVSomaticPairWorkflow_BCH_Wrapper/subworkflows/plotCNVQC/plotCNVQC.wdl
+   testParameterFiles:
+   - /BCH_Clinical_CNV/CNVSomaticPairWorkflow_BCH_Wrapper/subworkflows/plotCNVQC/plotCNVQC.inputs.json
+ - name: Manifold_GenerateDuplexConsensusBams
+   subclass: WDL
+   primaryDescriptorPath: /Manifold_Pipelines/GenerateDuplexConsensusBams_manifold.wdl
+   testParameterFiles:
+   - /Manifold_Pipelines/GenerateDuplexConsensusBams_manifold.inputs.json
+- name: Manifold_kinnex_bulk_preprocessing
+   subclass: WDL
+   primaryDescriptorPath: /Manifold_Pipelines/kinnex_bulk_preprocessing.wdl
+   testParameterFiles:
+   - /Manifold_Pipelines/kinnex_bulk_preprocessing.inputs.json
