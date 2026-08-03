@@ -208,6 +208,6 @@ workflows:
    - /Manifold_Pipelines/GenerateDuplexConsensusBams_manifold.inputs.json
 - name: Manifold_kinnex_bulk_preprocessing
    subclass: WDL
-   primaryDescriptorPath: /Manifold_Pipelines/kinnex_bulk_preprocessing.wdl
+   primaryDescriptorPath: /Manifold_Pipelines/kinnex_bulk_preprocessing_manifold.wdl
    testParameterFiles:
-   - /Manifold_Pipelines/kinnex_bulk_preprocessing.inputs.json
+   - /Manifold_Pipelines/kinnex_bulk_preprocessing_manifold.inputs.json
