@@ -635,7 +635,7 @@ task FGBioGroupReadsByUmi {
       set -e
       # It is necessary to set the tmp dir, otherwise
       # fgbio attempts to put the data in an invalid location.
-      export FGBIO_LOCAL_JAR=${default="/usr/fgbio-2.0.2.jar" fgbio_override}
+      export FGBIO_LOCAL_JAR=${default="/usr/fgbio-1.0.0.jar" fgbio_override}
 
       java -Djava.io.tmpdir=/cromwell_root/ -Xmx${compute_mem}m -jar $FGBIO_LOCAL_JAR \
          GroupReadsByUmi \
@@ -681,7 +681,7 @@ task FilterConsensusReads {
    command {
       set -e
 
-      export FGBIO_LOCAL_JAR=${default="/usr/fgbio-2.0.2.jar" fgbio_override}
+      export FGBIO_LOCAL_JAR=${default="/usr/fgbio-1.0.0.jar" fgbio_override}
       export PICARD_LOCAL_JAR=${default="/usr/picard.jar" picard_override}
 
       # If the minimum consensus reads are set to 0, do nothing.
@@ -752,7 +752,7 @@ task ClipBam {
 
       set -e
 
-      export FGBIO_LOCAL_JAR=${default="/usr/fgbio-2.0.2.jar" fgbio_override}
+      export FGBIO_LOCAL_JAR=${default="/usr/fgbio-1.0.0.jar" fgbio_override}
       export PICARD_LOCAL_JAR=${default="/usr/picard.jar" picard_override}
 
       java -Xmx${compute_mem}m -jar $FGBIO_LOCAL_JAR ClipBam \
@@ -905,7 +905,7 @@ task CallDuplexConsensusReads {
    command {
       set -e
 
-      export FGBIO_LOCAL_JAR=${default="/usr/fgbio-2.0.2.jar" fgbio_override}
+      export FGBIO_LOCAL_JAR=${default="/usr/fgbio-1.0.0.jar" fgbio_override}
 
       java -Xmx${compute_mem}m -Djava.io.tmpdir=/cromwell_root/tmp -jar $FGBIO_LOCAL_JAR \
          CallDuplexConsensusReads \
@@ -1194,7 +1194,7 @@ task CollectStatisticsByCoverage {
 
    >>>
    runtime {
-      docker: "us.gcr.io/broad-dsde-methods/liquidbiopsy:0.0.3.7"
+      docker: "us.gcr.io/tag-public/liquidbiopsy:0.0.3.5"
       disks: "local-disk " + disk_size + " HDD"
       memory: mem + "GB"
       maxRetries: 3
@@ -1231,7 +1231,7 @@ task CollectDuplexSeqMetrics {
 
       set -e
 
-      export FGBIO_LOCAL_JAR=${default="/usr/fgbio-2.0.2.jar" fgbio_override}
+      export FGBIO_LOCAL_JAR=${default="/usr/fgbio-1.0.0.jar" fgbio_override}
 
       java -Xmx${compute_mem}m -jar $FGBIO_LOCAL_JAR CollectDuplexSeqMetrics \
          -i ${bam_file} \
