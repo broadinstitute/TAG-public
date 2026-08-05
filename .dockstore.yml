@@ -211,3 +211,8 @@ workflows:
    primaryDescriptorPath: /Manifold_Pipelines/kinnex_bulk_preprocessing_manifold.wdl
    testParameterFiles:
    - /Manifold_Pipelines/kinnex_bulk_preprocessing_manifold.inputs.json
+ - name: Manifold_MakeCallsFromConsensus_TN
+   subclass: WDL
+   primaryDescriptorPath: /Manifold_Pipelines/MakeCallsFromConsensus_manifold.wdl
+   testParameterFiles:
+   - /Manifold_Pipelines/MakeCallsFromConsensus_manifold.inputs.json
