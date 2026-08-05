@@ -102,6 +102,20 @@ workflow MakeCallsFromConsensus {
       Boolean filter_funcotations
       File? data_sources_tar_gz
       String? funcotator_extra_args
+
+      # --- Inlined-Mutect2 runtime knobs (previously set via M2Duplex.* in the inputs JSON) ---
+      # Standard M2 helper tasks (SplitIntervals, MergeVCFs, MergeStats, MergePileupSummaries,
+      # CalculateContamination, Filter) run with these; the M2 scatter uses m2_task_mem +
+      # m2_preemptible / m2_max_retries.
+      Int m2_small_task_mem = 8
+      Int m2_small_task_disk = 100
+      Int m2_small_task_cpu = 2
+      Int m2_boot_disk_size = 12
+      Int? m2_preemptible
+      Int? m2_max_retries
+      Float m2_task_mem = 3.5
+      Boolean? m2_make_bamout
+      String? m2_getpileupsummaries_extra_args
    }
 
    Int small_task_mem = 4
@@ -185,11 +199,10 @@ workflow MakeCallsFromConsensus {
    # reproduced. Runtime defaults are kept identical to the original sub-workflow.
    # =========================================================================
 
-   Int m2_preemptible_or_default = 2
-   Int m2_max_retries_or_default = 2
+   Int m2_preemptible_or_default = select_first([m2_preemptible, 2])
+   Int m2_max_retries_or_default = select_first([m2_max_retries, 2])
    Boolean m2_compress = select_first([compress_vcfs, false])
-   Boolean m2_make_bamout = false
-   Float m2_task_mem = 3.5
+   Boolean m2_make_bamout_or_default = select_first([m2_make_bamout, false])
    Int learn_read_orientation_mem = 8000
    Float small_input_to_output_multiplier = 2.0
    Float cram_to_bam_multiplier = 6.0
@@ -217,9 +230,9 @@ workflow MakeCallsFromConsensus {
    # inlined Mutect2 tasks fall back to /root/gatk.jar, matching the original
    # where M2Duplex did not forward a gatk_override.
    Runtime m2_standard_runtime = {"gatk_docker": bloodbiopsydocker,
-      "max_retries": m2_max_retries_or_default, "preemptible": m2_preemptible_or_default, "cpu": small_task_cpu,
-      "machine_mem": small_task_mem * 1000, "command_mem": small_task_mem * 1000 - 500,
-      "disk": small_task_disk + m2_disk_pad, "boot_disk_size": boot_disk_size}
+      "max_retries": m2_max_retries_or_default, "preemptible": m2_preemptible_or_default, "cpu": m2_small_task_cpu,
+      "machine_mem": m2_small_task_mem * 1000, "command_mem": m2_small_task_mem * 1000 - 500,
+      "disk": m2_small_task_disk + m2_disk_pad, "boot_disk_size": m2_boot_disk_size}
 
    if (basename(tumor_bam) != basename(tumor_bam, ".cram")) {
       call CramToBam as TumorCramToBam {
@@ -287,10 +300,14 @@ workflow MakeCallsFromConsensus {
             gnomad_idx = gnomad_to_use_idx,
             m2_extra_args = m2_extra_args,
             variants_for_contamination = variants_for_contamination,
-            make_bamout = m2_make_bamout,
+            make_bamout = m2_make_bamout_or_default,
             run_ob_filter = run_ob_filter,
             mem = m2_task_mem,
             compress = m2_compress,
+            getpileupsummaries_extra_args = m2_getpileupsummaries_extra_args,
+            variants_for_contamination_idx = variants_for_contamination_idx,
+            preemptible = m2_preemptible,
+            max_retries = m2_max_retries,
             gatk_docker = bloodbiopsydocker,
             disk_space = m2_per_scatter_size
       }
