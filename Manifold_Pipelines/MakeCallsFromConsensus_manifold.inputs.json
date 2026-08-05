@@ -25,7 +25,7 @@
     "MakeCallsFromConsensus.FuncotateMafIndels.ref_fai": "s3://manifold-ai-sc-broad-prod-platform-storage/research/projects/88/example-pipeline/fgbio_duplex_pipelines/Homo_sapiens_assembly19.fasta.fai",
     "MakeCallsFromConsensus.VariantFiltration.memory": 16,
     "MakeCallsFromConsensus.raw_normal_bam_idx": "s3://manifold-ai-sc-broad-prod-platform-storage/research/projects/88/example-pipeline/fgbio_duplex_pipelines/UW-A001_gDBCE_C1.bai",
-    "MakeCallsFromConsensus.target_intervals": "s3://manifold-ai-sc-broad-prod-platform-storage/research/projects/88/example-pipeline/fgbio_duplex_pipelines/SCD-CH_Lindsley.Homo_sapiens_assembly19.targets.interval_list",
+    "MakeCallsFromConsensus.target_intervals": "s3://manifold-ai-sc-broad-prod-platform-storage/research/projects/88/example-pipeline/fgbio_duplex_pipelines/BroadPanCancer2019.Homo_sapiens_assembly19.targets.interval_list",
     "MakeCallsFromConsensus.gnomad": "s3://manifold-ai-sc-broad-prod-platform-storage/research/projects/88/example-pipeline/fgbio_duplex_pipelines/af-only-gnomad.raw.sites.vcf",
     "MakeCallsFromConsensus.raw_tumor_bam": "s3://manifold-ai-sc-broad-prod-platform-storage/research/projects/88/example-pipeline/fgbio_duplex_pipelines/UW-A001_E_C1.bam",
     "MakeCallsFromConsensus.basename": "UW-A001",
