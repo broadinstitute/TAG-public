@@ -1,0 +1,367 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://raw.githubusercontent.com/broadinstitute/TAG-public/manifold_pipelines/Manifold_Pipelines/nextflow_schema.json",
+    "title": "ichorCNA hg38 pipeline parameters",
+    "description": "Nextflow DSL2 port of iChorCNA_hg38.wdl — copy-number / tumor-fraction estimation from ULP-WGS.",
+    "type": "object",
+    "defs": {
+        "input_output_options": {
+            "title": "Input/output options",
+            "type": "object",
+            "fa_icon": "fas fa-terminal",
+            "description": "Sample identity, BAM input, and where results are written.",
+            "required": [
+                "sample_id",
+                "bam_file",
+                "bam_index",
+                "outdir"
+            ],
+            "properties": {
+                "sample_id": {
+                    "type": "string",
+                    "description": "Sample identifier used to name all outputs.",
+                    "fa_icon": "fas fa-tag"
+                },
+                "bam_file": {
+                    "type": "string",
+                    "format": "file-path",
+                    "description": "Aligned BAM file (hg38).",
+                    "fa_icon": "fas fa-file"
+                },
+                "bam_index": {
+                    "type": "string",
+                    "format": "file-path",
+                    "description": "BAM index (.bai) matching bam_file.",
+                    "fa_icon": "fas fa-file"
+                },
+                "outdir": {
+                    "type": "string",
+                    "format": "directory-path",
+                    "description": "Output directory for published results (local path or s3://).",
+                    "default": "results",
+                    "fa_icon": "fas fa-folder-open"
+                }
+            }
+        },
+        "reference_resources": {
+            "title": "Reference resources",
+            "type": "object",
+            "fa_icon": "fas fa-dna",
+            "description": "Genome build and ichorCNA reference resource files.",
+            "required": [
+                "genomeBuild",
+                "genome_style",
+                "centromere",
+                "gcWig",
+                "mapWig"
+            ],
+            "properties": {
+                "genomeBuild": {
+                    "type": "string",
+                    "default": "hg38",
+                    "description": "Genome build passed to ichorCNA.",
+                    "fa_icon": "fas fa-dna"
+                },
+                "genome_style": {
+                    "type": "string",
+                    "default": "UCSC",
+                    "enum": [
+                        "UCSC",
+                        "NCBI"
+                    ],
+                    "description": "Chromosome naming style (UCSC = 'chr1').",
+                    "fa_icon": "fas fa-font"
+                },
+                "centromere": {
+                    "type": "string",
+                    "format": "file-path",
+                    "description": "Centromere coordinates table.",
+                    "fa_icon": "fas fa-file"
+                },
+                "gcWig": {
+                    "type": "string",
+                    "format": "file-path",
+                    "description": "GC-content WIG matching the bin size.",
+                    "fa_icon": "fas fa-file"
+                },
+                "mapWig": {
+                    "type": "string",
+                    "format": "file-path",
+                    "description": "Mappability WIG matching the bin size.",
+                    "fa_icon": "fas fa-file"
+                },
+                "normalPanel": {
+                    "type": "string",
+                    "format": "file-path",
+                    "description": "Panel of normals (.rds). Optional; leave null to skip.",
+                    "fa_icon": "fas fa-file"
+                },
+                "exons": {
+                    "type": "string",
+                    "format": "file-path",
+                    "description": "Optional exon BED for targeted analysis. Leave null for WGS.",
+                    "fa_icon": "fas fa-file"
+                }
+            }
+        },
+        "read_counting": {
+            "title": "Read counting",
+            "type": "object",
+            "fa_icon": "fas fa-calculator",
+            "description": "HMMcopy readCounter binning options.",
+            "properties": {
+                "bin_size": {
+                    "type": "integer",
+                    "default": 1000000,
+                    "description": "Bin size in bp (WDL bin_size_kb * 1000).",
+                    "fa_icon": "fas fa-ruler-horizontal"
+                },
+                "chr_counter": {
+                    "type": "string",
+                    "default": "chr1,chr2,chr3,chr4,chr5,chr6,chr7,chr8,chr9,chr10,chr11,chr12,chr13,chr14,chr15,chr16,chr17,chr18,chr19,chr20,chr21,chr22,chrX,chrY",
+                    "description": "Comma-separated chromosomes to count reads on.",
+                    "fa_icon": "fas fa-list"
+                },
+                "read_counter_min_qual": {
+                    "type": "integer",
+                    "default": 20,
+                    "description": "Minimum mapping quality for readCounter (-q).",
+                    "fa_icon": "fas fa-check"
+                }
+            }
+        },
+        "ichorcna_parameters": {
+            "title": "ichorCNA parameters",
+            "type": "object",
+            "fa_icon": "fas fa-sliders-h",
+            "description": "Model parameters passed to runIchorCNA.R. Chromosome fields are literal R expressions.",
+            "properties": {
+                "chrs": {
+                    "type": "string",
+                    "default": "paste0('chr', c(1:22))",
+                    "description": "Chromosomes to analyze (R expression).",
+                    "fa_icon": "fas fa-code"
+                },
+                "chrTrain": {
+                    "type": "string",
+                    "default": "paste0('chr', c(1:18,20:22))",
+                    "description": "Chromosomes used to train parameters (R expression).",
+                    "fa_icon": "fas fa-code"
+                },
+                "chrNormalize": {
+                    "type": "string",
+                    "default": "paste0('chr', c(1:22))",
+                    "description": "Chromosomes used for normalization (R expression).",
+                    "fa_icon": "fas fa-code"
+                },
+                "ploidy": {
+                    "type": "string",
+                    "default": "c(2,3,4)",
+                    "description": "Initial ploidy states to evaluate (R expression).",
+                    "fa_icon": "fas fa-code"
+                },
+                "normal": {
+                    "type": "string",
+                    "default": "c(0.35,0.45,0.55,0.65,0.75,0.85,0.95)",
+                    "description": "Initial normal-contamination fractions (R expression).",
+                    "fa_icon": "fas fa-code"
+                },
+                "scStates": {
+                    "type": "string",
+                    "default": "c(1,3)",
+                    "description": "Subclonal copy-number states (R expression).",
+                    "fa_icon": "fas fa-code"
+                },
+                "maxCN": {
+                    "type": "integer",
+                    "default": 7,
+                    "description": "Maximum total copy number.",
+                    "fa_icon": "fas fa-arrow-up"
+                },
+                "includeHOMD": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Include homozygous deletion state.",
+                    "fa_icon": "fas fa-toggle-off"
+                },
+                "estimateNormal": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Estimate normal contamination.",
+                    "fa_icon": "fas fa-toggle-on"
+                },
+                "estimatePloidy": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Estimate ploidy.",
+                    "fa_icon": "fas fa-toggle-on"
+                },
+                "estimateClonality": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Estimate subclonal prevalence.",
+                    "fa_icon": "fas fa-toggle-on"
+                },
+                "txnE": {
+                    "type": "number",
+                    "default": 0.9999,
+                    "description": "Self-transition probability for the HMM.",
+                    "fa_icon": "fas fa-percent"
+                },
+                "txnStrength": {
+                    "type": "integer",
+                    "default": 10000,
+                    "description": "Strength of self-transition prior.",
+                    "fa_icon": "fas fa-weight-hanging"
+                },
+                "minSegmentBins": {
+                    "type": "integer",
+                    "default": 25,
+                    "description": "Minimum number of bins per segment.",
+                    "fa_icon": "fas fa-arrows-alt-h"
+                },
+                "minMapScore": {
+                    "type": "number",
+                    "default": 0.9,
+                    "description": "Minimum mappability score to keep a bin.",
+                    "fa_icon": "fas fa-percent"
+                },
+                "fracReadsChrYMale": {
+                    "type": "number",
+                    "default": 0.002,
+                    "description": "chrY read-fraction threshold to call male.",
+                    "fa_icon": "fas fa-mars"
+                },
+                "altFracThreshold": {
+                    "type": "number",
+                    "default": 0.7,
+                    "description": "Alternate-fraction threshold.",
+                    "fa_icon": "fas fa-percent"
+                },
+                "lambdaScaleHyperParam": {
+                    "type": "integer",
+                    "default": 3,
+                    "description": "Lambda scaling hyperparameter.",
+                    "fa_icon": "fas fa-sliders-h"
+                },
+                "rmCentromereFlankLength": {
+                    "type": "integer",
+                    "default": 100000,
+                    "description": "Length (bp) of centromere flanks to remove.",
+                    "fa_icon": "fas fa-cut"
+                },
+                "plotFileType": {
+                    "type": "string",
+                    "default": "pdf",
+                    "enum": [
+                        "pdf",
+                        "png"
+                    ],
+                    "description": "Plot output format.",
+                    "fa_icon": "fas fa-image"
+                },
+                "plotYlim": {
+                    "type": "string",
+                    "default": "c(-2,2)",
+                    "description": "Y-axis limits for genome-wide plots (R expression).",
+                    "fa_icon": "fas fa-code"
+                },
+                "mean_depth": {
+                    "type": "number",
+                    "description": "Mean coverage passed via --coverage. Leave null to let ichorCNA estimate it.",
+                    "fa_icon": "fas fa-layer-group"
+                },
+                "maxFracCNASubclone": {
+                    "type": "number",
+                    "default": 0.7,
+                    "description": "Max fraction of CNAs that may be subclonal.",
+                    "fa_icon": "fas fa-percent"
+                },
+                "maxFracGenomeSubclone": {
+                    "type": "number",
+                    "default": 0.5,
+                    "description": "Max fraction of the genome that may be subclonal.",
+                    "fa_icon": "fas fa-percent"
+                }
+            }
+        },
+        "qc_thresholds": {
+            "title": "QC thresholds",
+            "type": "object",
+            "fa_icon": "fas fa-clipboard-check",
+            "description": "Pass/fail gates evaluated after parameter extraction.",
+            "properties": {
+                "max_passing_mad_score": {
+                    "type": "number",
+                    "default": 0.3,
+                    "description": "Maximum GC-Map correction MAD to pass QC.",
+                    "fa_icon": "fas fa-less-than-equal"
+                },
+                "min_passing_tumor_fraction": {
+                    "type": "number",
+                    "default": 0.1,
+                    "description": "Minimum tumor fraction (reported; not currently gated).",
+                    "fa_icon": "fas fa-greater-than-equal"
+                },
+                "min_passing_coverage": {
+                    "type": "number",
+                    "default": 0.1,
+                    "description": "Minimum coverage to pass QC.",
+                    "fa_icon": "fas fa-greater-than-equal"
+                }
+            }
+        },
+        "container_images": {
+            "title": "Container images",
+            "type": "object",
+            "fa_icon": "fas fa-docker",
+            "description": "Per-process container images.",
+            "properties": {
+                "read_counter_docker": {
+                    "type": "string",
+                    "default": "us.gcr.io/tag-public/bloodbiopsy-hmmcopy:0.0.1",
+                    "description": "Image for READ_COUNTER (HMMcopy).",
+                    "fa_icon": "fas fa-docker"
+                },
+                "ichorcna_docker": {
+                    "type": "string",
+                    "default": "us.gcr.io/tag-public/bloodbiopsy-ichorcna:0.2.1",
+                    "description": "Image for ICHORCNA.",
+                    "fa_icon": "fas fa-docker"
+                },
+                "python_docker": {
+                    "type": "string",
+                    "default": "python:3",
+                    "description": "Image for EXTRACT_ICHOR_PARAMS.",
+                    "fa_icon": "fas fa-docker"
+                },
+                "tagtools_docker": {
+                    "type": "string",
+                    "default": "us.gcr.io/tag-public/tag-tools:1.0.0",
+                    "description": "Image for BUNDLE_PER_CHROMOSOME_PLOTS (Ghostscript).",
+                    "fa_icon": "fas fa-docker"
+                }
+            }
+        }
+    },
+    "allOf": [
+        {
+            "$ref": "#/defs/input_output_options"
+        },
+        {
+            "$ref": "#/defs/reference_resources"
+        },
+        {
+            "$ref": "#/defs/read_counting"
+        },
+        {
+            "$ref": "#/defs/ichorcna_parameters"
+        },
+        {
+            "$ref": "#/defs/qc_thresholds"
+        },
+        {
+            "$ref": "#/defs/container_images"
+        }
+    ]
+}
