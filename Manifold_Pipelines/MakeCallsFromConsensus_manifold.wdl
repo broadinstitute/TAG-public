@@ -1187,24 +1187,10 @@ task M2 {
     Int machine_mem = if defined(mem) then ceil(mem * 1000) else 3500
     Int command_mem = machine_mem - 500
 
-    parameter_meta{
-      intervals: {localization_optional: true}
-      ref_fasta: {localization_optional: true}
-      ref_fai: {localization_optional: true}
-      ref_dict: {localization_optional: true}
-      tumor_bam: {localization_optional: true}
-      tumor_bai: {localization_optional: true}
-      normal_bam: {localization_optional: true}
-      normal_bai: {localization_optional: true}
-      pon: {localization_optional: true}
-      pon_idx: {localization_optional: true}
-      gnomad: {localization_optional: true}
-      gnomad_idx: {localization_optional: true}
-      gga_vcf: {localization_optional: true}
-      gga_vcf_idx: {localization_optional: true}
-      variants_for_contamination: {localization_optional: true}
-      variants_for_contamination_idx: {localization_optional: true}
-    }
+    # NOTE: localization_optional removed for the Manifold/AWS (S3) backend.
+    # GATK NIO can stream from gs:// but not s3://, so these inputs must be
+    # localized to disk; otherwise GATK receives the raw s3:// URI and fails
+    # with "fasta file ... does not exist".
 
     command <<<
         set -e
@@ -1476,11 +1462,8 @@ task Filter {
     String output_vcf = output_name + if compress then ".vcf.gz" else ".vcf"
     String output_vcf_idx = output_vcf + if compress then ".tbi" else ".idx"
 
-    parameter_meta{
-      ref_fasta: {localization_optional: true}
-      ref_fai: {localization_optional: true}
-      ref_dict: {localization_optional: true}
-    }
+    # NOTE: localization_optional removed for the Manifold/AWS (S3) backend
+    # (GATK cannot stream from s3://; inputs must be localized to disk).
 
     command {
         set -e
@@ -1572,13 +1555,8 @@ task Funcotate {
 
      String dollar = "$"
 
-     parameter_meta{
-      ref_fasta: {localization_optional: true}
-      ref_fai: {localization_optional: true}
-      ref_dict: {localization_optional: true}
-      input_vcf: {localization_optional: true}
-      input_vcf_idx: {localization_optional: true}
-     }
+     # NOTE: localization_optional removed for the Manifold/AWS (S3) backend
+     # (GATK cannot stream from s3://; inputs must be localized to disk).
 
      command <<<
          set -e
