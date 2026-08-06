@@ -528,7 +528,7 @@ task MergeLogSplit {
 
     command {
         set -e
-        python3 /CODECsuite/snakemake/script/agg_log.py ~{sep=' ' log_files} ~{sample_id}.trim.log
+        /venv/bin/python /CODECsuite/snakemake/script/agg_log.py ~{sep=' ' log_files} ~{sample_id}.trim.log
     }
 
     output {
