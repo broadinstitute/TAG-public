@@ -13,8 +13,7 @@
             "required": [
                 "sample_id",
                 "bam_file",
-                "bam_index",
-                "outdir"
+                "bam_index"
             ],
             "properties": {
                 "sample_id": {
@@ -36,9 +35,7 @@
                 },
                 "outdir": {
                     "type": "string",
-                    "format": "directory-path",
-                    "description": "Output directory for published results (local path or s3://).",
-                    "default": "results",
+                    "description": "Output directory for published results (s3:// path). Not validated as an existing object — it is written to, not read.",
                     "fa_icon": "fas fa-folder-open"
                 }
             }
