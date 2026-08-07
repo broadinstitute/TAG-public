@@ -1,8 +1,8 @@
 ## QC pipeline
 ## HISAT2 as aligner to align reads to genome reference
-## output: genome reference aligned bam file 
+## output: genome reference aligned bam file
 ## Picard will produce a set of QC metricss
-## output: a set of metrics files. 
+## output: a set of metrics files.
 workflow RunHisat2Pipeline {
   File fastq_read1
   File fastq_read2
@@ -26,10 +26,10 @@ workflow RunHisat2Pipeline {
   Int threads = select_first([input_threads,4])
   Int additional_disk = select_first([increase_disk_size, 10])
   Float memory = 5 + select_first([increase_mem,0])
-  
+
   Boolean zip_fq1 = if basename(fastq_read1,".gz") == basename(fastq_read1) then true else false
   Boolean zip_fq2 = if basename(fastq_read2,".gz") == basename(fastq_read2) then true else false
- 
+
   call HISAT2PE as Hisat2 {
     input:
       hisat2_ref = hisat2_ref,
@@ -44,7 +44,7 @@ workflow RunHisat2Pipeline {
       memory = memory,
       threads = threads
   }
-  
+
   Float bam_size = size(Hisat2.output_bam, "GB")
 
   call CollectMultipleMetrics {
@@ -63,13 +63,28 @@ workflow RunHisat2Pipeline {
       stranded = stranded,
       disk_size = ceil(bam_size + reference_bundle_size + additional_disk)
   }
-  call CollectDuplicationMetrics {
+
+  ## FIX: HISAT2 is run with `-k 10 --secondary`, so multi-mapping reads are emitted
+  ## many times. Picard 2.10.10 MarkDuplicates throws
+  ##   "Value was put into PairInfoMap more than once"
+  ## on samples with heavy multi-mapping. Strip secondary (0x100) + supplementary (0x800)
+  ## alignments and run MarkDuplicates on primary reads only, so every sample processes
+  ## identically. Only the duplication step is rerouted -- the aligned_bam output and all
+  ## other metrics still use the original unfiltered Hisat2.output_bam.
+  call FilterBam {
     input:
       aligned_bam = Hisat2.output_bam,
       output_filename = output_prefix,
+      threads = threads,
       disk_size = ceil((bam_disk_multiplier * bam_size) + additional_disk)
   }
-  
+  call CollectDuplicationMetrics {
+    input:
+      aligned_bam = FilterBam.primary_bam,
+      output_filename = output_prefix,
+      disk_size = ceil((bam_disk_multiplier * bam_size) + additional_disk)
+  }
+
   output {
     File aligned_bam = Hisat2.output_bam
     File metfile = Hisat2.metfile
@@ -148,9 +163,9 @@ task HISAT2PE {
       --seed 12345 \
       -k 10 \
       --secondary \
-      -p ${threads} -S ${output_name}.sam 
-    samtools sort -@ ${threads} -O bam -o "${output_name}.bam" "${output_name}.sam" 
-		
+      -p ${threads} -S ${output_name}.sam
+    samtools sort -@ ${threads} -O bam -o "${output_name}.bam" "${output_name}.sam"
+
   }
   runtime {
     docker:"quay.io/humancellatlas/secondary-analysis-hisat2:v0.2.2-2-2.1.0"
@@ -172,7 +187,7 @@ task CollectMultipleMetrics {
   File aligned_bam
   File ref_genome_fasta
   String output_filename
-  Int disk_size 
+  Int disk_size
   command {
     java -Xmx6g -jar /usr/picard/picard.jar CollectMultipleMetrics \
       VALIDATION_STRINGENCY=SILENT \
@@ -251,8 +266,32 @@ task CollectRnaMetrics {
   }
 }
 
+## FIX task: strip secondary (0x100) and supplementary (0x800) alignments so that
+## Picard MarkDuplicates does not choke on multi-mapping reads. Uses the HISAT2 image,
+## which already ships samtools (see `samtools sort` in HISAT2PE), so no new dependency.
+task FilterBam {
+  File aligned_bam
+  String output_filename
+  Int disk_size
+  Int threads = 2
+  command {
+    set -e
+    samtools view -@ ${threads} -b -F 0x900 "${aligned_bam}" > "${output_filename}.primary.bam"
+  }
+  runtime {
+    docker: "quay.io/humancellatlas/secondary-analysis-hisat2:v0.2.2-2-2.1.0"
+    memory: "3.75 GB"
+    cpu: threads
+    disks: "local-disk " + disk_size + " HDD"
+    preemptible: 5
+  }
+  output {
+    File primary_bam = "${output_filename}.primary.bam"
+  }
+}
+
 ## Here are use  -XX:ParallelGCThreads=2 to run MarkDuplication on mutlple
-## thread. 
+## thread.
 task CollectDuplicationMetrics {
   File aligned_bam
   String output_filename
