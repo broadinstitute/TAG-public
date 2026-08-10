@@ -629,7 +629,7 @@ task Hs_metrics {
 
     runtime {
         memory: "16 GB"
-        docker: "us.gcr.io/tag-public/metadata_upload" 
+        docker: "us.gcr.io/tag-public/codec:v1.1.4" 
         disks: "local-disk 16 HDD"
         preemptible: 1
     }
@@ -672,7 +672,7 @@ task ByProductMetrics {
     }
 
     command {
-        python3 /CODECsuite/snakemake/script/cds_summarize.py --sample_id ~{sample_id} --trim_log ~{trim_log} \
+        /venv/bin/python /CODECsuite/snakemake/script/cds_summarize.py --sample_id ~{sample_id} --trim_log ~{trim_log} \
         --highconf_bam ~{highconf_bam} > ~{sample_id}.byproduct.txt
     }
 
@@ -1121,7 +1121,7 @@ task QC_metrics {
     }
     runtime {
         memory: memory + " GB"
-        docker: "us.gcr.io/tag-public/metadata_upload" 
+        docker: "us.gcr.io/tag-public/codec:v1.1.4" 
         disks: "local-disk " + disk_size + " HDD"
         preemptible: 2
     }
@@ -1147,7 +1147,7 @@ task EvalGenomeBases {
     }
     runtime {
         memory: memory + " GB"
-        docker: "us.gcr.io/tag-public/metadata_upload" 
+        docker: "us.gcr.io/tag-public/codec:v1.1.4" 
         disks: "local-disk " + disk_size + " HDD"
         preemptible: 1
     }
@@ -1267,7 +1267,7 @@ task CalculateDuplexDepth {
     }
     runtime {
         memory: memory + " GB"
-        docker: "us.gcr.io/tag-public/metadata_upload" 
+        docker: "us.gcr.io/tag-public/codec:v1.1.4" 
         disks: "local-disk " + disk_size + " HDD"
         preemptible: 1
     }
