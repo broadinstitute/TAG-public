@@ -1,5 +1,9 @@
 {
     "sample_id": "SM-PB6JU",
+    "read_counter_docker": "us.gcr.io/tag-public/bloodbiopsy-hmmcopy:0.0.1",
+    "ichorcna_docker": "us.gcr.io/tag-public/bloodbiopsy-ichorcna:0.2.1",
+    "python_docker": "python:3",
+    "tagtools_docker": "us.gcr.io/tag-public/tag-tools:1.0.0",
     "bam_file": "s3://manifold-ai-sc-broad-prod-platform-storage/research/projects/88/example-pipeline/iChor_nextflow_pipelines/1_month_taxol_tras_Day_429.bam",
     "bam_index": "s3://manifold-ai-sc-broad-prod-platform-storage/research/projects/88/example-pipeline/iChor_nextflow_pipelines/1_month_taxol_tras_Day_429.bam.bai",
     "genomeBuild": "hg38",
