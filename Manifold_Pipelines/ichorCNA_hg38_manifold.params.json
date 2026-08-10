@@ -38,5 +38,5 @@
     "max_passing_mad_score": 0.3,
     "min_passing_tumor_fraction": 0.1,
     "min_passing_coverage": 0.1,
-    "outdir": "s3://manifold-ai-sc-broad-prod-platform-storage/research/projects/88/example-pipeline/iChor_nextflow_pipelines/results"
+    "outdir": "/mnt/workflow/pubdir"
 }

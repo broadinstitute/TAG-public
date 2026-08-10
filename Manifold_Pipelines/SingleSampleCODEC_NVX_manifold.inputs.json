@@ -13,7 +13,7 @@
     "SingleSampleCODEC_NVX_update.QC_metrics.memory": 16,
     "SingleSampleCODEC_NVX_update.CollectInsertSizeMetrics.docker_override": null,
     "SingleSampleCODEC_NVX_update.DuplexRecoveryMetrics.extra_disk": 0,
-    "SingleSampleCODEC_NVX_update.ZipperBamAlignment.mem": 8,
+    "SingleSampleCODEC_NVX_update.ZipperBamAlignment.mem": 16,
     "SingleSampleCODEC_NVX_update.SplitFastq1.disk_size": 600,
     "SingleSampleCODEC_NVX_update.ByProductMetrics.disk_size": 100,
     "SingleSampleCODEC_NVX_update.CalculateDuplexDepth.memory": 32,
