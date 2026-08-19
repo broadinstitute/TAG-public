@@ -35,6 +35,8 @@ workflow GenerateDuplexConsensusBams {
    # parameters
    String bait_set
    Boolean fail_on_intervals_mismatch
+   Boolean? clean_zero_length_reads = false
+   Boolean clean_zero_length_reads_or_default = select_first([clean_zero_length_reads, false])
    Int minimum_base_quality
    Int allowable_umi_distance
    String minimum_consensus_reads
@@ -75,11 +77,23 @@ workflow GenerateDuplexConsensusBams {
          target_intervals = target_intervals,
          fail_task = fail_on_intervals_mismatch
    }
+
+   if(clean_zero_length_reads_or_default){
+      call CleanZeroLengthReads {
+         input:
+            bam_file = bam_file,
+            bam_index = bam_index,
+            base_name = base_name,
+            preemptible_attempts = preemptible_attempts,
+            disk_pad = disk_pad
+      }
+   }
+
    if(copy_umi_or_default && !run_bwa_aln_on_raw_or_default){
       call copyUmi.CopyUmiTask as CopyUmiTask {
          input: 
-         bam_file = bam_file,
-        	bam_index = bam_index,
+         bam_file = select_first([CleanZeroLengthReads.output_bam, bam_file]),
+        	bam_index = select_first([CleanZeroLengthReads.output_bam_index, bam_index]),
          base_name = base_name
       }
    }
@@ -95,8 +109,8 @@ workflow GenerateDuplexConsensusBams {
       call DownsampleSam {
          input:
             bloodbiopsydocker = bloodbiopsydocker,
-            bam_file = select_first([CopyUmiTask.umi_extracted_bam, bam_file]),
-            bam_index = select_first([CopyUmiTask.umi_extracted_bam_index, bam_index]),
+            bam_file = select_first([CopyUmiTask.umi_extracted_bam, CleanZeroLengthReads.output_bam, bam_file]),
+            bam_index = select_first([CopyUmiTask.umi_extracted_bam_index, CleanZeroLengthReads.output_bam_index, bam_index]),
             downsample_probability = downsample_probability,
             base_name = base_name,
             preemptible_attempts = preemptible_attempts,
@@ -109,7 +123,7 @@ workflow GenerateDuplexConsensusBams {
       call QuerySortSam {
          input:
             bloodbiopsydocker = bloodbiopsydocker,
-            input_bam = select_first([DownsampleSam.output_bam, CopyUmiTask.umi_extracted_bam, bam_file]),
+            input_bam = select_first([DownsampleSam.output_bam, CopyUmiTask.umi_extracted_bam, CleanZeroLengthReads.output_bam, bam_file]),
             base_name = base_name,
             preemptible_attempts = preemptible_attempts,
             disk_pad = disk_pad
@@ -137,8 +151,8 @@ workflow GenerateDuplexConsensusBams {
 
    if(run_bwa_aln_on_raw_or_default){
       call RevertBamAndBwaAln.AlignRawReadsBwaAln as RevertBamAndBwaAln {
-         input: input_bam = select_first([DownsampleSam.output_bam, bam_file]),
-            input_bam_index = select_first([DownsampleSam.output_bam_index, bam_index]),
+         input: input_bam = select_first([DownsampleSam.output_bam, CleanZeroLengthReads.output_bam, bam_file]),
+            input_bam_index = select_first([DownsampleSam.output_bam_index, CleanZeroLengthReads.output_bam_index, bam_index]),
             sample_name = base_name,
             ref_fasta = reference,
             ref_fai = reference_index,
@@ -155,8 +169,8 @@ workflow GenerateDuplexConsensusBams {
       }
    }
 
-   File preprocessed_raw_bam = select_first([AlignRawBamWithBwaMem.output_bam, DownsampleSam.output_bam, CopyUmiTask.umi_extracted_bam, RevertBamAndBwaAln.bwa_aln_output_bam, bam_file])
-   File preprocessed_raw_bam_index = select_first([AlignRawBamWithBwaMem.output_bam_index, DownsampleSam.output_bam_index, CopyUmiTask.umi_extracted_bam_index, RevertBamAndBwaAln.bwa_aln_output_bam_index, bam_index])
+   File preprocessed_raw_bam = select_first([AlignRawBamWithBwaMem.output_bam, DownsampleSam.output_bam, CopyUmiTask.umi_extracted_bam, RevertBamAndBwaAln.bwa_aln_output_bam, CleanZeroLengthReads.output_bam_index, bam_file])
+   File preprocessed_raw_bam_index = select_first([AlignRawBamWithBwaMem.output_bam_index, DownsampleSam.output_bam_index, CopyUmiTask.umi_extracted_bam_index, RevertBamAndBwaAln.bwa_aln_output_bam_index, CleanZeroLengthReads.output_bam_index, bam_index])
 
    # Collect HS or Targeted PCR metrics after deduplication by start and stop
    # position (but not incluing UMIs).
@@ -1334,3 +1348,37 @@ task CalculateDuplexMetrics {
 
    }
 }
+
+task RemoveZeroLengthReads {
+
+   String bloodbiopsydocker
+   File bam_file
+   File bam_index
+   String base_name
+   Int? preemptible_attempts
+   Int? memory
+   Int disk_pad
+   Int disk_size = ceil(size(bam_file, "GB") * 5) + ceil(size(bam_index, "GB")) + disk_pad
+   Int mem = select_first([memory, 5])
+   Int compute_mem = mem * 1000 - 500
+
+   command {
+      # Read names with an unmapped, empty-sequence record.
+      samtools view -e 'flag.unmap && length(seq)==0' ${bam_file} | cut -f1 | sort -u > filter_qnames.txt
+      # Drop every record sharing those read names; keep everything else.
+      samtools view -h -N "filter_qnames.txt" -U ${base_name}.zero_len_reads_removed.bam ${bam_file}
+      samtools index ${base_name}.zero_len_reads_removed.bam
+   }
+   runtime {
+      docker: bloodbiopsydocker
+      disks: "local-disk " + disk_size + " HDD"
+      memory: mem + " GB"
+      maxRetries: 3
+      preemptible: select_first([preemptible_attempts, 2])
+   }
+   output {
+      File output_bam = "${base_name}.zero_len_reads_removed.bam"
+      File output_bam_index = "${base_name}.zero_len_reads_removed.bam.bai"
+   }
+}
+
