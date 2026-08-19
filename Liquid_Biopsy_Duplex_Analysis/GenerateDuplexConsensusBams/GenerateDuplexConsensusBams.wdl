@@ -85,7 +85,6 @@ workflow GenerateDuplexConsensusBams {
             bam_index = bam_index,
             base_name = base_name,
             preemptible_attempts = preemptible_attempts,
-            bloodbiopsydocker = bloodbiopsydocker,
             disk_pad = disk_pad
       }
    }
@@ -1320,7 +1319,8 @@ task CollectDuplexSeqMetrics {
 
 task CalculateDuplexMetrics {
 
-   String bloodbiopsydocker
+   String? docker_override
+   String samtools_docker = select_first([docker_override, "us.gcr.io/tag-team-160914/samtools:1.21"])
    String calcFS_script
    File duplex_family_sizes
    Int disk_size = 200
@@ -1334,7 +1334,7 @@ task CalculateDuplexMetrics {
 
    >>>
    runtime {
-      docker: bloodbiopsydocker
+      docker: samtools_docker
       memory: mem + " GB"
       disks: "local-disk " + disk_size + " HDD"
       maxRetries: 3
