@@ -1318,9 +1318,7 @@ task CollectDuplexSeqMetrics {
 }
 
 task CalculateDuplexMetrics {
-
-   String? docker_override
-   String samtools_docker = select_first([docker_override, "us.gcr.io/tag-team-160914/samtools:1.21"])
+   String bloodbiopsydocker
    String calcFS_script
    File duplex_family_sizes
    Int disk_size = 200
@@ -1334,7 +1332,7 @@ task CalculateDuplexMetrics {
 
    >>>
    runtime {
-      docker: samtools_docker
+      docker: bloodbiopsydocker
       memory: mem + " GB"
       disks: "local-disk " + disk_size + " HDD"
       maxRetries: 3
@@ -1352,7 +1350,8 @@ task CalculateDuplexMetrics {
 
 task CleanZeroLengthReads {
 
-   String bloodbiopsydocker
+   String? docker_override
+   String samtools_docker = select_first([docker_override, "us.gcr.io/tag-team-160914/samtools:1.21"])
    File bam_file
    File bam_index
    String base_name
@@ -1371,7 +1370,7 @@ task CleanZeroLengthReads {
       samtools index ${base_name}.zero_len_reads_removed.bam
    }
    runtime {
-      docker: bloodbiopsydocker
+      docker: samtools_docker
       disks: "local-disk " + disk_size + " HDD"
       memory: mem + " GB"
       maxRetries: 3
