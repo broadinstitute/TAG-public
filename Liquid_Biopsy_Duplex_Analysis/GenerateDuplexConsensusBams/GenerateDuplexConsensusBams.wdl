@@ -85,6 +85,7 @@ workflow GenerateDuplexConsensusBams {
             bam_index = bam_index,
             base_name = base_name,
             preemptible_attempts = preemptible_attempts,
+            bloodbiopsydocker = bloodbiopsydocker,
             disk_pad = disk_pad
       }
    }
