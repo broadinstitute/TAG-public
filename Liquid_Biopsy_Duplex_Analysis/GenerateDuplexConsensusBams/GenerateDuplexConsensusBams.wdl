@@ -1349,7 +1349,7 @@ task CalculateDuplexMetrics {
    }
 }
 
-task RemoveZeroLengthReads {
+task CleanZeroLengthReads {
 
    String bloodbiopsydocker
    File bam_file
