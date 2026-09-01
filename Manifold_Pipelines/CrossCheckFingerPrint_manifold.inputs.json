@@ -1,0 +1,11 @@
+{
+    "CrosscheckFingerprintsWorkflow.input_bams": [
+        "s3://manifold-ai-sc-broad-prod-platform-storage/research/projects/88/example-pipeline/CrossCheckFingerPrints/SM-NEA4B.bam",
+        "s3://manifold-ai-sc-broad-prod-platform-storage/research/projects/88/example-pipeline/CrossCheckFingerPrints/SM-NEA4N.bam"
+    ],
+    "CrosscheckFingerprintsWorkflow.fail_on_mismatch": false,
+    "CrosscheckFingerprintsWorkflow.hapmap": "s3://manifold-ai-sc-broad-prod-platform-storage/research/projects/88/example-pipeline/CrossCheckFingerPrints/Homo_sapiens_assembly19.with_assay_info.haplotype_database.txt",
+    "CrosscheckFingerprintsWorkflow.reference_fasta": "s3://manifold-ai-sc-broad-prod-platform-storage/research/projects/88/example-pipeline/CrossCheckFingerPrints/Homo_sapiens_assembly19.fasta",
+    "CrosscheckFingerprintsWorkflow.output_name": "test_crosscheck_fingerprints",
+    "CrosscheckFingerprintsWorkflow.picard_docker": "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.1-1540490856"
+}
