@@ -1,0 +1,16 @@
+{
+    "CNVSomaticPairWorkflow.common_sites": "s3://manifold-ai-sc-broad-prod-platform-storage/research/projects/88/example-pipeline/GATK_CNV_Mutect2/common_snps.interval_list",
+    "CNVSomaticPairWorkflow.intervals": "s3://manifold-ai-sc-broad-prod-platform-storage/research/projects/88/example-pipeline/GATK_CNV_Mutect2/broad_custom_exome_v1.Homo_sapiens_assembly19_CNV.targets.interval_list",
+    "CNVSomaticPairWorkflow.blacklist_intervals": "s3://manifold-ai-sc-broad-prod-platform-storage/research/projects/88/example-pipeline/GATK_CNV_Mutect2/CNV_and_centromere_blacklist.hg19.list",
+    "CNVSomaticPairWorkflow.tumor_bam": "s3://manifold-ai-sc-broad-prod-platform-storage/research/projects/88/example-pipeline/GATK_CNV_Mutect2/Tmp005_1.bam",
+    "CNVSomaticPairWorkflow.tumor_bam_idx": "s3://manifold-ai-sc-broad-prod-platform-storage/research/projects/88/example-pipeline/GATK_CNV_Mutect2/Tmp005_1.bai",
+    "CNVSomaticPairWorkflow.normal_bam": "s3://manifold-ai-sc-broad-prod-platform-storage/research/projects/88/example-pipeline/GATK_CNV_Mutect2/Tmp005_2.bam",
+    "CNVSomaticPairWorkflow.normal_bam_idx": "s3://manifold-ai-sc-broad-prod-platform-storage/research/projects/88/example-pipeline/GATK_CNV_Mutect2/Tmp005_2.bai",
+    "CNVSomaticPairWorkflow.read_count_pon": "s3://manifold-ai-sc-broad-prod-platform-storage/research/projects/88/example-pipeline/GATK_CNV_Mutect2/TWIST_82_normals.gcCorrected_blacklisted.gatk4.1.2.0_cnv_pon.Nov2020.pon.hdf5",
+    "CNVSomaticPairWorkflow.ref_fasta": "s3://manifold-ai-sc-broad-prod-platform-storage/research/projects/88/example-pipeline/reference_files/Homo_sapiens_assembly19.fasta",
+    "CNVSomaticPairWorkflow.ref_fasta_fai": "s3://manifold-ai-sc-broad-prod-platform-storage/research/projects/88/example-pipeline/reference_files/Homo_sapiens_assembly19.fasta.fai",
+    "CNVSomaticPairWorkflow.ref_fasta_dict": "s3://manifold-ai-sc-broad-prod-platform-storage/research/projects/88/example-pipeline/reference_files/Homo_sapiens_assembly19.dict",
+    "CNVSomaticPairWorkflow.gatk_docker": "us.gcr.io/broad-gatk/gatk:4.5.0.0",
+    "CNVSomaticPairWorkflow.is_run_funcotator": false,
+    "CNVSomaticPairWorkflow.is_run_oncotator": false
+}
