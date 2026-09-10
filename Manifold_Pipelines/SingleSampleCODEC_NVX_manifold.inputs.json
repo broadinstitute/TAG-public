@@ -83,7 +83,7 @@
     "SingleSampleCODEC_NVX_update.reference_pac": "s3://manifold-ai-sc-broad-prod-platform-storage/research/projects/88/example-pipeline/CODEC_example_pipelines/GCA_000001405.15_GRCh38_no_alt_analysis_set.fasta.pac",
     "SingleSampleCODEC_NVX_update.SplitFastq2.disk_size": 600,
     "SingleSampleCODEC_NVX_update.AlignRawTrimmed.mem": 64,
-    "SingleSampleCODEC_NVX_update.CSS_SFC_ErrorMetrics.memory": 32,
+    "SingleSampleCODEC_NVX_update.CSS_SFC_ErrorMetrics.memory": 64,
     "SingleSampleCODEC_NVX_update.DuplexRecoveryMetrics.sorted_bam": null,
     "SingleSampleCODEC_NVX_update.CollectInsertSizeMetrics.disk_size": 200,
     "SingleSampleCODEC_NVX_update.AlignMolecularConsensusReads.cpu_cores": 16,

@@ -1,0 +1,13 @@
+{
+    "CollectSamErrorMetrics.input_bam": "s3://manifold-ai-sc-broad-prod-platform-storage/research/projects/88/example-pipeline/reference_files/HG001-HG002_example_sample_set/HG001_SM-MTFIO_ns_1_8.bam",
+    "CollectSamErrorMetrics.CollectSamErrorMetricsTask.memory_gb": 16,
+    "CollectSamErrorMetrics.CollectSamErrorMetricsTask.disk_gb": 120,
+    "CollectSamErrorMetrics.picard_docker": "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.1-1540490856",
+    "CollectSamErrorMetrics.output_name": "sample_error_metrics",
+    "CollectSamErrorMetrics.intervals": "s3://manifold-ai-sc-broad-prod-platform-storage/research/projects/88/example-pipeline/CollectSamErrorMetrics/HG001_GRCh38_1_22_v4.2.1_benchmark.interval_list",
+    "CollectSamErrorMetrics.ref_dict": "s3://manifold-ai-sc-broad-prod-platform-storage/research/projects/88/example-pipeline/reference_files/Homo_sapiens_assembly38.dict",
+    "CollectSamErrorMetrics.ref_fai": "s3://manifold-ai-sc-broad-prod-platform-storage/research/projects/88/example-pipeline/reference_files/Homo_sapiens_assembly38.fasta.fai",
+    "CollectSamErrorMetrics.ref_fasta": "s3://manifold-ai-sc-broad-prod-platform-storage/research/projects/88/example-pipeline/reference_files/Homo_sapiens_assembly38.fasta",
+    "CollectSamErrorMetrics.vcf_index_file": "s3://manifold-ai-sc-broad-prod-platform-storage/research/projects/88/example-pipeline/reference_files/af-only-gnomad.hg38.vcf.gz.tbi",
+    "CollectSamErrorMetrics.vcf_file": "s3://manifold-ai-sc-broad-prod-platform-storage/research/projects/88/example-pipeline/reference_files/af-only-gnomad.hg38.vcf.gz"
+}

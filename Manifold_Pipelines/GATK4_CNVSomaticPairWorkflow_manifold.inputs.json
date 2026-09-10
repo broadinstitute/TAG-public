@@ -12,5 +12,7 @@
     "CNVSomaticPairWorkflow.ref_fasta_dict": "s3://manifold-ai-sc-broad-prod-platform-storage/research/projects/88/example-pipeline/reference_files/Homo_sapiens_assembly19.dict",
     "CNVSomaticPairWorkflow.gatk_docker": "us.gcr.io/broad-gatk/gatk:4.5.0.0",
     "CNVSomaticPairWorkflow.is_run_funcotator": false,
-    "CNVSomaticPairWorkflow.is_run_oncotator": false
+    "CNVSomaticPairWorkflow.is_run_oncotator": true,
+    "CNVSomaticPairWorkflow.bin_length": 0,
+    "CNVSomaticPairWorkflow.calling_copy_ratio_z_score_threshold": 3.05
 }

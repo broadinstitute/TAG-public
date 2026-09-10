@@ -1,0 +1,895 @@
+Last login: Mon Aug 24 13:39:31 on ttys001
+(base) lining@wm215-ed1 ~ % ssh login04
+lining@login04's password: 
+Last login: Mon Aug 24 14:12:06 2026 from 10.32.16.87
+--------------------------------------------------------------
+Welcome to the host named login04
+RedHat 7.9 x86_64
+--------------------------------------------------------------
+Puppet:        7.34.0
+Facter:        4.10.0
+Environment:   production
+FQDN:          login04.broadinstitute.org
+VLAN:          32
+IP:            69.173.65.20
+Born On:       2016-01-14
+Uptime:        0 days
+Model:         VMware Virtual Platform
+CPUs:          2
+Memory:        7.62 GiB
+--------------------------------------------------------------
+IMPORTANT: This login host is a SHARED resource. Please limit
+your usage to editing, simple scripts, and small data transfer
+tasks. To encourage mindful use, limits have been put in place
+including memory limitations.
+
+To read more about this service, see https://broad.io/login.
+
+################## Monthly Reboot Schedule ##################
+Since there is no convenient time to reboot login hosts we
+are establishing a monthly rotation.
+
+login01   - 1st Sunday of each month at 6 PM
+login02   - 2nd Sunday of each month at 6 PM
+login03   - 3rd Sunday of each month at 6 PM
+login04   - 4th Sunday of each month at 6 PM
+
+If starting a long session, choose the host rebooted last
+--------------------------------------------------------------
+This computer system is the property of the Broad Institute.
+
+It is for authorized use only. By using this system all users
+acknowledge notice of, and agree to comply with, Broad's
+Acceptable Use (broad.io/AcceptableUse).
+
+Unauthorized or improper use of this system may result in
+administrative disciplinary action and/or other sanctions.
+
+By continuing to use this system you indicate
+your awareness of and consent to Broad's Acceptable Use Policy.
+(broad.io/AcceptableUse).
+
+Log off immediately if you do not agree to the conditions
+stated in this warning.
+--------------------------------------------------------------
+cd /Dropping: R-3.5 (not found)
+Prepending: R-3.5 (ok)
+Dropping: Git-2.12 (not found)
+Prepending: Git-2.12 (ok)
+Dropping: Tabix (not found)
+Prepending: Tabix (ok)
+Dropping: BEDTools (not found)
+Prepending: BEDTools (ok)
+Dropping: Samtools (not found)
+Prepending: Samtools (ok)
+Dropping: Perl-5.8 (not found)
+Prepending: Perl-5.8 (ok)
+Dropping: VCFtools (not found)
+Prepending: VCFtools (ok)
+Prepending: TMux (ok)
+Dropping: Python-3.9 (not found)
+Prepending: Python-3.9 (ok)
+Dropping: Java-11 (not found)
+Prepending: Java-11 (ok)
+Prepending: .gsutil (not found)
+Prepending: .pandoc-1.13.2 (not found)
+Dropping: Google-Cloud-SDK (not found)
+Prepending: Google-Cloud-SDK (ok)
+Prepending: .bcftools-1.8 (ok)
+Prepending: .bwa-0.7.4 (ok)
+(base) -bash:login04:~ 997 $ cd /broad/tag_working/stella_working/TGEN_Crams/
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Crams 998 $ ls
+TGEN_crams/
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Crams 999 $ ls -ltrh
+total 32K
+drwxrwsr-x 2 lining tag 735 Aug 24 14:13 TGEN_crams/
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Crams 1000 $ cd TGEN_crams/
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Crams/TGEN_crams 1001 $ ;s
+-bash: syntax error near unexpected token `;'
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Crams/TGEN_crams 1002 $ ls
+C2T_107.merged.cram.crai    C2T_118.merged.cram_.gstmp	    C2T_146.merged.cram.crai	C2T_151.merged.cram_.gstmp
+C2T_107.merged.cram_.gstmp  C2T_135.merged.cram.crai	    C2T_146.merged.cram_.gstmp	C2T_155.merged.cram_.gstmp
+C2T_11.merged.cram.crai     C2T_135.merged.cram_.gstmp	    C2T_150.merged.cram.crai
+C2T_11.merged.cram_.gstmp   C2T_14.merged.cram.crai_.gstmp  C2T_150.merged.cram_.gstmp
+C2T_118.merged.cram.crai    C2T_14.merged.cram_.gstmp	    C2T_151.merged.cram.crai
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Crams/TGEN_crams 1003 $ ls
+ls -ltrhC2T_107.merged.cram.crai    C2T_118.merged.cram_.gstmp	    C2T_146.merged.cram.crai	C2T_151.merged.cram_.gstmp
+C2T_107.merged.cram_.gstmp  C2T_135.merged.cram.crai	    C2T_146.merged.cram_.gstmp	C2T_155.merged.cram_.gstmp
+C2T_11.merged.cram.crai     C2T_135.merged.cram_.gstmp	    C2T_150.merged.cram.crai
+C2T_11.merged.cram_.gstmp   C2T_14.merged.cram.crai_.gstmp  C2T_150.merged.cram_.gstmp
+C2T_118.merged.cram.crai    C2T_14.merged.cram_.gstmp	    C2T_151.merged.cram.crai
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Crams/TGEN_crams 1003 $ ls -ltrh
+total 18G
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:13 C2T_118.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  18G Aug 24 14:13 C2T_14.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag    0 Aug 24 14:13 C2T_14.merged.cram.crai_.gstmp
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_135.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_107.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_118.merged.cram.crai
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:13 C2T_146.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_11.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:13 C2T_150.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_146.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:13 C2T_151.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_150.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_151.merged.cram.crai
+-rw-rw-r-- 1 lining tag  21G Aug 24 14:13 C2T_155.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  18G Aug 24 14:16 C2T_107.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:16 C2T_135.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  19G Aug 24 14:16 C2T_11.merged.cram_.gstmp
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Crams/TGEN_crams 1004 $ ls -ltrh
+total 18G
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:13 C2T_118.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  18G Aug 24 14:13 C2T_14.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag    0 Aug 24 14:13 C2T_14.merged.cram.crai_.gstmp
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_135.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_107.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_118.merged.cram.crai
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:13 C2T_146.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_11.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:13 C2T_150.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_146.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:13 C2T_151.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_150.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_151.merged.cram.crai
+-rw-rw-r-- 1 lining tag  21G Aug 24 14:13 C2T_155.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  18G Aug 24 14:16 C2T_107.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:16 C2T_135.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  19G Aug 24 14:16 C2T_11.merged.cram_.gstmp
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Crams/TGEN_crams 1004 $ ls -ltrh
+total 19G
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:13 C2T_118.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  18G Aug 24 14:13 C2T_14.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag    0 Aug 24 14:13 C2T_14.merged.cram.crai_.gstmp
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_135.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_107.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_118.merged.cram.crai
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:13 C2T_146.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_11.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:13 C2T_150.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_146.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:13 C2T_151.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_150.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_151.merged.cram.crai
+-rw-rw-r-- 1 lining tag  21G Aug 24 14:13 C2T_155.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  18G Aug 24 14:16 C2T_107.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:16 C2T_135.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  19G Aug 24 14:16 C2T_11.merged.cram_.gstmp
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Crams/TGEN_crams 1004 $ ls -ltrh
+total 26G
+-rw-rw-r-- 1 lining tag  18G Aug 24 14:13 C2T_14.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag    0 Aug 24 14:13 C2T_14.merged.cram.crai_.gstmp
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_135.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_107.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_118.merged.cram.crai
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:13 C2T_146.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_11.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:13 C2T_150.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_146.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:13 C2T_151.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_150.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_151.merged.cram.crai
+-rw-rw-r-- 1 lining tag  21G Aug 24 14:13 C2T_155.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  18G Aug 24 14:17 C2T_107.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:17 C2T_118.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:17 C2T_135.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  19G Aug 24 14:17 C2T_11.merged.cram_.gstmp
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Crams/TGEN_crams 1004 $ ls -ltrh
+total 26G
+-rw-rw-r-- 1 lining tag  18G Aug 24 14:13 C2T_14.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag    0 Aug 24 14:13 C2T_14.merged.cram.crai_.gstmp
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_135.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_107.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_118.merged.cram.crai
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:13 C2T_146.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_11.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:13 C2T_150.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_146.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:13 C2T_151.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_150.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_151.merged.cram.crai
+-rw-rw-r-- 1 lining tag  21G Aug 24 14:13 C2T_155.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  18G Aug 24 14:17 C2T_107.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:17 C2T_118.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:17 C2T_135.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  19G Aug 24 14:17 C2T_11.merged.cram_.gstmp
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Crams/TGEN_crams 1004 $ ls -ltrh
+total 26G
+-rw-rw-r-- 1 lining tag  18G Aug 24 14:13 C2T_14.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag    0 Aug 24 14:13 C2T_14.merged.cram.crai_.gstmp
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_135.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_107.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_118.merged.cram.crai
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:13 C2T_146.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_11.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:13 C2T_150.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_146.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:13 C2T_151.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_150.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_151.merged.cram.crai
+-rw-rw-r-- 1 lining tag  21G Aug 24 14:13 C2T_155.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  18G Aug 24 14:17 C2T_107.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:17 C2T_118.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:17 C2T_135.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  19G Aug 24 14:17 C2T_11.merged.cram_.gstmp
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Crams/TGEN_crams 1004 $ ls -ltrh
+total 48G
+-rw-rw-r-- 1 lining tag    0 Aug 24 14:13 C2T_14.merged.cram.crai_.gstmp
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_135.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_107.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_118.merged.cram.crai
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:13 C2T_146.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_11.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:13 C2T_150.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_146.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:13 C2T_151.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_150.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_151.merged.cram.crai
+-rw-rw-r-- 1 lining tag  21G Aug 24 14:13 C2T_155.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  18G Aug 24 14:18 C2T_107.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:20 C2T_135.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:20 C2T_118.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  18G Aug 24 14:20 C2T_14.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  19G Aug 24 14:20 C2T_11.merged.cram_.gstmp
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Crams/TGEN_crams 1004 $ ls -ltrh
+total 49G
+-rw-rw-r-- 1 lining tag    0 Aug 24 14:13 C2T_14.merged.cram.crai_.gstmp
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_135.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_107.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_118.merged.cram.crai
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:13 C2T_146.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_11.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:13 C2T_150.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_146.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:13 C2T_151.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_150.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_151.merged.cram.crai
+-rw-rw-r-- 1 lining tag  21G Aug 24 14:13 C2T_155.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  18G Aug 24 14:18 C2T_107.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:20 C2T_135.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:20 C2T_118.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  18G Aug 24 14:20 C2T_14.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  19G Aug 24 14:20 C2T_11.merged.cram_.gstmp
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Crams/TGEN_crams 1004 $ ls -ltrh
+total 50G
+-rw-rw-r-- 1 lining tag    0 Aug 24 14:13 C2T_14.merged.cram.crai_.gstmp
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_135.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_107.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_118.merged.cram.crai
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:13 C2T_146.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_11.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:13 C2T_150.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_146.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:13 C2T_151.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_150.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_151.merged.cram.crai
+-rw-rw-r-- 1 lining tag  21G Aug 24 14:13 C2T_155.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  18G Aug 24 14:18 C2T_107.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:20 C2T_135.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:20 C2T_118.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  18G Aug 24 14:20 C2T_14.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  19G Aug 24 14:20 C2T_11.merged.cram_.gstmp
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Crams/TGEN_crams 1004 $ ls -ltrh
+total 51G
+-rw-rw-r-- 1 lining tag    0 Aug 24 14:13 C2T_14.merged.cram.crai_.gstmp
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_135.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_107.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_118.merged.cram.crai
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:13 C2T_146.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_11.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:13 C2T_150.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_146.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:13 C2T_151.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_150.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_151.merged.cram.crai
+-rw-rw-r-- 1 lining tag  21G Aug 24 14:13 C2T_155.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  18G Aug 24 14:18 C2T_107.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:20 C2T_135.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:20 C2T_118.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  18G Aug 24 14:20 C2T_14.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  19G Aug 24 14:20 C2T_11.merged.cram_.gstmp
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Crams/TGEN_crams 1004 $ ls -ltrh
+^[[A
+total 51G
+-rw-rw-r-- 1 lining tag    0 Aug 24 14:13 C2T_14.merged.cram.crai_.gstmp
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_135.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_107.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_118.merged.cram.crai
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:13 C2T_146.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_11.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:13 C2T_150.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_146.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:13 C2T_151.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_150.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_151.merged.cram.crai
+-rw-rw-r-- 1 lining tag  21G Aug 24 14:13 C2T_155.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  18G Aug 24 14:18 C2T_107.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:20 C2T_135.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:20 C2T_118.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  18G Aug 24 14:20 C2T_14.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  19G Aug 24 14:20 C2T_11.merged.cram_.gstmp
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Crams/TGEN_crams 1004 $ ls -ltrh
+^[[Atotal 51G
+-rw-rw-r-- 1 lining tag    0 Aug 24 14:13 C2T_14.merged.cram.crai_.gstmp
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_135.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_107.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_118.merged.cram.crai
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:13 C2T_146.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_11.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:13 C2T_150.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_146.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:13 C2T_151.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_150.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_151.merged.cram.crai
+-rw-rw-r-- 1 lining tag  21G Aug 24 14:13 C2T_155.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  18G Aug 24 14:18 C2T_107.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:20 C2T_135.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:20 C2T_118.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  18G Aug 24 14:20 C2T_14.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  19G Aug 24 14:20 C2T_11.merged.cram_.gstmp
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Crams/TGEN_crams 1004 $ ls      
+C2T_107.merged.cram.crai    C2T_118.merged.cram_.gstmp	    C2T_146.merged.cram.crai	C2T_151.merged.cram_.gstmp
+C2T_107.merged.cram_.gstmp  C2T_135.merged.cram.crai	    C2T_146.merged.cram_.gstmp	C2T_155.merged.cram_.gstmp
+C2T_11.merged.cram.crai     C2T_135.merged.cram_.gstmp	    C2T_150.merged.cram.crai
+C2T_11.merged.cram_.gstmp   C2T_14.merged.cram.crai_.gstmp  C2T_150.merged.cram_.gstmp
+C2T_118.merged.cram.crai    C2T_14.merged.cram_.gstmp	    C2T_151.merged.cram.crai
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Crams/TGEN_crams 1005 $ ls -ltrh
+total 54G
+-rw-rw-r-- 1 lining tag    0 Aug 24 14:13 C2T_14.merged.cram.crai_.gstmp
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_135.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_107.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_118.merged.cram.crai
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:13 C2T_146.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_11.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:13 C2T_150.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_146.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:13 C2T_151.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_150.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_151.merged.cram.crai
+-rw-rw-r-- 1 lining tag  21G Aug 24 14:13 C2T_155.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  18G Aug 24 14:18 C2T_107.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:20 C2T_135.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:21 C2T_118.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  18G Aug 24 14:21 C2T_14.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  19G Aug 24 14:21 C2T_11.merged.cram_.gstmp
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Crams/TGEN_crams 1006 $ ls -ltrh
+total 58G
+-rw-rw-r-- 1 lining tag    0 Aug 24 14:13 C2T_14.merged.cram.crai_.gstmp
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_135.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_107.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_118.merged.cram.crai
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:13 C2T_146.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_11.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:13 C2T_150.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_146.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:13 C2T_151.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_150.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_151.merged.cram.crai
+-rw-rw-r-- 1 lining tag  21G Aug 24 14:13 C2T_155.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  18G Aug 24 14:18 C2T_107.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:20 C2T_135.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:21 C2T_118.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  18G Aug 24 14:21 C2T_14.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  19G Aug 24 14:21 C2T_11.merged.cram_.gstmp
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Crams/TGEN_crams 1006 $ ls -ltrh
+total 59G
+-rw-rw-r-- 1 lining tag    0 Aug 24 14:13 C2T_14.merged.cram.crai_.gstmp
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_135.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_107.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_118.merged.cram.crai
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:13 C2T_146.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_11.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:13 C2T_150.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_146.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:13 C2T_151.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_150.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_151.merged.cram.crai
+-rw-rw-r-- 1 lining tag  21G Aug 24 14:13 C2T_155.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  18G Aug 24 14:18 C2T_107.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:20 C2T_135.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:21 C2T_118.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  18G Aug 24 14:21 C2T_14.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  19G Aug 24 14:21 C2T_11.merged.cram_.gstmp
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Crams/TGEN_crams 1006 $ ls -ltrh
+total 62G
+-rw-rw-r-- 1 lining tag    0 Aug 24 14:13 C2T_14.merged.cram.crai_.gstmp
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_135.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_107.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_118.merged.cram.crai
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:13 C2T_146.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_11.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:13 C2T_150.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_146.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:13 C2T_151.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_150.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_151.merged.cram.crai
+-rw-rw-r-- 1 lining tag  21G Aug 24 14:13 C2T_155.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  18G Aug 24 14:18 C2T_107.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:20 C2T_135.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:22 C2T_118.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  18G Aug 24 14:22 C2T_14.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  19G Aug 24 14:22 C2T_11.merged.cram_.gstmp
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Crams/TGEN_crams 1006 $ ls -ltrh
+total 62G
+-rw-rw-r-- 1 lining tag    0 Aug 24 14:13 C2T_14.merged.cram.crai_.gstmp
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_135.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_107.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_118.merged.cram.crai
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:13 C2T_146.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_11.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:13 C2T_150.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_146.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:13 C2T_151.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_150.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_151.merged.cram.crai
+-rw-rw-r-- 1 lining tag  21G Aug 24 14:13 C2T_155.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  18G Aug 24 14:18 C2T_107.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:20 C2T_135.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:22 C2T_118.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  18G Aug 24 14:22 C2T_14.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  19G Aug 24 14:22 C2T_11.merged.cram_.gstmp
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Crams/TGEN_crams 1006 $ ls -ltrh
+total 62G
+-rw-rw-r-- 1 lining tag    0 Aug 24 14:13 C2T_14.merged.cram.crai_.gstmp
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_135.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_107.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_118.merged.cram.crai
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:13 C2T_146.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_11.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:13 C2T_150.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_146.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:13 C2T_151.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_150.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_151.merged.cram.crai
+-rw-rw-r-- 1 lining tag  21G Aug 24 14:13 C2T_155.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  18G Aug 24 14:18 C2T_107.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:20 C2T_135.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:22 C2T_118.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  18G Aug 24 14:22 C2T_14.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  19G Aug 24 14:22 C2T_11.merged.cram_.gstmp
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Crams/TGEN_crams 1006 $ ls -ltrh
+total 64G
+-rw-rw-r-- 1 lining tag    0 Aug 24 14:13 C2T_14.merged.cram.crai_.gstmp
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_135.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_107.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_118.merged.cram.crai
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:13 C2T_146.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_11.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:13 C2T_150.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_146.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:13 C2T_151.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_150.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_151.merged.cram.crai
+-rw-rw-r-- 1 lining tag  21G Aug 24 14:13 C2T_155.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  18G Aug 24 14:18 C2T_107.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:20 C2T_135.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:22 C2T_118.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  18G Aug 24 14:22 C2T_14.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  19G Aug 24 14:22 C2T_11.merged.cram_.gstmp
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Crams/TGEN_crams 1006 $ ls -ltrh
+total 65G
+-rw-rw-r-- 1 lining tag    0 Aug 24 14:13 C2T_14.merged.cram.crai_.gstmp
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_135.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_107.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_118.merged.cram.crai
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:13 C2T_146.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_11.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:13 C2T_150.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_146.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:13 C2T_151.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_150.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_151.merged.cram.crai
+-rw-rw-r-- 1 lining tag  21G Aug 24 14:13 C2T_155.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  18G Aug 24 14:18 C2T_107.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:20 C2T_135.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:22 C2T_118.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  18G Aug 24 14:22 C2T_14.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  19G Aug 24 14:22 C2T_11.merged.cram_.gstmp
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Crams/TGEN_crams 1006 $ ls -ltrh
+total 65G
+-rw-rw-r-- 1 lining tag    0 Aug 24 14:13 C2T_14.merged.cram.crai_.gstmp
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_135.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_107.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_118.merged.cram.crai
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:13 C2T_146.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_11.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:13 C2T_150.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_146.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:13 C2T_151.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_150.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_151.merged.cram.crai
+-rw-rw-r-- 1 lining tag  21G Aug 24 14:13 C2T_155.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  18G Aug 24 14:18 C2T_107.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:20 C2T_135.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:22 C2T_118.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  18G Aug 24 14:22 C2T_14.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  19G Aug 24 14:22 C2T_11.merged.cram_.gstmp
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Crams/TGEN_crams 1006 $ ls -ltrh
+total 70G
+-rw-rw-r-- 1 lining tag    0 Aug 24 14:13 C2T_14.merged.cram.crai_.gstmp
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_135.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_107.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_118.merged.cram.crai
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:13 C2T_146.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_11.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:13 C2T_150.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_146.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:13 C2T_151.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_150.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_151.merged.cram.crai
+-rw-rw-r-- 1 lining tag  21G Aug 24 14:13 C2T_155.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:23 C2T_118.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  18G Aug 24 14:23 C2T_107.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:23 C2T_135.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  18G Aug 24 14:23 C2T_14.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  19G Aug 24 14:23 C2T_11.merged.cram_.gstmp
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Crams/TGEN_crams 1006 $ ls -ltrh
+total 71G
+-rw-rw-r-- 1 lining tag    0 Aug 24 14:13 C2T_14.merged.cram.crai_.gstmp
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_135.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_107.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_118.merged.cram.crai
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:13 C2T_146.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_11.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:13 C2T_150.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_146.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:13 C2T_151.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_150.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_151.merged.cram.crai
+-rw-rw-r-- 1 lining tag  21G Aug 24 14:13 C2T_155.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:23 C2T_118.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  18G Aug 24 14:23 C2T_107.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:23 C2T_135.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  18G Aug 24 14:23 C2T_14.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  19G Aug 24 14:23 C2T_11.merged.cram_.gstmp
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Crams/TGEN_crams 1006 $ gsutil ls gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_107.merged.cram
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_107.merged.cram.crai
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_11.merged.cram
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_11.merged.cram.crai
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_118.merged.cram
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_118.merged.cram.crai
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_135.merged.cram
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_135.merged.cram.crai
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_14.merged.cram
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_14.merged.cram.crai
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_146.merged.cram
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_146.merged.cram.crai
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_150.merged.cram
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_150.merged.cram.crai
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_151.merged.cram
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_151.merged.cram.crai
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_155.merged.cram
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_155.merged.cram.crai
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_168.merged.cram
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_168.merged.cram.crai
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_182.merged.cram
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_182.merged.cram.crai
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_195.merged.cram
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_195.merged.cram.crai
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_201.merged.cram
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_201.merged.cram.crai
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_209.merged.cram
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_209.merged.cram.crai
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_21.merged.cram
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_21.merged.cram.crai
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_211.merged.cram
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_211.merged.cram.crai
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_216.merged.cram
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_216.merged.cram.crai
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_227.merged.cram
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_227.merged.cram.crai
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_228.merged.cram
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_228.merged.cram.crai
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_229.merged.cram
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_229.merged.cram.crai
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_23.merged.cram
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_23.merged.cram.crai
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_230.merged.cram
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_230.merged.cram.crai
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_24.merged.cram
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_24.merged.cram.crai
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_25.merged.cram
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_25.merged.cram.crai
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_257.merged.cram
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_257.merged.cram.crai
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_264.merged.cram
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_264.merged.cram.crai
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_27.merged.cram
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_27.merged.cram.crai
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_273.merged.cram
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_273.merged.cram.crai
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_285.merged.cram
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_285.merged.cram.crai
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_294.merged.cram
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_294.merged.cram.crai
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_298.merged.cram
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_298.merged.cram.crai
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_303.merged.cram
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_303.merged.cram.crai
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_32.merged.cram
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_32.merged.cram.crai
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_325.merged.cram
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_325.merged.cram.crai
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_334.merged.cram
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_334.merged.cram.crai
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_352.merged.cram
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_352.merged.cram.crai
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_36.merged.cram
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_36.merged.cram.crai
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_40.merged.cram
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_40.merged.cram.crai
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_409.merged.cram
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_409.merged.cram.crai
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_41.merged.cram
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_41.merged.cram.crai
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_42.merged.cram
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_42.merged.cram.crai
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_44.merged.cram
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_44.merged.cram.crai
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_55.merged.cram
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_55.merged.cram.crai
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_57.merged.cram
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_57.merged.cram.crai
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_592.merged.cram
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_592.merged.cram.crai
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_63.merged.cram
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_63.merged.cram.crai
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_636.merged.cram
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/C2T_636.merged.cram.crai
+gs://fc-e3e6a4d5-5923-4fe6-8cf7-fd0bdeb8c3fc/TGEN_crams/_speedtest/
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Crams/TGEN_crams 1007 $ ls -ltrh
+total 77G
+-rw-rw-r-- 1 lining tag    0 Aug 24 14:13 C2T_14.merged.cram.crai_.gstmp
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_135.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_107.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_118.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_11.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:13 C2T_150.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_146.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:13 C2T_151.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_150.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_151.merged.cram.crai
+-rw-rw-r-- 1 lining tag  21G Aug 24 14:13 C2T_155.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:23 C2T_118.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  19G Aug 24 14:23 C2T_11.merged.cram
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:23 C2T_155.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:23 C2T_168.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag    0 Aug 24 14:24 C2T_168.merged.cram.crai_.gstmp
+-rw-rw-r-- 1 lining tag  18G Aug 24 14:24 C2T_107.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:24 C2T_146.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:24 C2T_135.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  18G Aug 24 14:24 C2T_14.merged.cram_.gstmp
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Crams/TGEN_crams 1008 $ cd ..
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Crams 1009 $ cd ..
+(base) -bash:login04:/broad/tag_working/stella_working 1009 $ sbatch cram
+cram_list.txt  cramtobam.sh   
+(base) -bash:login04:/broad/tag_working/stella_working 1009 $ sbatch cramtobam.sh TGEN_Crams/TGEN_crams/C2T_11.merged.cram
+Submitted batch job 21601933
+(base) -bash:login04:/broad/tag_working/stella_working 1010 $ squeue -u lining
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)
+          21601933 dragen_de CramToBa   lining  R       0:04      1 dragen09
+(base) -bash:login04:/broad/tag_working/stella_working 1011 $ squeue -u lining
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)
+          21601933 dragen_de CramToBa   lining  R       0:05      1 dragen09
+(base) -bash:login04:/broad/tag_working/stella_working 1011 $ squeue -u lining
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)
+          21601933 dragen_de CramToBa   lining  R       0:06      1 dragen09
+(base) -bash:login04:/broad/tag_working/stella_working 1011 $ squeue -u lining
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)
+          21601933 dragen_de CramToBa   lining  R       0:07      1 dragen09
+(base) -bash:login04:/broad/tag_working/stella_working 1011 $ squeue -u lining
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)
+          21601933 dragen_de CramToBa   lining  R       0:07      1 dragen09
+(base) -bash:login04:/broad/tag_working/stella_working 1011 $ cd TGEN_Crams/TGEN_crams/
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Crams/TGEN_crams 1012 $ ls
+C2T_107.merged.cram.crai    C2T_118.merged.cram_.gstmp	    C2T_146.merged.cram.crai	C2T_151.merged.cram_.gstmp
+C2T_107.merged.cram_.gstmp  C2T_135.merged.cram.crai	    C2T_146.merged.cram_.gstmp	C2T_155.merged.cram.crai
+C2T_11.merged.cram	    C2T_135.merged.cram_.gstmp	    C2T_150.merged.cram.crai	C2T_155.merged.cram_.gstmp
+C2T_11.merged.cram.crai     C2T_14.merged.cram.crai_.gstmp  C2T_150.merged.cram_.gstmp	C2T_168.merged.cram.crai_.gstmp
+C2T_118.merged.cram.crai    C2T_14.merged.cram_.gstmp	    C2T_151.merged.cram.crai	C2T_168.merged.cram_.gstmp
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Crams/TGEN_crams 1013 $ ls -ltrh
+total 84G
+-rw-rw-r-- 1 lining tag    0 Aug 24 14:13 C2T_14.merged.cram.crai_.gstmp
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_135.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_107.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_118.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_11.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_146.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:13 C2T_151.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_150.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_151.merged.cram.crai
+-rw-rw-r-- 1 lining tag  21G Aug 24 14:13 C2T_155.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:23 C2T_118.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  19G Aug 24 14:23 C2T_11.merged.cram
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:23 C2T_155.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:23 C2T_168.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag    0 Aug 24 14:24 C2T_168.merged.cram.crai_.gstmp
+-rw-rw-r-- 1 lining tag  18G Aug 24 14:25 C2T_107.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:25 C2T_150.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:25 C2T_146.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:25 C2T_135.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  18G Aug 24 14:25 C2T_14.merged.cram_.gstmp
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Crams/TGEN_crams 1014 $ ls -ltrh
+total 85G
+-rw-rw-r-- 1 lining tag    0 Aug 24 14:13 C2T_14.merged.cram.crai_.gstmp
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_135.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_107.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_118.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_11.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_146.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:13 C2T_151.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_150.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_151.merged.cram.crai
+-rw-rw-r-- 1 lining tag  21G Aug 24 14:13 C2T_155.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:23 C2T_118.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  19G Aug 24 14:23 C2T_11.merged.cram
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:23 C2T_155.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:23 C2T_168.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag    0 Aug 24 14:24 C2T_168.merged.cram.crai_.gstmp
+-rw-rw-r-- 1 lining tag  18G Aug 24 14:25 C2T_107.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:25 C2T_150.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:25 C2T_146.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:25 C2T_135.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  18G Aug 24 14:25 C2T_14.merged.cram_.gstmp
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Crams/TGEN_crams 1014 $ ls -ltrh
+squeueutotal 85G
+-rw-rw-r-- 1 lining tag    0 Aug 24 14:13 C2T_14.merged.cram.crai_.gstmp
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_135.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_107.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_118.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_11.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.8M Aug 24 14:13 C2T_146.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:13 C2T_151.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_150.merged.cram.crai
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:13 C2T_151.merged.cram.crai
+-rw-rw-r-- 1 lining tag  21G Aug 24 14:13 C2T_155.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:23 C2T_118.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  19G Aug 24 14:23 C2T_11.merged.cram
+-rw-rw-r-- 1 lining tag 1.7M Aug 24 14:23 C2T_155.merged.cram.crai
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:23 C2T_168.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag    0 Aug 24 14:24 C2T_168.merged.cram.crai_.gstmp
+-rw-rw-r-- 1 lining tag  18G Aug 24 14:25 C2T_107.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  16G Aug 24 14:25 C2T_150.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:26 C2T_146.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  17G Aug 24 14:26 C2T_135.merged.cram_.gstmp
+-rw-rw-r-- 1 lining tag  18G Aug 24 14:26 C2T_14.merged.cram_.gstmp
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Crams/TGEN_crams 1014 $ squeue -u lining
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)
+          21601933 dragen_de CramToBa   lining  R       0:33      1 dragen09
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Crams/TGEN_crams 1015 $ squeue -u lining
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)
+          21601933 dragen_de CramToBa   lining  R       0:34      1 dragen09
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Crams/TGEN_crams 1015 $ cd ..
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Crams 1016 $ ls
+cd TGEN_crams/
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Crams 1017 $ cd ../TGEN_Bams/ 
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Bams 1018 $ ls -ltrh
+total 32K
+drwxrwsr-x 3 lining tag 50 Aug 24 14:25 C2T_11.merged_bam/
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Bams 1019 $ cd C2T_11.merged_bam/ 
+l(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Bams/C2T_11.merged_bam 1020 $ ls
+logfile.txt  tmp/
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Bams/C2T_11.merged_bam 1021 $ cat logfile.txt 
+Generating run log at /var/log/dragen/dragen_run_1787595932525_1942585.log
+
+Slice decode failure
+cram_dependent_data_series fail
+cram_dependent_data_series fail
+cram_dependent_data_series fail
+cram_dependent_data_series fail
+cram_dependent_data_series fail
+cram_dependent_data_series fail
+Command Line: /opt/dragen/4.3.6-8-g38d9df55/bin/dragen -r /broad/tag_working/edytam/dragen/reference_tables/hg38-alt_masked.graph.cnv.hla.rna_v10/ --cram-input TGEN_Crams/TGEN_crams/C2T_11.merged.cram --enable-map-align true --pair-by-name true --output-file-prefix C2T_11.merged_bam --output-directory /broad/tag_working/stella_working/TGEN_Bams/C2T_11.merged_bam --output-format BAM --enable-bam-indexing true --enable-duplicate-marking true --qc-coverage-region-1 /broad/tag_working/intervals/wgs_coverage_regions.hg38_minus_N.interval_list.bed --qc-coverage-reports-1 wgs_cov_report --intermediate-results-dir /broad/tag_working/stella_working/TGEN_Bams/C2T_11.merged_bam/tmp 
+DRAGEN Host Software Version 4.3.6-8-g38d9df55
+DRAGEN Daemon Software Version 07.031.732.4.3.6-8-g38d9df55 and Bio-IT Processor Version 0x18101306
+
+AutoDetected reference: hg38
+PR assigned board: -Z0
+
+==================================================================
+Downloading DNA mapper HW bitstream to board# 0 - do not interrupt
+==================================================================
+Partial Reconfiguration Complete: Version 18101306
+
+Info: Found 1 engines for AFU memory
+
+==================================================================
+Writing reference to card memory (Dynamically masked)
+==================================================================
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Bams/C2T_11.merged_bam 1022 $ cat logfile.txt 
+Generating run log at /var/log/dragen/dragen_run_1787595932525_1942585.log
+
+Slice decode failure
+cram_dependent_data_series fail
+cram_dependent_data_series fail
+cram_dependent_data_series fail
+cram_dependent_data_series fail
+cram_dependent_data_series fail
+cram_dependent_data_series fail
+Command Line: /opt/dragen/4.3.6-8-g38d9df55/bin/dragen -r /broad/tag_working/edytam/dragen/reference_tables/hg38-alt_masked.graph.cnv.hla.rna_v10/ --cram-input TGEN_Crams/TGEN_crams/C2T_11.merged.cram --enable-map-align true --pair-by-name true --output-file-prefix C2T_11.merged_bam --output-directory /broad/tag_working/stella_working/TGEN_Bams/C2T_11.merged_bam --output-format BAM --enable-bam-indexing true --enable-duplicate-marking true --qc-coverage-region-1 /broad/tag_working/intervals/wgs_coverage_regions.hg38_minus_N.interval_list.bed --qc-coverage-reports-1 wgs_cov_report --intermediate-results-dir /broad/tag_working/stella_working/TGEN_Bams/C2T_11.merged_bam/tmp 
+DRAGEN Host Software Version 4.3.6-8-g38d9df55
+DRAGEN Daemon Software Version 07.031.732.4.3.6-8-g38d9df55 and Bio-IT Processor Version 0x18101306
+
+AutoDetected reference: hg38
+PR assigned board: -Z0
+
+==================================================================
+Downloading DNA mapper HW bitstream to board# 0 - do not interrupt
+==================================================================
+Partial Reconfiguration Complete: Version 18101306
+
+Info: Found 1 engines for AFU memory
+
+==================================================================
+Writing reference to card memory (Dynamically masked)
+==================================================================
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Bams/C2T_11.merged_bam 1022 $ cat logfile.txt 
+Generating run log at /var/log/dragen/dragen_run_1787595932525_1942585.log
+
+Slice decode failure
+cram_dependent_data_series fail
+cram_dependent_data_series fail
+cram_dependent_data_series fail
+cram_dependent_data_series fail
+cram_dependent_data_series fail
+cram_dependent_data_series fail
+Command Line: /opt/dragen/4.3.6-8-g38d9df55/bin/dragen -r /broad/tag_working/edytam/dragen/reference_tables/hg38-alt_masked.graph.cnv.hla.rna_v10/ --cram-input TGEN_Crams/TGEN_crams/C2T_11.merged.cram --enable-map-align true --pair-by-name true --output-file-prefix C2T_11.merged_bam --output-directory /broad/tag_working/stella_working/TGEN_Bams/C2T_11.merged_bam --output-format BAM --enable-bam-indexing true --enable-duplicate-marking true --qc-coverage-region-1 /broad/tag_working/intervals/wgs_coverage_regions.hg38_minus_N.interval_list.bed --qc-coverage-reports-1 wgs_cov_report --intermediate-results-dir /broad/tag_working/stella_working/TGEN_Bams/C2T_11.merged_bam/tmp 
+DRAGEN Host Software Version 4.3.6-8-g38d9df55
+DRAGEN Daemon Software Version 07.031.732.4.3.6-8-g38d9df55 and Bio-IT Processor Version 0x18101306
+
+AutoDetected reference: hg38
+PR assigned board: -Z0
+
+==================================================================
+Downloading DNA mapper HW bitstream to board# 0 - do not interrupt
+==================================================================
+Partial Reconfiguration Complete: Version 18101306
+
+Info: Found 1 engines for AFU memory
+
+==================================================================
+Writing reference to card memory (Dynamically masked)
+==================================================================
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Bams/C2T_11.merged_bam 1022 $ squeue -u lining
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)
+          21601933 dragen_de CramToBa   lining  R       1:14      1 dragen09
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Bams/C2T_11.merged_bam 1023 $ squeue -u lining
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)
+          21601933 dragen_de CramToBa   lining  R       1:15      1 dragen09
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Bams/C2T_11.merged_bam 1023 $ squeue -u lining
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)
+          21601933 dragen_de CramToBa   lining  R       1:35      1 dragen09
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Bams/C2T_11.merged_bam 1023 $ squeue -u lining
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)
+          21601933 dragen_de CramToBa   lining  R       1:37      1 dragen09
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Bams/C2T_11.merged_bam 1023 $ ls
+logfile.txt  tmp/
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Bams/C2T_11.merged_bam 1024 $ cat logfile.txt 
+Generating run log at /var/log/dragen/dragen_run_1787595932525_1942585.log
+
+Slice decode failure
+cram_dependent_data_series fail
+cram_dependent_data_series fail
+cram_dependent_data_series fail
+cram_dependent_data_series fail
+cram_dependent_data_series fail
+cram_dependent_data_series fail
+Command Line: /opt/dragen/4.3.6-8-g38d9df55/bin/dragen -r /broad/tag_working/edytam/dragen/reference_tables/hg38-alt_masked.graph.cnv.hla.rna_v10/ --cram-input TGEN_Crams/TGEN_crams/C2T_11.merged.cram --enable-map-align true --pair-by-name true --output-file-prefix C2T_11.merged_bam --output-directory /broad/tag_working/stella_working/TGEN_Bams/C2T_11.merged_bam --output-format BAM --enable-bam-indexing true --enable-duplicate-marking true --qc-coverage-region-1 /broad/tag_working/intervals/wgs_coverage_regions.hg38_minus_N.interval_list.bed --qc-coverage-reports-1 wgs_cov_report --intermediate-results-dir /broad/tag_working/stella_working/TGEN_Bams/C2T_11.merged_bam/tmp 
+DRAGEN Host Software Version 4.3.6-8-g38d9df55
+DRAGEN Daemon Software Version 07.031.732.4.3.6-8-g38d9df55 and Bio-IT Processor Version 0x18101306
+
+AutoDetected reference: hg38
+PR assigned board: -Z0
+
+==================================================================
+Downloading DNA mapper HW bitstream to board# 0 - do not interrupt
+==================================================================
+Partial Reconfiguration Complete: Version 18101306
+
+Info: Found 1 engines for AFU memory
+
+==================================================================
+Writing reference to card memory (Dynamically masked)
+==================================================================
+(base) -bash:login04:/broad/tag_working/stella_working/TGEN_Bams/C2T_11.merged_bam 1025 $ 
