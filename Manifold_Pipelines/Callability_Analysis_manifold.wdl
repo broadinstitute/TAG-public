@@ -426,14 +426,13 @@ task CountBases {
     }
 
     Int disk_size = 10 + ceil(size(intervalListOrVcf, "GB"))
-    File picardJar = "gs://gptag/AnnotateBed/picard.jar"
 
     command <<<
         if [[ ~{intervalListOrVcf} == *vcf ]]; then
             java -jar /usr/gitc/picard.jar VcfToIntervalList I=~{intervalListOrVcf} O=vcf.interval_list
-            java -jar ~{picardJar} IntervalListTools I=vcf.interval_list COUNT_OUTPUT=bases.txt OUTPUT_VALUE=BASES
+            java -jar /usr/gitc/picard.jar IntervalListTools I=vcf.interval_list COUNT_OUTPUT=bases.txt OUTPUT_VALUE=BASES
         else
-            java -jar ~{picardJar} IntervalListTools I=~{intervalListOrVcf} COUNT_OUTPUT=bases.txt OUTPUT_VALUE=BASES
+            java -jar /usr/gitc/picard.jar IntervalListTools I=~{intervalListOrVcf} COUNT_OUTPUT=bases.txt OUTPUT_VALUE=BASES
         fi
     >>>
 
