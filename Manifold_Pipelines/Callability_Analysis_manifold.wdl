@@ -430,14 +430,14 @@ task CountBases {
     command <<<
         if [[ ~{intervalListOrVcf} == *vcf ]]; then
             java -jar /usr/picard.jar VcfToIntervalList I=~{intervalListOrVcf} O=vcf.interval_list
-            java -jar /usr/picard.jar IntervalListTools I=vcf.interval_list OUTPUT=bases.txt OUTPUT_VALUE=BASES
+            java -jar /usr/picard.jar IntervalListTools I=vcf.interval_list COUNT_OUTPUT=bases.txt OUTPUT_VALUE=BASES
         else
-            java -jar /usr/picard.jar IntervalListTools I=~{intervalListOrVcf} OUTPUT=bases.txt OUTPUT_VALUE=BASES
+            java -jar /usr/picard.jar IntervalListTools I=~{intervalListOrVcf} COUNT_OUTPUT=bases.txt OUTPUT_VALUE=BASES
         fi
     >>>
 
     runtime {
-        docker: "us.gcr.io/tag-public/liquidbiopsy:0.0.3.5"
+        docker: "broadinstitute/genomes-in-the-cloud:2.2.5-1486412288"
         preemptible: 0
         disks: "local-disk " + disk_size + " HDD"
         memory: "16 GB"
