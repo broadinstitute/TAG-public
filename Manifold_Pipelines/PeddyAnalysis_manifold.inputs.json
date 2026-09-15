@@ -1,45 +1,27 @@
 {
     "Peddy_AnalyzeFamilialRelatedness.sample_ids": [
-        "SM-FAM1-PROBAND",
-        "SM-FAM1-FATHER",
-        "SM-FAM1-MOTHER",
-        "SM-FAM2-PROBAND",
-        "SM-FAM2-MOTHER"
+        "HG001",
+        "HG002"
     ],
     "Peddy_AnalyzeFamilialRelatedness.family_ids": [
         "FAM001",
-        "FAM001",
-        "FAM001",
-        "FAM002",
-        "FAM002"
+        "FAM001"
     ],
     "Peddy_AnalyzeFamilialRelatedness.pedigrees": [
         "Proband",
-        "Father",
-        "Mother",
-        "Proband",
-        "Mother"
+        "Father"
     ],
     "Peddy_AnalyzeFamilialRelatedness.reported_sexes": [
-        "Male",
-        "Male",
         "Female",
-        "Female",
-        "Female"
+        "Male"
     ],
     "Peddy_AnalyzeFamilialRelatedness.gvcf_paths": [
-        "s3://manifold-ai-sc-broad-prod-platform-storage/research/projects/88/example-pipeline/Peddy/SM-FAM1-PROBAND.gvcf.gz",
-        "s3://manifold-ai-sc-broad-prod-platform-storage/research/projects/88/example-pipeline/Peddy/SM-FAM1-FATHER.gvcf.gz",
-        "s3://manifold-ai-sc-broad-prod-platform-storage/research/projects/88/example-pipeline/Peddy/SM-FAM1-MOTHER.gvcf.gz",
-        "s3://manifold-ai-sc-broad-prod-platform-storage/research/projects/88/example-pipeline/Peddy/SM-FAM2-PROBAND.gvcf.gz",
-        "s3://manifold-ai-sc-broad-prod-platform-storage/research/projects/88/example-pipeline/Peddy/SM-FAM2-MOTHER.gvcf.gz"
+        "s3://manifold-ai-sc-broad-prod-platform-storage/research/projects/88/example-pipeline/reference_files/HG001-HG002_example_sample_set/HG001_SM-MTFIO.hard-filtered.vcf.gz",
+        "s3: //manifold-ai-sc-broad-prod-platform-storage/research/projects/88/example-pipeline/reference_files/HG001-HG002_example_sample_set/HG002_SM-MVWA8.hard-filtered.vcf.gz"
     ],
     "Peddy_AnalyzeFamilialRelatedness.gvcf_index_paths": [
-        "s3://manifold-ai-sc-broad-prod-platform-storage/research/projects/88/example-pipeline/Peddy/SM-FAM1-PROBAND.gvcf.gz.tbi",
-        "s3://manifold-ai-sc-broad-prod-platform-storage/research/projects/88/example-pipeline/Peddy/SM-FAM1-FATHER.gvcf.gz.tbi",
-        "s3://manifold-ai-sc-broad-prod-platform-storage/research/projects/88/example-pipeline/Peddy/SM-FAM1-MOTHER.gvcf.gz.tbi",
-        "s3://manifold-ai-sc-broad-prod-platform-storage/research/projects/88/example-pipeline/Peddy/SM-FAM2-PROBAND.gvcf.gz.tbi",
-        "s3://manifold-ai-sc-broad-prod-platform-storage/research/projects/88/example-pipeline/Peddy/SM-FAM2-MOTHER.gvcf.gz.tbi"
+        "s3://manifold-ai-sc-broad-prod-platform-storage/research/projects/88/example-pipeline/reference_files/HG001-HG002_example_sample_set/HG001_SM-MTFIO.hard-filtered.vcf.gz.tbi",
+        "s3: //manifold-ai-sc-broad-prod-platform-storage/research/projects/88/example-pipeline/reference_files/HG001-HG002_example_sample_set/HG002_SM-MVWA8.hard-filtered.vcf.gz.tbi"
     ],
     "Peddy_AnalyzeFamilialRelatedness.interval_list": "s3://manifold-ai-sc-broad-prod-platform-storage/research/projects/88/example-pipeline/Peddy/wgs_calling_regions.hg38.interval_list",
     "Peddy_AnalyzeFamilialRelatedness.reference_fasta": "s3://manifold-ai-sc-broad-prod-platform-storage/research/projects/88/example-pipeline/reference_files/Homo_sapiens_assembly38.fasta",

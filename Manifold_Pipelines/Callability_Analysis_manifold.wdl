@@ -429,10 +429,10 @@ task CountBases {
 
     command <<<
         if [[ ~{intervalListOrVcf} == *vcf ]]; then
-            java -jar /usr/gitc/picard.jar VcfToIntervalList I=~{intervalListOrVcf} O=vcf.interval_list
-            java -jar /usr/gitc/picard.jar IntervalListTools I=vcf.interval_list COUNT_OUTPUT=bases.txt OUTPUT_VALUE=BASES
+            java -jar /usr/picard.jar VcfToIntervalList I=~{intervalListOrVcf} O=vcf.interval_list
+            java -jar /usr/picard.jar IntervalListTools I=vcf.interval_list COUNT_OUTPUT=bases.txt OUTPUT_VALUE=BASES
         else
-            java -jar /usr/gitc/picard.jar IntervalListTools I=~{intervalListOrVcf} COUNT_OUTPUT=bases.txt OUTPUT_VALUE=BASES
+            java -jar /usr/picard.jar IntervalListTools I=~{intervalListOrVcf} COUNT_OUTPUT=bases.txt OUTPUT_VALUE=BASES
         fi
     >>>
 
