@@ -437,7 +437,7 @@ task CountBases {
     >>>
 
     runtime {
-        docker: "us.gcr.io/tag-public/liquidbiopsy:0.0.3.5 "
+        docker: "us.gcr.io/tag-public/liquidbiopsy:0.0.3.5"
         preemptible: 0
         disks: "local-disk " + disk_size + " HDD"
         memory: "16 GB"
