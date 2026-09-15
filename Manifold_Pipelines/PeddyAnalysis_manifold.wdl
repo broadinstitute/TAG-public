@@ -122,7 +122,7 @@ task AnalyzeAndCheckFamilySamples {
         echo ~{sep=' ' sample_ids} > sample_ids.txt
         echo ~{sep=' ' family_ids} > family_ids.txt
 
-        python3 <<CODE
+        /opt/conda/bin/python3 <<CODE
         import pandas as pd
 
         def analyze_family_samples(sample_ids, family_ids, log_file):
@@ -210,7 +210,7 @@ task FilterSingleSampleFamilies {
         echo ~{sep=' ' reported_sexes} > reported_sexes.txt
 
         # Filter out single-sample families and generate the required files
-        python3 <<CODE
+        /opt/conda/bin/python3 <<CODE
 
         import os
 
@@ -289,7 +289,7 @@ task GroupFamilyGVCFs {
     }
 
     command <<<
-        python3 <<CODE
+        /opt/conda/bin/python3 <<CODE
 
         import os
 
@@ -356,7 +356,7 @@ task ProcessFamilyGVCFs {
     }
 
     command <<<
-        python3 <<CODE
+        /opt/conda/bin/python3 <<CODE
 
         import os
         import subprocess
@@ -541,7 +541,7 @@ task UpdateFamFile {
     }
 
     command <<<
-        python3 <<CODE
+        /opt/conda/bin/python3 <<CODE
 
         import pandas as pd
 
@@ -646,7 +646,7 @@ task MergePeddyResults {
 
 
         # Calculate the prediction concordance
-        python3 <<CODE
+        /opt/conda/bin/python3 <<CODE
         import pandas as pd
 
         df = pd.read_csv("merged_peddy_results.csv")
@@ -685,7 +685,7 @@ task PlotPeddyResults {
 
     command <<<
 
-        python3 <<CODE
+        /opt/conda/bin/python3 <<CODE
 
         import pandas as pd
         import seaborn as sns
