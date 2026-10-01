@@ -169,6 +169,7 @@ workflow CNVSomaticPairWorkflow {
       Int? funcotator_disk_space_gb
       Boolean? funcotator_use_ssd
       Int? funcotator_cpu
+      String? funcotator_docker
     }
 
     Int ref_size = ceil(size(ref_fasta, "GB") + size(ref_fasta_dict, "GB") + size(ref_fasta_fai, "GB"))
@@ -498,7 +499,7 @@ workflow CNVSomaticPairWorkflow {
                  transcript_selection_list = funcotator_transcript_selection_list,
                  funcotator_data_sources_tar_gz = funcotator_data_sources_tar_gz,
                  gatk4_jar_override = gatk4_jar_override,
-                 gatk_docker = gatk_docker,
+                 gatk_docker = select_first([funcotator_docker, gatk_docker]),
                  mem_gb = mem_gb_for_funcotator,
                  preemptible_attempts = preemptible_attempts,
                  transcript_selection_mode = funcotator_transcript_selection_mode,
@@ -575,10 +576,10 @@ workflow CNVSomaticPairWorkflow {
         Float? scaled_delta_MAD_value_normal = PlotDenoisedCopyRatiosNormal.scaled_delta_MAD_value
         File? modeled_segments_plot_normal = PlotModeledSegmentsNormal.modeled_segments_plot
 
-        File oncotated_called_file_tumor = select_first([CNVOncotatorWorkflow.oncotated_called_file, "null"])
-        File oncotated_called_gene_list_file_tumor = select_first([CNVOncotatorWorkflow.oncotated_called_gene_list_file, "null"])
-        File funcotated_called_file_tumor = select_first([CNVFuncotateSegmentsWorkflow.funcotated_seg_simple_tsv, "null"])
-        File funcotated_called_gene_list_file_tumor = select_first([CNVFuncotateSegmentsWorkflow.funcotated_gene_list_tsv, "null"])
+        File? oncotated_called_file_tumor = CNVOncotatorWorkflow.oncotated_called_file
+        File? oncotated_called_gene_list_file_tumor = CNVOncotatorWorkflow.oncotated_called_gene_list_file
+        File? funcotated_called_file_tumor = CNVFuncotateSegmentsWorkflow.funcotated_seg_simple_tsv
+        File? funcotated_called_gene_list_file_tumor = CNVFuncotateSegmentsWorkflow.funcotated_gene_list_tsv
     }
 }
 
