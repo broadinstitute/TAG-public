@@ -26,6 +26,7 @@ workflow RunHisat2Pipeline {
   Int threads = select_first([input_threads,4])
   Int additional_disk = select_first([increase_disk_size, 10])
   Float memory = 5 + select_first([increase_mem,0])
+  Int? preemptible_attempts
   
   Boolean zip_fq1 = if basename(fastq_read1,".gz") == basename(fastq_read1) then true else false
   Boolean zip_fq2 = if basename(fastq_read2,".gz") == basename(fastq_read2) then true else false
@@ -42,7 +43,8 @@ workflow RunHisat2Pipeline {
       output_name = output_prefix,
       disk_size = ceil(hisat2_ref_size + fastq_size * bam_disk_multiplier + additional_disk * 5.0),
       memory = memory,
-      threads = threads
+      threads = threads,
+      preemptible_attempts = preemptible_attempts
   }
   
   Float bam_size = size(Hisat2.output_bam, "GB")
@@ -52,7 +54,8 @@ workflow RunHisat2Pipeline {
       aligned_bam = Hisat2.output_bam,
       ref_genome_fasta = ref_fasta,
       output_filename = output_prefix,
-      disk_size = ceil(bam_size + reference_bundle_size + additional_disk)
+      disk_size = ceil(bam_size + reference_bundle_size + additional_disk),
+      preemptible_attempts = preemptible_attempts
 	}
   call CollectRnaMetrics {
     input:
@@ -61,13 +64,15 @@ workflow RunHisat2Pipeline {
       rrna_interval = rrna_interval,
       output_filename = output_prefix,
       stranded = stranded,
-      disk_size = ceil(bam_size + reference_bundle_size + additional_disk)
+      disk_size = ceil(bam_size + reference_bundle_size + additional_disk),
+      preemptible_attempts = preemptible_attempts
   }
   call CollectDuplicationMetrics {
     input:
       aligned_bam = Hisat2.output_bam,
       output_filename = output_prefix,
-      disk_size = ceil((bam_disk_multiplier * bam_size) + additional_disk)
+      disk_size = ceil((bam_disk_multiplier * bam_size) + additional_disk),
+      preemptible_attempts = preemptible_attempts
   }
   
   output {
@@ -112,6 +117,7 @@ task HISAT2PE {
   Int disk_size
   Float memory
   Int threads
+  Int? preemptible_attempts
   command {
     # Note that files MUST be gzipped or the module will not function properly
     # This will be addressed in the future either by a change in how Hisat2 functions or a more
@@ -157,7 +163,7 @@ task HISAT2PE {
     memory: memory + " GB"
     disks: "local-disk " + disk_size + " HDD"
     cpu: threads
-    preemptible: 5
+    preemptible: select_first([preemptible_attempts, 3])
   }
   output {
 	#Boolean reads_aligned = read_boolean(stdout())
@@ -173,6 +179,7 @@ task CollectMultipleMetrics {
   File ref_genome_fasta
   String output_filename
   Int disk_size 
+  Int? preemptible_attempts
   command {
     java -Xmx6g -jar /usr/picard/picard.jar CollectMultipleMetrics \
       VALIDATION_STRINGENCY=SILENT \
@@ -196,7 +203,7 @@ task CollectMultipleMetrics {
     docker:"quay.io/humancellatlas/secondary-analysis-picard:v0.2.2-2.10.10"
     memory:"7.5 GB"
     disks: "local-disk " + disk_size + " HDD"
-    preemptible: 5
+    preemptible: select_first([preemptible_attempts, 5])
   }
   output {
     File alignment_summary_metrics = "${output_filename}.alignment_summary_metrics.txt"
@@ -226,6 +233,7 @@ task CollectRnaMetrics {
   String output_filename
   String stranded
   Int disk_size
+  Int? preemptible_attempts
   command{
     set -e
     java -Xmx3g -jar /usr/picard/picard.jar CollectRnaSeqMetrics \
@@ -243,7 +251,7 @@ task CollectRnaMetrics {
     docker:"quay.io/humancellatlas/secondary-analysis-picard:v0.2.2-2.10.10"
     memory:"3.75 GB"
     disks: "local-disk " + disk_size + " HDD"
-    preemptible: 5
+    preemptible: select_first([preemptible_attempts, 5])
   }
   output {
     File rna_metrics = "${output_filename}.rna_metrics.txt"
@@ -257,6 +265,7 @@ task CollectDuplicationMetrics {
   File aligned_bam
   String output_filename
   Int disk_size
+  Int? preemptible_attempts
   command {
     java -Xmx6g -XX:ParallelGCThreads=2  -jar /usr/picard/picard.jar  MarkDuplicates \
        VALIDATION_STRINGENCY=SILENT  \
@@ -271,7 +280,7 @@ task CollectDuplicationMetrics {
     memory: "7.5 GB"
     cpu: "2"
     disks: "local-disk " + disk_size + " HDD"
-    preemptible: 5
+    preemptible: select_first([preemptible_attempts, 5])
   }
   output {
     File dedup_metrics = "${output_filename}.duplicate_metrics.txt"

@@ -36,6 +36,7 @@ workflow SmartSeq2SingleCell {
   File fastq2
   # adapter task
   Boolean check_adapter
+  Int? preemptible_for_qc
 
 
   call run_hisat2.RunHisat2Pipeline as qc {
@@ -50,7 +51,8 @@ workflow SmartSeq2SingleCell {
       hisat2_ref = hisat2_ref_index,
       hisat2_ref_name = hisat2_ref_name,
       sample_name = sample_name,
-      output_prefix = output_name + "_qc"
+      output_prefix = output_name + "_qc",
+      preemptible_attempts = preemptible_for_qc
 
   }
 
