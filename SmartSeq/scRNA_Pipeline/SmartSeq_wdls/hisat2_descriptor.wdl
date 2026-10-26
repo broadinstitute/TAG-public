@@ -1,8 +1,8 @@
 ## QC pipeline
 ## HISAT2 as aligner to align reads to genome reference
-## output: genome reference aligned bam file 
+## output: genome reference aligned bam file
 ## Picard will produce a set of QC metricss
-## output: a set of metrics files. 
+## output: a set of metrics files.
 workflow RunHisat2Pipeline {
   File fastq_read1
   File fastq_read2
@@ -15,6 +15,9 @@ workflow RunHisat2Pipeline {
   String output_prefix
   String hisat2_ref_name
   String sample_name
+  ## optional docker overrides; defaults are used when not provided
+  String? hisat2_docker
+  String? picard_docker
   ## variables to estimate disk size
   Float hisat2_ref_size = size(hisat2_ref, "GB")
   Float fastq_size = size(fastq_read1, "GB") + size(fastq_read2, "GB")
@@ -27,10 +30,10 @@ workflow RunHisat2Pipeline {
   Int additional_disk = select_first([increase_disk_size, 10])
   Float memory = 5 + select_first([increase_mem,0])
   Int? preemptible_attempts
-  
+
   Boolean zip_fq1 = if basename(fastq_read1,".gz") == basename(fastq_read1) then true else false
   Boolean zip_fq2 = if basename(fastq_read2,".gz") == basename(fastq_read2) then true else false
- 
+
   call HISAT2PE as Hisat2 {
     input:
       hisat2_ref = hisat2_ref,
@@ -44,9 +47,10 @@ workflow RunHisat2Pipeline {
       disk_size = ceil(hisat2_ref_size + fastq_size * bam_disk_multiplier + additional_disk * 5.0),
       memory = memory,
       threads = threads,
-      preemptible_attempts = preemptible_attempts
+      preemptible_attempts = preemptible_attempts,
+      docker = hisat2_docker
   }
-  
+
   Float bam_size = size(Hisat2.output_bam, "GB")
 
   call CollectMultipleMetrics {
@@ -55,7 +59,8 @@ workflow RunHisat2Pipeline {
       ref_genome_fasta = ref_fasta,
       output_filename = output_prefix,
       disk_size = ceil(bam_size + reference_bundle_size + additional_disk),
-      preemptible_attempts = preemptible_attempts
+      preemptible_attempts = preemptible_attempts,
+      docker = picard_docker
 	}
   call CollectRnaMetrics {
     input:
@@ -65,16 +70,18 @@ workflow RunHisat2Pipeline {
       output_filename = output_prefix,
       stranded = stranded,
       disk_size = ceil(bam_size + reference_bundle_size + additional_disk),
-      preemptible_attempts = preemptible_attempts
+      preemptible_attempts = preemptible_attempts,
+      docker = picard_docker
   }
   call CollectDuplicationMetrics {
     input:
       aligned_bam = Hisat2.output_bam,
       output_filename = output_prefix,
       disk_size = ceil((bam_disk_multiplier * bam_size) + additional_disk),
-      preemptible_attempts = preemptible_attempts
+      preemptible_attempts = preemptible_attempts,
+      docker = picard_docker
   }
-  
+
   output {
     File aligned_bam = Hisat2.output_bam
     File metfile = Hisat2.metfile
@@ -118,6 +125,7 @@ task HISAT2PE {
   Float memory
   Int threads
   Int? preemptible_attempts
+  String? docker
   command {
     # Note that files MUST be gzipped or the module will not function properly
     # This will be addressed in the future either by a change in how Hisat2 functions or a more
@@ -154,12 +162,12 @@ task HISAT2PE {
       --seed 12345 \
       -k 10 \
       --secondary \
-      -p ${threads} -S ${output_name}.sam 
-    samtools sort -@ ${threads} -O bam -o "${output_name}.bam" "${output_name}.sam" 
-		
+      -p ${threads} -S ${output_name}.sam
+    samtools sort -@ ${threads} -O bam -o "${output_name}.bam" "${output_name}.sam"
+
   }
   runtime {
-    docker:"quay.io/humancellatlas/secondary-analysis-hisat2:v0.2.2-2-2.1.0"
+    docker: select_first([docker, "quay.io/humancellatlas/secondary-analysis-hisat2:v0.2.2-2-2.1.0"])
     memory: memory + " GB"
     disks: "local-disk " + disk_size + " HDD"
     cpu: threads
@@ -178,8 +186,9 @@ task CollectMultipleMetrics {
   File aligned_bam
   File ref_genome_fasta
   String output_filename
-  Int disk_size 
+  Int disk_size
   Int? preemptible_attempts
+  String? docker
   command {
     java -Xmx6g -jar /usr/picard/picard.jar CollectMultipleMetrics \
       VALIDATION_STRINGENCY=SILENT \
@@ -200,7 +209,7 @@ task CollectMultipleMetrics {
       ASSUME_SORTED=true
   }
   runtime {
-    docker:"quay.io/humancellatlas/secondary-analysis-picard:v0.2.2-2.10.10"
+    docker: select_first([docker, "quay.io/humancellatlas/secondary-analysis-picard:v0.2.2-2.10.10"])
     memory:"7.5 GB"
     disks: "local-disk " + disk_size + " HDD"
     preemptible: select_first([preemptible_attempts, 5])
@@ -234,6 +243,7 @@ task CollectRnaMetrics {
   String stranded
   Int disk_size
   Int? preemptible_attempts
+  String? docker
   command{
     set -e
     java -Xmx3g -jar /usr/picard/picard.jar CollectRnaSeqMetrics \
@@ -248,7 +258,7 @@ task CollectRnaMetrics {
     touch "${output_filename}.rna.coverage.pdf"
   }
   runtime {
-    docker:"quay.io/humancellatlas/secondary-analysis-picard:v0.2.2-2.10.10"
+    docker: select_first([docker, "quay.io/humancellatlas/secondary-analysis-picard:v0.2.2-2.10.10"])
     memory:"3.75 GB"
     disks: "local-disk " + disk_size + " HDD"
     preemptible: select_first([preemptible_attempts, 5])
@@ -260,12 +270,13 @@ task CollectRnaMetrics {
 }
 
 ## Here are use  -XX:ParallelGCThreads=2 to run MarkDuplication on mutlple
-## thread. 
+## thread.
 task CollectDuplicationMetrics {
   File aligned_bam
   String output_filename
   Int disk_size
   Int? preemptible_attempts
+  String? docker
   command {
     java -Xmx6g -XX:ParallelGCThreads=2  -jar /usr/picard/picard.jar  MarkDuplicates \
        VALIDATION_STRINGENCY=SILENT  \
@@ -276,7 +287,7 @@ task CollectDuplicationMetrics {
        REMOVE_DUPLICATES=false
   }
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-picard:v0.2.2-2.10.10"
+    docker: select_first([docker, "quay.io/humancellatlas/secondary-analysis-picard:v0.2.2-2.10.10"])
     memory: "7.5 GB"
     cpu: "2"
     disks: "local-disk " + disk_size + " HDD"

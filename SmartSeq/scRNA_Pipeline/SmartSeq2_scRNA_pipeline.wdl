@@ -31,6 +31,10 @@ workflow SmartSeq2SingleCell {
 
   String? ss2_docker
   String? ss2_adapter_qc_docker
+  # optional docker overrides for the HISAT2/Picard/RSEM tracks (original images used when unset)
+  String? hisat2_docker
+  String? picard_docker
+  String? rsem_docker
 
   File fastq1
   File fastq2
@@ -52,8 +56,9 @@ workflow SmartSeq2SingleCell {
       hisat2_ref_name = hisat2_ref_name,
       sample_name = sample_name,
       output_prefix = output_name + "_qc",
-      preemptible_attempts = preemptible_for_qc
-
+      preemptible_attempts = preemptible_for_qc,
+      hisat2_docker = hisat2_docker,
+      picard_docker = picard_docker
   }
 
   call run_hisat2_rsem.RunHisat2RsemPipeline as data {
@@ -64,7 +69,9 @@ workflow SmartSeq2SingleCell {
       hisat2_ref_trans_name = hisat2_ref_trans_name,
       rsem_genome = rsem_ref_index,
       output_prefix = output_name + "_rsem",
-      sample_name = sample_name
+      sample_name = sample_name,
+      hisat2_docker = hisat2_docker,
+      rsem_docker = rsem_docker
   }
   if(check_adapter){
     call AdapterQC as adapter {
